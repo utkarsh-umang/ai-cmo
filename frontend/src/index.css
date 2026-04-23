@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Global Styles */
+@layer base {
+  :root {
+    --background: #ffffff; /* ChatGPT main bg */
+    --foreground: #0f172a; /* Slate 900 */
+    --sidebar-bg: #f9f9f9; /* ChatGPT sidebar bg */
+    --border-subtle: rgba(0,0,0,0.06);
+  }
+
+  * {
+    border-color: var(--border-subtle);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Utilities for Glassmorphism */
+@layer utilities {
+  .font-display {
+    font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-editorial {
+    font-family: "Instrument Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+  
+  .glass-dark {
+    @apply bg-zinc-900/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-brand-400;
+  }
+
+  .animate-float-slow {
+    animation: marketing-float 10s ease-in-out infinite;
+  }
+
+  .animate-float-slower {
+    animation: marketing-float 14s ease-in-out infinite;
+  }
+}
+
+@keyframes marketing-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-float-slower {
+    animation: none;
+  }
+}
+
+/* Premium Report Typography System */
+@layer components {
+  .premium-report {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+    @apply text-slate-700 text-[15px] leading-relaxed max-w-none;
+  }
+  
+  .premium-report h1 {
+    @apply text-2xl font-extrabold text-slate-900 mt-10 mb-6 pb-4 border-b-[3px] border-brand-500 tracking-tight leading-tight;
+  }
+  .premium-report h1:first-child {
+    @apply mt-0;
+  }
+  
+  .premium-report h2 {
+    @apply text-xl font-bold text-slate-800 mt-10 mb-5 pb-2 border-b-2 border-slate-100 flex items-center leading-snug;
+  }
+  .premium-report h2::before {
+    content: "";
+    @apply inline-block w-1.5 h-6 bg-brand-500 rounded-full mr-2.5;
+  }
+  
+  .premium-report h3 {
+    @apply text-lg font-bold text-slate-800 mt-8 mb-4 border-l-4 border-brand-300 pl-3 leading-snug bg-slate-50 py-1.5 pr-2 w-fit rounded-r-md;
+  }
+
+  .premium-report h4 {
+    @apply text-base font-bold text-slate-700 mt-6 mb-3;
+  }
+  
+  .premium-report p {
+    @apply my-5 leading-[1.8] text-justify text-[15px];
+  }
+  
+  .premium-report ul, .premium-report ol {
+    @apply my-6 pl-5 space-y-2;
+  }
+  
+  .premium-report ul {
+    list-style-type: none;
+  }
+  
+  .premium-report ul > li {
+    @apply relative pl-2;
+  }
+  
+  .premium-report ul > li::before {
+    content: "•";
+    @apply absolute -left-[14px] text-brand-500 font-black scale-150 top-[1px];
+  }
+
+  .premium-report ol {
+    @apply list-decimal pl-6 marker:text-brand-500 marker:font-bold;
+  }
+  
+  .premium-report blockquote {
+    @apply my-8 pl-5 pr-4 py-3.5 bg-blue-50/60 border-l-[5px] border-brand-500 rounded-r-lg italic text-slate-700 shadow-[0_2px_10px_rgb(0,0,0,0.02)] border-y border-r border-slate-100/50;
+  }
+  .premium-report blockquote p {
+    @apply my-2;
+  }
+  
+  .premium-report code {
+    @apply font-mono text-[13.5px] px-1.5 py-0.5 bg-indigo-50 text-brand-600 border border-brand-100 rounded-md font-medium break-words;
+  }
+  
+  .premium-report pre {
+    @apply bg-[#0f172a] text-slate-200 p-5 rounded-xl overflow-x-auto my-6 shadow-md border border-slate-700/50 leading-relaxed;
+  }
+  
+  .premium-report pre code {
+    @apply bg-transparent text-[#e2e8f0] border-none px-0 py-0 text-[13.5px] font-normal;
+  }
+  
+  .premium-report table {
+    @apply w-full text-left border-collapse my-8 rounded-xl overflow-hidden shadow-sm border border-slate-200;
+  }
+  
+  .premium-report thead {
+    @apply bg-slate-50 border-b-2 border-slate-200;
+  }
+  
+  .premium-report th {
+    @apply py-3.5 px-4 font-bold text-slate-700 text-sm tracking-wide;
+  }
+  
+  .premium-report td {
+    @apply py-3 px-4 border-b border-slate-100 text-slate-600 text-[14.5px] bg-white;
+  }
+
+  .premium-report tr:last-child td {
+    @apply border-0;
+  }
+
+  .premium-report strong {
+    @apply font-bold text-slate-900 bg-slate-100/50 px-1 rounded-sm;
+  }
+
+  .premium-report a {
+    @apply text-brand-600 font-medium underline decoration-brand-200 decoration-2 underline-offset-2 hover:decoration-brand-500 transition-colors;
+  }
+
+  .premium-report hr {
+    @apply my-10 border-t-2 border-slate-100 w-2/3 mx-auto rounded-full;
+  }
+}

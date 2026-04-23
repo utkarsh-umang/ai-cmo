@@ -1,0 +1,61 @@
+# OpenCMO
+
+> Open-source AI CMO workspace for SEO audits, GEO visibility, SERP tracking, community monitoring, and growth execution.
+
+## Summary
+
+OpenCMO helps teams understand how their brand is discovered across traditional search engines, generative search products, and public communities. It combines technical SEO checks, AI visibility analysis, keyword tracking, and discussion monitoring in one workspace.
+The public blog also explains what a modern CMO does, how product marketing, GTM, positioning, and demand generation connect to visibility work, and how an AI CMO operating layer differs from a generic dashboard.
+
+## Primary URLs
+
+- Product overview (EN): https://www.aidcmo.com/en
+- Product overview (ZH): https://www.aidcmo.com/zh
+- Sample audit walkthrough (EN): https://www.aidcmo.com/en/sample-audit
+- Public blog (EN): https://www.aidcmo.com/en/blog
+- Public blog (ZH): https://www.aidcmo.com/zh/blog
+- Source code: https://github.com/study8677/OpenCMO
+- Sitemap: https://www.aidcmo.com/sitemap.xml
+
+## Core capabilities
+
+- SEO and performance auditing
+- GEO visibility tracking across AI assistants
+- SERP keyword monitoring
+- Community discussion discovery and review
+- Growth recommendations and execution workflows
+- Public blog and product explainers for humans and AI agents
+- Public sample audit showing the product output shape and operating model
+
+## Agent guidance
+
+- Start with the homepage for the canonical product definition.
+- Read the sample audit for a concrete example of what OpenCMO produces.
+- Use the blog for durable buying, rollout, and architecture explanations.
+- Treat `/workspace`, `/projects/*`, `/chat`, and `/approvals` as private operator surfaces.
+
+## Public articles
+
+- https://www.aidcmo.com/en/blog/what-is-a-cmo
+- https://www.aidcmo.com/en/blog/what-is-product-marketing
+- https://www.aidcmo.com/en/blog/what-is-go-to-market-strategy
+- https://www.aidcmo.com/en/blog/what-is-brand-positioning
+- https://www.aidcmo.com/en/blog/demand-generation-vs-lead-generation
+- https://www.aidcmo.com/en/blog/ai-cmo-workspace
+- https://www.aidcmo.com/en/blog/visibility-operating-system
+- https://www.aidcmo.com/en/blog/crawler-readable-brand-surface
+- https://www.aidcmo.com/en/blog/inside-opencmo-workspace
+- https://www.aidcmo.com/en/blog/who-should-use-opencmo
+- https://www.aidcmo.com/en/blog/first-30-days-with-opencmo
+- https://www.aidcmo.com/zh/blog/what-is-a-cmo
+- https://www.aidcmo.com/zh/blog/what-is-product-marketing
+- https://www.aidcmo.com/zh/blog/what-is-go-to-market-strategy
+- https://www.aidcmo.com/zh/blog/what-is-brand-positioning
+- https://www.aidcmo.com/zh/blog/demand-generation-vs-lead-generation
+
+## Crawling notes
+
+- Canonical editorial URLs now support locale-prefixed routes such as `/en/blog/{slug}` and `/zh/blog/{slug}`.
+- The unprefixed public routes remain available as compatibility entrypoints.
+- Use `/en/...` and `/zh/...` when a language-specific citation matters.
+- Internal workspace routes such as `/workspace`, `/projects/*`, `/chat`, and `/approvals` are application surfaces, not documentation pages.

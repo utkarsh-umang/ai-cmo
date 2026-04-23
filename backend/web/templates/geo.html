@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}GEO — {{ project.brand_name }}{% endblock %}
+{% block content %}
+<h1>GEO History: {{ project.brand_name }}</h1>
+<p><a href="/project/{{ project.id }}">&larr; Back to overview</a></p>
+
+{% if history|length > 1 %}
+<canvas id="geoChart" height="80"></canvas>
+<script>
+fetch('/api/project/{{ project.id }}/geo-data').then(r=>r.json()).then(d=>{
+    new Chart(document.getElementById('geoChart'),{type:'line',data:{
+        labels:d.labels,
+        datasets:[
+            {label:'GEO Score',data:d.geo_score,borderColor:'#059669',tension:0.3},
+            {label:'Visibility',data:d.visibility,borderColor:'#d97706',tension:0.3},
+            {label:'Position',data:d.position,borderColor:'#7c3aed',tension:0.3},
+            {label:'Sentiment',data:d.sentiment,borderColor:'#dc2626',tension:0.3}
+        ]
+    },options:{scales:{y:{beginAtZero:true,max:100}}}});
+});
+</script>
+{% endif %}
+
+<h2>Scan History</h2>
+<table>
+    <tr><th>Date</th><th>GEO Score</th><th>Visibility</th><th>Position</th><th>Sentiment</th></tr>
+    {% for s in history %}
+    <tr>
+        <td>{{ s.scanned_at[:16] }}</td>
+        <td>{{ s.geo_score }}</td>
+        <td>{{ s.visibility_score if s.visibility_score is not none else '—' }}</td>
+        <td>{{ s.position_score if s.position_score is not none else '—' }}</td>
+        <td>{{ s.sentiment_score if s.sentiment_score is not none else '—' }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

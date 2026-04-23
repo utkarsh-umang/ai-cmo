@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}OpenCMO Dashboard{% endblock %}
+{% block content %}
+<h1>Projects</h1>
+{% if projects %}
+<div class="cards">
+    {% for p in projects %}
+    <a href="/project/{{ p.id }}" class="card">
+        <h2>{{ p.brand_name }}</h2>
+        <p class="url">{{ p.url }}</p>
+        <p class="category">{{ p.category }}</p>
+        <div class="scores">
+            {% if p.latest.seo %}
+            <span class="badge">SEO {% if p.latest.seo.score is not none %}{{ (p.latest.seo.score * 100)|int }}%{% else %}scanned{% endif %}</span>
+            {% endif %}
+            {% if p.latest.geo %}
+            <span class="badge">GEO {{ p.latest.geo.score }}/100</span>
+            {% endif %}
+            {% if p.latest.community %}
+            <span class="badge">{{ p.latest.community.total_hits }} discussions</span>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p>No projects tracked yet. Use <code>/monitor add</code> in the CLI to start.</p>
+{% endif %}
+{% endblock %}

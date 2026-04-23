@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ project.brand_name }} — OpenCMO{% endblock %}
+{% block content %}
+<h1>{{ project.brand_name }}</h1>
+<p>{{ project.url }} &middot; {{ project.category }}</p>
+
+<div class="nav-tabs">
+    <a href="/project/{{ project.id }}/seo">SEO Details</a>
+    <a href="/project/{{ project.id }}/geo">GEO Details</a>
+    <a href="/project/{{ project.id }}/serp">SERP Rankings</a>
+    <a href="/project/{{ project.id }}/community">Community</a>
+</div>
+
+<div class="grid">
+    <div class="panel">
+        <h2>SEO</h2>
+        {% if latest.seo %}
+        <p>Last scan: {{ latest.seo.scanned_at[:10] }}</p>
+        {% if latest.seo.score is not none %}
+        <p class="big-number">{{ (latest.seo.score * 100)|int }}%</p>
+        {% endif %}
+        {% else %}
+        <p>No SEO data yet</p>
+        {% endif %}
+    </div>
+    <div class="panel">
+        <h2>GEO Score</h2>
+        {% if latest.geo %}
+        <p>Last scan: {{ latest.geo.scanned_at[:10] }}</p>
+        <p class="big-number">{{ latest.geo.score }}/100</p>
+        {% else %}
+        <p>No GEO data yet</p>
+        {% endif %}
+    </div>
+    <div class="panel">
+        <h2>SERP</h2>
+        {% if latest.serp %}
+        <p>{{ latest.serp|length }} keyword(s) tracked</p>
+        {% for s in latest.serp[:3] %}
+        <p>{{ s.keyword }}: {% if s.position %}#{{ s.position }}{% else %}n/r{% endif %}</p>
+        {% endfor %}
+        {% if latest.serp|length > 3 %}<p><a href="/project/{{ project.id }}/serp">see all</a></p>{% endif %}
+        {% else %}
+        <p>No SERP data yet</p>
+        {% endif %}
+    </div>
+    <div class="panel">
+        <h2>Community</h2>
+        {% if latest.community %}
+        <p>Last scan: {{ latest.community.scanned_at[:10] }}</p>
+        <p class="big-number">{{ latest.community.total_hits }} hits</p>
+        {% else %}
+        <p>No community data yet</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if seo_history|length > 1 %}
+<h2>SEO Performance Trend</h2>
+<canvas id="seoChart" height="80"></canvas>
+<script>
+fetch('/api/project/{{ project.id }}/seo-data').then(r=>r.json()).then(d=>{
+    new Chart(document.getElementById('seoChart'),{type:'line',data:{
+        labels:d.labels,
+        datasets:[{label:'Performance',data:d.performance.map(v=>v!==null?v*100:null),borderColor:'#2563eb',tension:0.3}]
+    },options:{scales:{y:{beginAtZero:true,max:100}}}});
+});
+</script>
+{% endif %}
+
+{% if geo_history|length > 1 %}
+<h2>GEO Score Trend</h2>
+<canvas id="geoChart" height="80"></canvas>
+<script>
+fetch('/api/project/{{ project.id }}/geo-data').then(r=>r.json()).then(d=>{
+    new Chart(document.getElementById('geoChart'),{type:'line',data:{
+        labels:d.labels,
+        datasets:[
+            {label:'GEO Score',data:d.geo_score,borderColor:'#059669',tension:0.3},
+            {label:'Visibility',data:d.visibility,borderColor:'#d97706',tension:0.3},
+            {label:'Position',data:d.position,borderColor:'#7c3aed',tension:0.3}
+        ]
+    },options:{scales:{y:{beginAtZero:true,max:100}}}});
+});
+</script>
+{% endif %}
+
+{% if discussions %}
+<h2>Tracked Discussions</h2>
+<table>
+    <tr><th>Platform</th><th>Title</th><th>Score</th><th>Comments</th><th>First Seen</th></tr>
+    {% for d in discussions[:10] %}
+    <tr>
+        <td>{{ d.platform }}</td>
+        <td><a href="{{ d.url }}" target="_blank">{{ d.title[:60] }}</a></td>
+        <td>{{ d.raw_score or '—' }}</td>
+        <td>{{ d.comments_count or '—' }}</td>
+        <td>{{ d.first_seen_at[:10] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

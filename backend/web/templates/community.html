@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Community — {{ project.brand_name }}{% endblock %}
+{% block content %}
+<h1>Community: {{ project.brand_name }}</h1>
+<p><a href="/project/{{ project.id }}">&larr; Back to overview</a></p>
+
+{% if community_history|length > 1 %}
+<canvas id="commChart" height="80"></canvas>
+<script>
+fetch('/api/project/{{ project.id }}/community-data').then(r=>r.json()).then(d=>{
+    new Chart(document.getElementById('commChart'),{type:'bar',data:{
+        labels:d.scan_labels,
+        datasets:[{label:'Discussions Found',data:d.scan_hits,backgroundColor:'#2563eb'}]
+    },options:{scales:{y:{beginAtZero:true}}}});
+});
+</script>
+{% endif %}
+
+<h2>Tracked Discussions ({{ discussions|length }})</h2>
+{% if discussions %}
+<table>
+    <tr><th>Platform</th><th>Title</th><th>Score</th><th>Comments</th><th>First Seen</th><th>Last Checked</th></tr>
+    {% for d in discussions %}
+    <tr>
+        <td>{{ d.platform }}</td>
+        <td><a href="{{ d.url }}" target="_blank">{{ d.title[:80] }}</a></td>
+        <td>{{ d.raw_score or '—' }}</td>
+        <td>{{ d.comments_count or '—' }}</td>
+        <td>{{ d.first_seen_at[:10] }}</td>
+        <td>{{ d.last_checked_at[:10] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No tracked discussions yet. Run a community scan first.</p>
+{% endif %}
+
+<h2>Scan History</h2>
+{% if community_history %}
+<table>
+    <tr><th>Date</th><th>Total Hits</th></tr>
+    {% for s in community_history %}
+    <tr>
+        <td>{{ s.scanned_at[:16] }}</td>
+        <td>{{ s.total_hits }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No scan history yet.</p>
+{% endif %}
+{% endblock %}

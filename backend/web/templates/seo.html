@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}SEO — {{ project.brand_name }}{% endblock %}
+{% block content %}
+<h1>SEO History: {{ project.brand_name }}</h1>
+<p><a href="/project/{{ project.id }}">&larr; Back to overview</a></p>
+
+{% if history|length > 1 %}
+<canvas id="perfChart" height="80"></canvas>
+<canvas id="cwvChart" height="80"></canvas>
+<script>
+fetch('/api/project/{{ project.id }}/seo-data').then(r=>r.json()).then(d=>{
+    new Chart(document.getElementById('perfChart'),{type:'line',data:{
+        labels:d.labels,
+        datasets:[{label:'Performance Score (%)',data:d.performance.map(v=>v!==null?v*100:null),borderColor:'#2563eb',tension:0.3}]
+    },options:{scales:{y:{beginAtZero:true,max:100}}}});
+    new Chart(document.getElementById('cwvChart'),{type:'line',data:{
+        labels:d.labels,
+        datasets:[
+            {label:'LCP (ms)',data:d.lcp,borderColor:'#dc2626',tension:0.3,yAxisID:'y'},
+            {label:'TBT (ms)',data:d.tbt,borderColor:'#d97706',tension:0.3,yAxisID:'y'},
+            {label:'CLS',data:d.cls,borderColor:'#059669',tension:0.3,yAxisID:'y1'}
+        ]
+    },options:{scales:{y:{beginAtZero:true,position:'left'},y1:{beginAtZero:true,position:'right'}}}});
+});
+</script>
+{% endif %}
+
+<h2>Scan History</h2>
+<table>
+    <tr><th>Date</th><th>Perf</th><th>LCP</th><th>CLS</th><th>TBT</th><th>robots.txt</th><th>sitemap</th><th>Schema</th></tr>
+    {% for s in history %}
+    <tr>
+        <td>{{ s.scanned_at[:16] }}</td>
+        <td>{% if s.score_performance is not none %}{{ (s.score_performance * 100)|int }}%{% else %}—{% endif %}</td>
+        <td>{% if s.score_lcp is not none %}{{ s.score_lcp|int }}ms{% else %}—{% endif %}</td>
+        <td>{% if s.score_cls is not none %}{{ '%.3f'|format(s.score_cls) }}{% else %}—{% endif %}</td>
+        <td>{% if s.score_tbt is not none %}{{ s.score_tbt|int }}ms{% else %}—{% endif %}</td>
+        <td>{% if s.has_robots_txt is not none %}{{ 'Yes' if s.has_robots_txt else 'No' }}{% else %}—{% endif %}</td>
+        <td>{% if s.has_sitemap is not none %}{{ 'Yes' if s.has_sitemap else 'No' }}{% else %}—{% endif %}</td>
+        <td>{% if s.has_schema_org is not none %}{{ 'Yes' if s.has_schema_org else 'No' }}{% else %}—{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

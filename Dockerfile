@@ -12,8 +12,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-COPY pyproject.toml README.md ./
-COPY backend/ ./backend/
+COPY pyproject.toml .
+COPY aicmo aicmo
+COPY README.md .
 RUN pip install --no-cache-dir -e ".[all]"
 # Install system deps for Chromium (used by crawl4ai), then set up crawl4ai
 RUN playwright install-deps chromium \

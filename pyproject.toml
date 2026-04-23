@@ -30,9 +30,6 @@ all = ["aicmo[geo-premium,scheduler,web,publish,tavily]"]
 aicmo = "aicmo.cli:main"
 aicmo-web = "aicmo.web.app:run_server"
 
-[tool.hatch.build.targets.wheel.sources]
-"backend" = "aicmo"
-
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 

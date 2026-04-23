@@ -21,13 +21,13 @@ Frontend (React 19 + Vite)  ←→  FastAPI /api/v1/  ←→  SQLite (WAL)
 
 | Path | Role |
 |------|------|
-| `backend/agents/` | 25+ specialist agents (CMO orchestrator + platform experts). Names must be ASCII — no Chinese. |
-| `backend/tools/` | Crawl, search, SEO audit, GEO detection, community providers, SERP tracking |
-| `backend/services/` | Domain services: intelligence (AI debate), approval, monitoring |
-| `backend/background/` | Worker + executor registry (scan, report, graph expansion) |
-| `backend/storage/` | Async SQLite, 30+ tables, no ORM |
-| `backend/web/` | FastAPI app, routers, SSE chat, BYOK middleware |
-| `backend/llm.py` | Centralized LLM client: ContextVar isolation, retry + backoff, model resolution |
+| `aicmo/agents/` | 25+ specialist agents (CMO orchestrator + platform experts). Names must be ASCII — no Chinese. |
+| `aicmo/tools/` | Crawl, search, SEO audit, GEO detection, community providers, SERP tracking |
+| `aicmo/services/` | Domain services: intelligence (AI debate), approval, monitoring |
+| `aicmo/background/` | Worker + executor registry (scan, report, graph expansion) |
+| `aicmo/storage/` | Async SQLite, 30+ tables, no ORM |
+| `aicmo/web/` | FastAPI app, routers, SSE chat, BYOK middleware |
+| `aicmo/llm.py` | Centralized LLM client: ContextVar isolation, retry + backoff, model resolution |
 | `frontend/src/` | React SPA: pages/, components/, hooks/ (TanStack Query), api/, i18n/ (EN/ZH/JA/KO/ES) |
 
 ## Critical Patterns

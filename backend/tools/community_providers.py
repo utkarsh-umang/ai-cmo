@@ -118,12 +118,12 @@ class SearchQueryPlan:
 # Unified HTTP helper with retry
 # ---------------------------------------------------------------------------
 
-_USER_AGENT = "OpenCMO/0.1 (community-monitor)"
+_USER_AGENT = "AI-CMO/0.1 (community-monitor)"
 
 
 def _get_profile():
     """Lazy import to avoid circular deps."""
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     return get_scrape_profile()
 
 
@@ -386,7 +386,7 @@ class CommunityProvider(ABC):
         if self.status in ("stub", "disabled"):
             return False
         if self.requires_auth:
-            from opencmo import llm
+            from aicmo import llm
             return all(llm.get_key(v) for v in self.auth_env_vars)
         return True
 
@@ -1057,12 +1057,12 @@ class YouTubeProvider(CommunityProvider):
 
     @staticmethod
     def _has_api_key() -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("YOUTUBE_API_KEY"))
 
     @staticmethod
     def _has_tavily() -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("TAVILY_API_KEY"))
 
     @property
@@ -1154,7 +1154,7 @@ class YouTubeProvider(CommunityProvider):
     async def _search_via_api(self, query: str, source: str) -> tuple[list[DiscussionHit], list[str]]:
         profile = _get_profile()
         max_results = getattr(profile, "youtube_max_results", 15)
-        from opencmo import llm
+        from aicmo import llm
         api_key = llm.get_key("YOUTUBE_API_KEY", "")
         errors: list[str] = []
 
@@ -1271,7 +1271,7 @@ class YouTubeProvider(CommunityProvider):
     async def fetch_detail(self, hit: DiscussionHit) -> DiscussionDetail | None:
         if not self._has_api_key() or not hit.detail_id:
             return None
-        from opencmo import llm
+        from aicmo import llm
         api_key = llm.get_key("YOUTUBE_API_KEY", "")
         profile = _get_profile()
         max_comments = getattr(profile, "youtube_comments_per_post", 10)
@@ -1459,12 +1459,12 @@ class TwitterProvider(CommunityProvider):
 
     @staticmethod
     def _has_bearer_token() -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("TWITTER_BEARER_TOKEN"))
 
     @staticmethod
     def _has_tavily() -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("TAVILY_API_KEY"))
 
     @property
@@ -2213,7 +2213,7 @@ class XueQiuProvider(CommunityProvider):
         return hits
 
     async def _search_query(self, query: str, source: str, max_results: int) -> tuple[list[DiscussionHit], list[str]]:
-        from opencmo import llm
+        from aicmo import llm
         cookie = llm.get_key("XUEQIU_COOKIE", "")
         r = await _http_get_json(
             self._SEARCH_URL,

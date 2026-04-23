@@ -12,7 +12,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_publish_reddit_dry_run():
     """Default (dry_run=True) returns preview, never posts — works without praw."""
-    from opencmo.tools.publishers import publish_reddit_post_impl
+    from aicmo.tools.publishers import publish_reddit_post_impl
 
     result = await publish_reddit_post_impl("SideProject", "Test Title", "Test body", dry_run=True)
     assert result["ok"]
@@ -23,7 +23,7 @@ async def test_publish_reddit_dry_run():
 @pytest.mark.asyncio
 async def test_publish_reddit_no_consent():
     """publish_reddit_post_impl with dry_run always returns preview regardless of env."""
-    from opencmo.tools.publishers import publish_reddit_post_impl
+    from aicmo.tools.publishers import publish_reddit_post_impl
 
     result = await publish_reddit_post_impl("test", "title", "body", dry_run=True)
     assert result["ok"]
@@ -39,7 +39,7 @@ async def test_publish_reddit_success(monkeypatch):
     monkeypatch.setenv("REDDIT_USERNAME", "test_user")
     monkeypatch.setenv("REDDIT_PASSWORD", "test_pass")
 
-    import opencmo.tools.publishers as pub
+    import aicmo.tools.publishers as pub
 
     mock_submission = MagicMock()
     mock_submission.permalink = "/r/test/comments/abc123"
@@ -73,7 +73,7 @@ async def test_publish_reddit_error(monkeypatch):
     monkeypatch.setenv("REDDIT_USERNAME", "user")
     monkeypatch.setenv("REDDIT_PASSWORD", "pass")
 
-    import opencmo.tools.publishers as pub
+    import aicmo.tools.publishers as pub
 
     mock_praw = MagicMock()
     mock_praw.Reddit = MagicMock(side_effect=Exception("Auth failed"))
@@ -90,7 +90,7 @@ async def test_publish_reddit_error(monkeypatch):
 @pytest.mark.asyncio
 async def test_praw_not_installed():
     """When praw is not installed, non-dry-run publish returns error."""
-    import opencmo.tools.publishers as pub
+    import aicmo.tools.publishers as pub
 
     original = pub._HAS_PRAW
     pub._HAS_PRAW = False
@@ -110,7 +110,7 @@ async def test_praw_not_installed():
 @pytest.mark.asyncio
 async def test_publish_tweet_dry_run():
     """Default dry_run returns preview — works without tweepy."""
-    from opencmo.tools.publishers import publish_tweet_impl
+    from aicmo.tools.publishers import publish_tweet_impl
 
     result = await publish_tweet_impl("Hello world!", dry_run=True)
     assert result["ok"]
@@ -121,7 +121,7 @@ async def test_publish_tweet_dry_run():
 @pytest.mark.asyncio
 async def test_publish_tweet_too_long():
     """Tweet > 280 chars is rejected before any API call."""
-    from opencmo.tools.publishers import publish_tweet_impl
+    from aicmo.tools.publishers import publish_tweet_impl
 
     long_text = "x" * 281
     result = await publish_tweet_impl(long_text, dry_run=False)
@@ -137,7 +137,7 @@ async def test_publish_tweet_success(monkeypatch):
     monkeypatch.setenv("TWITTER_ACCESS_TOKEN", "token")
     monkeypatch.setenv("TWITTER_ACCESS_SECRET", "secret")
 
-    import opencmo.tools.publishers as pub
+    import aicmo.tools.publishers as pub
 
     mock_response = MagicMock()
     mock_response.data = {"id": "12345"}
@@ -160,7 +160,7 @@ async def test_publish_tweet_success(monkeypatch):
 @pytest.mark.asyncio
 async def test_tweepy_not_installed():
     """When tweepy is not installed, non-dry-run publish returns error."""
-    import opencmo.tools.publishers as pub
+    import aicmo.tools.publishers as pub
 
     original = pub._HAS_TWEEPY
     pub._HAS_TWEEPY = False

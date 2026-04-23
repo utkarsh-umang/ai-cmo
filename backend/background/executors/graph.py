@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import asyncio
 
-from opencmo import storage
+from aicmo import storage
 
 
 async def run_graph_expansion_executor(ctx) -> None:
-    from opencmo.graph_expansion import run_expansion
+    from aicmo.graph_expansion import run_expansion
 
     task = ctx.task
     project_id = task["payload"]["project_id"]

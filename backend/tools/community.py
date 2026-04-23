@@ -10,9 +10,9 @@ from urllib.parse import urlparse
 
 from agents import function_tool
 
-from opencmo import llm
-from opencmo.tools.browser_pool import browser_slot
-from opencmo.tools.community_providers import (
+from aicmo import llm
+from aicmo.tools.browser_pool import browser_slot
+from aicmo.tools.community_providers import (
     PROVIDER_REGISTRY,
     DisabledProvider,
     DiscussionHit,
@@ -23,8 +23,8 @@ from opencmo.tools.community_providers import (
     SuggestedQuery,
     _truncate,
 )
-from opencmo.tools.community_query_planner import build_query_plan
-from opencmo.tools.community_scoring import rescore_hits
+from aicmo.tools.community_query_planner import build_query_plan
+from aicmo.tools.community_scoring import rescore_hits
 
 # ---------------------------------------------------------------------------
 # Stub query templates (brand / category / current_year placeholders)
@@ -250,7 +250,7 @@ def _sort_hits(hits: list[DiscussionHit]) -> None:
 # ---------------------------------------------------------------------------
 
 def _get_output_budget() -> int:
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     return get_scrape_profile().output_budget_chars
 
 
@@ -384,7 +384,7 @@ async def _scan_community_impl(
 
     # Rescore with multi-signal composite scoring
     query = f"{brand_name} {category}"
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     profile = get_scrape_profile()
     halflife = getattr(profile, "scoring_recency_halflife_days", 23.0)
     convergence_threshold = getattr(profile, "scoring_convergence_threshold", 0.5)
@@ -509,7 +509,7 @@ async def analyze_community_patterns(brand_name: str, category: str) -> str:
         category: The product category for context.
     """
     try:
-        from opencmo import storage
+        from aicmo import storage
 
         projects = await storage.list_projects()
         project = next((p for p in projects if p["brand_name"] == brand_name), None)

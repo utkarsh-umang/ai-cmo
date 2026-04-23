@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from opencmo import storage
+from aicmo import storage
 
 
 @pytest.mark.asyncio

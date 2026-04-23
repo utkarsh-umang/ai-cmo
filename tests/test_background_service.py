@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from opencmo.background import service as bg_service
+from aicmo.background import service as bg_service
 
 
 @pytest.mark.asyncio
 async def test_enqueue_returns_existing_active_task_for_same_dedupe_key(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -33,7 +33,7 @@ async def test_enqueue_returns_existing_active_task_for_same_dedupe_key(tmp_path
 
 @pytest.mark.asyncio
 async def test_request_cancel_marks_active_task(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)

@@ -5,21 +5,21 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
+from aicmo import storage
 
 router = APIRouter(prefix="/api/v1")
 
 
 @router.get("/approvals")
 async def api_v1_approvals(status: str | None = None, limit: int = 50):
-    from opencmo import service
+    from aicmo import service
 
     return JSONResponse(await service.list_approvals(status=status, limit=limit))
 
 
 @router.get("/approvals/{approval_id}")
 async def api_v1_approval(approval_id: int):
-    from opencmo import service
+    from aicmo import service
 
     approval = await service.get_approval(approval_id)
     if not approval:
@@ -29,7 +29,7 @@ async def api_v1_approval(approval_id: int):
 
 @router.post("/approvals")
 async def api_v1_create_approval(request: Request):
-    from opencmo import service
+    from aicmo import service
 
     body = await request.json()
     project_id = body.get("project_id")
@@ -67,7 +67,7 @@ async def api_v1_create_approval(request: Request):
 
 @router.post("/approvals/{approval_id}/approve")
 async def api_v1_approve_approval(approval_id: int, request: Request):
-    from opencmo import service
+    from aicmo import service
 
     try:
         body = await request.json()
@@ -90,7 +90,7 @@ async def api_v1_approve_approval(approval_id: int, request: Request):
 
 @router.post("/approvals/{approval_id}/reject")
 async def api_v1_reject_approval(approval_id: int, request: Request):
-    from opencmo import service
+    from aicmo import service
 
     try:
         body = await request.json()

@@ -1,4 +1,4 @@
-"""Tests for opencmo.llm — ContextVar-based key isolation and client management."""
+"""Tests for aicmo.llm — ContextVar-based key isolation and client management."""
 
 import asyncio
 import os
@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo import llm
+from aicmo import llm
 
 # ---------------------------------------------------------------------------
 # get_key / ContextVar isolation
@@ -106,14 +106,14 @@ class TestGetKeyAsync:
     @pytest.mark.asyncio
     async def test_db_fallback(self):
         """Falls back to DB when no ContextVar."""
-        with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
+        with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
             val = await llm.get_key_async("SOME_KEY")
             assert val == "db-val"
 
     @pytest.mark.asyncio
     async def test_env_fallback(self):
         """Falls back to os.environ when ContextVar and DB are empty."""
-        with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
+        with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
             with patch.dict(os.environ, {"MY_KEY": "env-val"}):
                 val = await llm.get_key_async("MY_KEY")
                 assert val == "env-val"
@@ -121,7 +121,7 @@ class TestGetKeyAsync:
     @pytest.mark.asyncio
     async def test_env_overrides_db_for_router_defaults(self):
         """Core router defaults prefer env over persisted DB settings."""
-        with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
+        with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
             with patch.dict(os.environ, {"OPENAI_BASE_URL": "https://router.teamolab.com/v1"}, clear=False):
                 val = await llm.get_key_async("OPENAI_BASE_URL")
                 assert val == "https://router.teamolab.com/v1"
@@ -129,7 +129,7 @@ class TestGetKeyAsync:
     @pytest.mark.asyncio
     async def test_db_still_used_first_for_non_router_keys(self):
         """Non-router keys keep DB-first fallback behavior."""
-        with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
+        with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value="db-val"):
             with patch.dict(os.environ, {"TAVILY_API_KEY": "env-val"}, clear=False):
                 val = await llm.get_key_async("TAVILY_API_KEY")
                 assert val == "db-val"
@@ -149,7 +149,7 @@ class TestGetOpenAIClient:
             "OPENAI_BASE_URL": "https://custom.api.com",
         })
         try:
-            with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
+            with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
                 client = await llm.get_openai_client()
                 assert client.api_key == "ctx-api-key"
                 assert str(client.base_url) == "https://custom.api.com/v1/"
@@ -177,17 +177,17 @@ class TestGetModel:
     @pytest.mark.asyncio
     async def test_default_model(self):
         """Returns the product default model when nothing is configured."""
-        with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
+        with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
             with patch.dict(os.environ, {}, clear=True):
                 model = await llm.get_model()
                 assert model == "gpt-5.4"
 
     @pytest.mark.asyncio
     async def test_custom_default_model(self):
-        """Uses OPENCMO_MODEL_DEFAULT from ContextVar."""
-        token = llm.set_request_keys({"OPENCMO_MODEL_DEFAULT": "deepseek-chat"})
+        """Uses AICMO_MODEL_DEFAULT from ContextVar."""
+        token = llm.set_request_keys({"AICMO_MODEL_DEFAULT": "deepseek-chat"})
         try:
-            with patch("opencmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
+            with patch("aicmo.storage.get_setting", new_callable=AsyncMock, return_value=None):
                 model = await llm.get_model()
                 assert model == "deepseek-chat"
         finally:

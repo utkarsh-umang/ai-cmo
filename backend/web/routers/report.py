@@ -7,10 +7,10 @@ import asyncio
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
-from opencmo.background import service as bg_service
-from opencmo.background.types import ACTIVE_STATUSES
-from opencmo.web.routers.tasks import serialize_background_task
+from aicmo import storage
+from aicmo.background import service as bg_service
+from aicmo.background.types import ACTIVE_STATUSES
+from aicmo.web.routers.tasks import serialize_background_task
 
 router = APIRouter(prefix="/api/v1")
 
@@ -93,7 +93,7 @@ async def api_v1_regenerate_report(project_id: int, kind: str, request: Request)
 
     # Capture BYOK keys from the current request context so the background
     # worker (which runs outside this request) can use them.
-    from opencmo import llm
+    from aicmo import llm
     payload: dict = {"project_id": project_id, "kind": kind}
     request_keys = llm.get_request_keys()
     if request_keys:
@@ -139,7 +139,7 @@ async def api_v1_report_task(task_id: str):
 
 @router.post("/projects/{project_id}/report")
 async def api_v1_report(project_id: int):
-    from opencmo import service
+    from aicmo import service
     project = await storage.get_project(project_id)
     if not project:
         return JSONResponse({"error": "Not found"}, status_code=404)

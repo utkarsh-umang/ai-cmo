@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo import storage
-from opencmo.insights import (
+from aicmo import storage
+from aicmo.insights import (
     _detect_community_buzz,
     _detect_competitor_gaps,
     _detect_geo_decline,
@@ -20,8 +20,8 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from opencmo.web import chat_sessions, task_registry
-from opencmo.web.app import app
+from aicmo.web import chat_sessions, task_registry
+from aicmo.web.app import app
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -30,7 +30,7 @@ from opencmo.web.app import app
 
 @pytest.fixture(autouse=True)
 def _use_light_profile(monkeypatch):
-    monkeypatch.setenv("OPENCMO_SCRAPE_DEPTH", "light")
+    monkeypatch.setenv("AICMO_SCRAPE_DEPTH", "light")
 
 
 @pytest.fixture
@@ -238,7 +238,7 @@ class TestDetectCommunityBuzz:
         pid = _seed_project()
         discussions = [
             {
-                "title": "OpenCMO is amazing for indie hackers and startups",
+                "title": "AI-CMO is amazing for indie hackers and startups",
                 "platform": "reddit",
                 "engagement_score": 75,
                 "comments_count": 30,

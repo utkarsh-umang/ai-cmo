@@ -49,7 +49,7 @@ export function Sidebar({
       >
         <div className="flex h-14 items-center justify-between px-4 mt-2">
           <Link to="/workspace" className="text-lg font-semibold text-slate-800 tracking-tight" onClick={onClose}>
-            OpenCMO
+            AI-CMO
           </Link>
           <button className="text-slate-400 hover:text-slate-800 transition-colors lg:hidden" onClick={onClose}>
             <X size={20} />

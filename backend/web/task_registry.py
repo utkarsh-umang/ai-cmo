@@ -58,7 +58,7 @@ async def _run_and_update(
 ) -> None:
     record.status = "running"
     try:
-        from opencmo.monitoring import run_monitoring_workflow
+        from aicmo.monitoring import run_monitoring_workflow
 
         def on_progress(event: dict):
             record.progress.append(event)

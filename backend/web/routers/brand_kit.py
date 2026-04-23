@@ -5,8 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
-from opencmo.storage.brand_kit import get_brand_kit, upsert_brand_kit
+from aicmo import storage
+from aicmo.storage.brand_kit import get_brand_kit, upsert_brand_kit
 
 router = APIRouter(prefix="/api/v1")
 

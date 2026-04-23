@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
+from aicmo import storage
 
 router = APIRouter(prefix="/api/v1")
 
@@ -96,7 +96,7 @@ async def api_v1_quick_generate(project_id: int, request: Request):
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
 
-    from opencmo.autopilot import execute_autopilot
+    from aicmo.autopilot import execute_autopilot
 
     # Force-execute autopilot for this project (it already filters for actionable insights)
     results = await execute_autopilot(project_id)

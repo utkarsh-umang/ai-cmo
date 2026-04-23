@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from opencmo.agents import prompt_contracts as _prompt_contracts
+from aicmo.agents import prompt_contracts as _prompt_contracts
 
 build_prompt = _prompt_contracts.build_prompt
 MARKETING_DECISION_FRAMEWORK = _prompt_contracts.MARKETING_DECISION_FRAMEWORK

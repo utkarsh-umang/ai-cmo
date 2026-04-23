@@ -1,7 +1,7 @@
 """Run production chat regressions for single-platform marketing assistants.
 
 Example:
-    python -m opencmo.ops.chat_platform_regression \
+    python -m aicmo.ops.chat_platform_regression \
       --base-url https://www.aidcmo.com/api/v1 \
       --project-id 36
 """
@@ -27,23 +27,23 @@ class PlatformCase:
 
 
 DEFAULT_CASES: tuple[PlatformCase, ...] = (
-    PlatformCase("Twitter", "帮我写 3 条 Twitter/X 推文和 1 条 thread，推广 OpenCMO。", "Twitter Expert"),
+    PlatformCase("Twitter", "帮我写 3 条 Twitter/X 推文和 1 条 thread，推广 AI-CMO。", "Twitter Expert"),
     PlatformCase("LinkedIn", "请给我一组 LinkedIn 营销内容，走 LinkedIn 专家。", "LinkedIn Expert"),
-    PlatformCase("Reddit", "Draft a Reddit post for OpenCMO and ask for feedback.", "Reddit Expert"),
-    PlatformCase("ProductHunt", "帮我写一套适合 Product Hunt 的发布文案，推广 OpenCMO。", "Product Hunt Expert"),
+    PlatformCase("Reddit", "Draft a Reddit post for AI-CMO and ask for feedback.", "Reddit Expert"),
+    PlatformCase("ProductHunt", "帮我写一套适合 Product Hunt 的发布文案，推广 AI-CMO。", "Product Hunt Expert"),
     PlatformCase("Zhihu", "帮我写一篇知乎回答，主题是 AI 搜索品牌监控。", "Zhihu Expert"),
-    PlatformCase("Xiaohongshu", "帮我写一篇小红书笔记，推广 OpenCMO。", "Xiaohongshu Expert"),
-    PlatformCase("WeChat", "帮我写一篇适合发在微信公众号的文章，推广 OpenCMO。", "WeChat Expert"),
+    PlatformCase("Xiaohongshu", "帮我写一篇小红书笔记，推广 AI-CMO。", "Xiaohongshu Expert"),
+    PlatformCase("WeChat", "帮我写一篇适合发在微信公众号的文章，推广 AI-CMO。", "WeChat Expert"),
     PlatformCase("Jike", "帮我写一条即刻动态，主题是 AI 搜索里的品牌监控正在变重要。", "Jike Expert"),
-    PlatformCase("Juejin", "帮我写一篇适合发在掘金的技术文章，推广 OpenCMO。", "Juejin Expert"),
-    PlatformCase("V2EX", "帮我写一篇 V2EX 帖子，介绍 OpenCMO 做 AI 搜索品牌监控。", "V2EX Expert"),
-    PlatformCase("HackerNews", "Write a Hacker News launch post for OpenCMO.", "Hacker News Expert"),
-    PlatformCase("OSChina", "帮我写一篇适合发在 OSChina 的开源项目推荐稿，推广 OpenCMO。", "OSChina Expert"),
-    PlatformCase("GitCode", "帮我写一套适合发在 GitCode 的仓库介绍和配套文章，推广 OpenCMO。", "GitCode Expert"),
-    PlatformCase("Sspai", "帮我写一篇适合发在少数派的文章，推广 OpenCMO。", "Sspai Expert"),
-    PlatformCase("InfoQ", "帮我写一篇适合发在 InfoQ 的技术文章，推广 OpenCMO。", "InfoQ Expert"),
-    PlatformCase("Devto", "帮我写一篇适合发在 Dev.to 的英文风格技术文章，推广 OpenCMO。", "Devto Expert"),
-    PlatformCase("Ruanyifeng", "帮我写一条阮一峰周刊投稿，主题是 OpenCMO。", "Ruanyifeng Weekly Expert"),
+    PlatformCase("Juejin", "帮我写一篇适合发在掘金的技术文章，推广 AI-CMO。", "Juejin Expert"),
+    PlatformCase("V2EX", "帮我写一篇 V2EX 帖子，介绍 AI-CMO 做 AI 搜索品牌监控。", "V2EX Expert"),
+    PlatformCase("HackerNews", "Write a Hacker News launch post for AI-CMO.", "Hacker News Expert"),
+    PlatformCase("OSChina", "帮我写一篇适合发在 OSChina 的开源项目推荐稿，推广 AI-CMO。", "OSChina Expert"),
+    PlatformCase("GitCode", "帮我写一套适合发在 GitCode 的仓库介绍和配套文章，推广 AI-CMO。", "GitCode Expert"),
+    PlatformCase("Sspai", "帮我写一篇适合发在少数派的文章，推广 AI-CMO。", "Sspai Expert"),
+    PlatformCase("InfoQ", "帮我写一篇适合发在 InfoQ 的技术文章，推广 AI-CMO。", "InfoQ Expert"),
+    PlatformCase("Devto", "帮我写一篇适合发在 Dev.to 的英文风格技术文章，推广 AI-CMO。", "Devto Expert"),
+    PlatformCase("Ruanyifeng", "帮我写一条阮一峰周刊投稿，主题是 AI-CMO。", "Ruanyifeng Weekly Expert"),
 )
 
 

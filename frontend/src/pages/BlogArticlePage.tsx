@@ -27,7 +27,7 @@ export function BlogArticlePage() {
   const relatedArticles = BLOG_ARTICLES.filter((item) => item.slug !== article.slug).slice(0, 3);
 
   usePublicPageMetadata({
-    title: `${t(article.title)} | OpenCMO Blog`,
+    title: `${t(article.title)} | AI-CMO Blog`,
     description: t(article.summary),
     basePath: `/blog/${article.slug}`,
   });

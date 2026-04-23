@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from opencmo.finding_contract import VerificationResult, VerifiedFinding
+from aicmo.finding_contract import VerificationResult, VerifiedFinding
 
 _ENVIRONMENT_PATTERNS = (
     "timeout",

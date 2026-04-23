@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 
-from opencmo.monitoring import run_monitoring_workflow
+from aicmo.monitoring import run_monitoring_workflow
 
 
 async def run_scan_executor(ctx) -> None:

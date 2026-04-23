@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 
 def _normalized_seo_score(score_performance: float | None, seo_health_score: float | None) -> float | None:

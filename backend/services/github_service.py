@@ -8,7 +8,7 @@ import logging
 
 import httpx
 
-from opencmo import llm, storage
+from aicmo import llm, storage
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +149,7 @@ async def auto_discover_from_product(
     5. Score with product awareness
     6. Only keep leads with contact info (email or twitter)
     """
-    from opencmo.tools.github_api import (
+    from aicmo.tools.github_api import (
         enrich_user,
         fetch_stargazers,
         get_rate_remaining,
@@ -165,7 +165,7 @@ async def auto_discover_from_product(
     brand = project.get("brand_name", "")
 
     # Gather keywords and competitors
-    from opencmo.storage.serp import list_tracked_keywords
+    from aicmo.storage.serp import list_tracked_keywords
     kw_rows = await list_tracked_keywords(project_id)
     keywords = [r["keyword"] for r in kw_rows] if kw_rows else []
 

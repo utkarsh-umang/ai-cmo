@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from opencmo.tools.community_providers import HttpResult
-from opencmo.tools.trend_research import (
+from aicmo.tools.community_providers import HttpResult
+from aicmo.tools.trend_research import (
     _research_trend_impl,
     expand_queries,
     is_comparative,
@@ -20,7 +20,7 @@ from opencmo.tools.trend_research import (
 
 @pytest.fixture(autouse=True)
 def _use_light_profile(monkeypatch):
-    monkeypatch.setenv("OPENCMO_SCRAPE_DEPTH", "light")
+    monkeypatch.setenv("AICMO_SCRAPE_DEPTH", "light")
 
 
 # ---------------------------------------------------------------------------
@@ -125,14 +125,14 @@ def _make_mock_http(platform_key: str, title_prefix: str = "Test"):
 
 
 def test_research_trend_summary_mode():
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_make_mock_http("all")):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_make_mock_http("all")):
         result = asyncio.run(_research_trend_impl("AI code review", 30, "reddit,hackernews"))
     assert "Trend Research: AI code review" in result
     assert "Reddit" in result or "reddit" in result
 
 
 def test_research_trend_comparative_mode():
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_make_mock_http("all", "Cursor")):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_make_mock_http("all", "Cursor")):
         result = asyncio.run(_research_trend_impl("Cursor vs Windsurf", 30, "reddit,hackernews", "comparative"))
     assert "Comparative Analysis" in result
     assert "Cursor" in result
@@ -154,7 +154,7 @@ def test_research_trend_time_filter():
             ], "after": None}}, error=None, status_code=200)
         return HttpResult(data={"hits": []}, error=None, status_code=200)
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_old):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_old):
         result = asyncio.run(_research_trend_impl("test topic", 30, "reddit"))
     assert "Total discussions found**: 0" in result
 
@@ -176,7 +176,7 @@ def test_research_trend_platform_filter():
             return HttpResult(data={"data": {"children": [], "after": None}}, error=None, status_code=200)
         return HttpResult(data={"hits": []}, error=None, status_code=200)
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_tracking_mock):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_tracking_mock):
         asyncio.run(_research_trend_impl("test", 30, "reddit"))
 
     # Should NOT have called algolia (HN) since we restricted to reddit

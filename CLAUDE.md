@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OpenCMO is an open-source AI Chief Marketing Officer — a multi-agent system for indie hackers and startups. It monitors SEO/GEO/SERP/Community metrics, generates platform-specific content, and visualizes competitive landscapes via an interactive 3D knowledge graph.
+AI-CMO is an open-source AI Chief Marketing Officer — a multi-agent system for indie hackers and startups. It monitors SEO/GEO/SERP/Community metrics, generates platform-specific content, and visualizes competitive landscapes via an interactive 3D knowledge graph.
 
 ## Architecture
 
 **Full-stack: Python backend + React TypeScript frontend**
 
-- **Backend** (`src/opencmo/`): FastAPI + openai-agents framework, SQLite storage
+- **Backend** (`backend/`): FastAPI + openai-agents framework, SQLite storage
 - **Frontend** (`frontend/`): React 19 SPA with Vite, Tailwind CSS 4, TanStack Query, Three.js
-- **Entry points**: `opencmo` (CLI chatbot), `opencmo-web` (web dashboard on port 8080)
+- **Entry points**: `aicmo` (CLI chatbot), `aicmo-web` (web dashboard on port 8080)
 
 ### Backend layers
 
@@ -20,9 +20,9 @@ OpenCMO is an open-source AI Chief Marketing Officer — a multi-agent system fo
 - `agents/*.py` — Platform experts + intelligence agents. Each is a standalone `Agent()` with `name`, `instructions`, `tools`, and `model=get_model("agent_name")`
 - `tools/*.py` — Crawling, search (WebSearchTool → Tavily fallback → crawl4ai scrape), SEO audit, SERP tracking, GEO detection, community scraping, publishing
 - `service.py` — Business logic bridge used by both CLI and Web: monitor CRUD, multi-agent URL analysis (3-round debate → JSON strategy), competitor discovery, approval workflow
-- `storage.py` — Async SQLite (WAL mode, foreign keys) with 27+ tables. No ORM — raw aiosqlite with dict rows. Schema auto-created; migrations via `ALTER TABLE` + try/except. DB path: `OPENCMO_DB_PATH` or `~/.opencmo/data.db`
+- `storage.py` — Async SQLite (WAL mode, foreign keys) with 27+ tables. No ORM — raw aiosqlite with dict rows. Schema auto-created; migrations via `ALTER TABLE` + try/except. DB path: `AICMO_DB_PATH` or `~/.backend/data.db`
 - `web/app.py` — FastAPI routes: REST API at `/api/v1/`, SPA serving at `/app/`, SSE chat streaming. Token auth via Bearer header or cookie (public prefixes: `/static/`, `/api/v1/auth/`, `/api/v1/health`)
-- `config.py` — Model resolution cascade: `OPENCMO_MODEL_{AGENT}` > `OPENCMO_MODEL_DEFAULT` > `'gpt-4o'`. Returns `OpenAIChatCompletionsModel` for custom `OPENAI_BASE_URL` providers. `apply_runtime_settings()` loads API keys from DB settings table into `os.environ`
+- `config.py` — Model resolution cascade: `AICMO_MODEL_{AGENT}` > `AICMO_MODEL_DEFAULT` > `'gpt-4o'`. Returns `OpenAIChatCompletionsModel` for custom `OPENAI_BASE_URL` providers. `apply_runtime_settings()` loads API keys from DB settings table into `os.environ`
 - `scheduler.py` — APScheduler (optional dep, graceful fallback). `run_scheduled_scan()` executes SEO/GEO/Community/SERP independently, not through agent framework
 - `graph_expansion.py` — Wave-based BFS discovery of competitors and keywords. Heartbeat-tracked (60s stale window), backpressure via `MAX_OPS_PER_WAVE=20`
 - `web/task_registry.py` — In-memory (not persisted) OrderedDict, max 100 tasks. Wraps async scan workflows with progress tracking
@@ -37,7 +37,7 @@ OpenCMO is an open-source AI Chief Marketing Officer — a multi-agent system fo
 - `pages/` — Route-level components (Dashboard, SEO, GEO, SERP, Community, Graph, Chat, Approvals, Monitors)
 - `components/` — Organized by domain: `charts/` (recharts + react-force-graph-3d), `chat/` (SSE streaming), `monitors/`, `auth/`, `layout/`, `dashboard/`, `project/`
 - `hooks/` — TanStack Query hooks per domain (`useProjects`, `useSeoData`, `useGraphData`, etc.). Stale time 30s, retry 1. `useChat` manages local state + SSE via async generator
-- `api/client.ts` — `apiFetch()` adds Bearer token, dispatches `opencmo:unauthorized` on 401. Domain modules export typed wrappers around `apiJson()`
+- `api/client.ts` — `apiFetch()` adds Bearer token, dispatches `aicmo:unauthorized` on 401. Domain modules export typed wrappers around `apiJson()`
 - `i18n/` — React context-based EN + ZH translations
 - Routing: React Router v7 at base `/app`. Provider stack: QueryClient → I18n → Auth → Router
 
@@ -47,7 +47,7 @@ OpenCMO is an open-source AI Chief Marketing Officer — a multi-agent system fo
 - **Optional deps with graceful fallback**: scheduler, web, publish, geo-premium, tavily all degrade gracefully if not installed
 - **SSE chat protocol**: `POST /api/v1/chat` streams events — `delta` (text), `agent` (handoff), `tool_called`, `tool_output`, `final_output`
 - **Provider-adaptive search**: Native WebSearchTool for OpenAI, Tavily if key present, crawl4ai Google scrape as last resort
-- **Approval-first publishing**: Content queued with exact payload for human review; publish only after explicit approve. `OPENCMO_AUTO_PUBLISH=1` gates actual API calls
+- **Approval-first publishing**: Content queued with exact payload for human review; publish only after explicit approve. `AICMO_AUTO_PUBLISH=1` gates actual API calls
 - **Settings table as runtime config**: Web UI settings panel writes to SQLite KV store; `apply_runtime_settings()` loads them into env vars at startup
 - **Custom provider compatibility**: Disables OpenAI tracing for non-OpenAI providers to avoid 401 noise
 - **Frontend proxies `/api` to `http://127.0.0.1:8080` in dev (vite.config.ts)
@@ -67,8 +67,8 @@ cp .env.example .env       # Configure API keys
 ### Backend
 
 ```bash
-opencmo                    # Interactive CLI chatbot
-opencmo-web                # Web dashboard (http://localhost:8080/app)
+aicmo                    # Interactive CLI chatbot
+aicmo-web                # Web dashboard (http://localhost:8080/app)
 ```
 
 ### Frontend
@@ -95,15 +95,15 @@ Tests use temp SQLite DBs (via `tmp_path`), reset in-memory state (task registry
 Required: `OPENAI_API_KEY` (or equivalent for chosen provider)
 
 Key optional variables — see `.env.example` for full list:
-- `OPENCMO_MODEL_DEFAULT` / `OPENCMO_MODEL_{AGENT}` — model selection (cascade: per-agent > default > gpt-4o)
+- `AICMO_MODEL_DEFAULT` / `AICMO_MODEL_{AGENT}` — model selection (cascade: per-agent > default > gpt-4o)
 - `OPENAI_BASE_URL` — custom API provider (NVIDIA, DeepSeek, Ollama, etc.)
-- `OPENCMO_DB_PATH` — SQLite database location (default: `~/.opencmo/data.db`)
-- `OPENCMO_WEB_TOKEN` — dashboard auth token
+- `AICMO_DB_PATH` — SQLite database location (default: `~/.backend/data.db`)
+- `AICMO_WEB_TOKEN` — dashboard auth token
 - `ANTHROPIC_API_KEY`, `GOOGLE_AI_API_KEY` — extended GEO platforms
 - `TAVILY_API_KEY` — structured web search
 - `DATAFORSEO_LOGIN/PASSWORD` — SERP tracking
-- `OPENCMO_AUTO_PUBLISH=1` + Reddit/Twitter credentials — auto-publishing
-- `OPENCMO_SMTP_*` + `OPENCMO_REPORT_EMAIL` — email reports
+- `AICMO_AUTO_PUBLISH=1` + Reddit/Twitter credentials — auto-publishing
+- `AICMO_SMTP_*` + `AICMO_REPORT_EMAIL` — email reports
 
 ## Performance Optimization Guidelines
 
@@ -123,20 +123,20 @@ When optimizing report generation or other LLM-heavy workflows:
 ssh -p 2222 root@97.64.16.217
 ```
 
-**Code location**: `/opt/OpenCMO/`
-**systemd service**: `opencmo` (runs `opencmo-web` on port 8080)
-**Database**: `/root/.opencmo/data.db`
-**Config**: `/opt/OpenCMO/.env`
+**Code location**: `/opt/AI-CMO/`
+**systemd service**: `aicmo` (runs `aicmo-web` on port 8080)
+**Database**: `/root/.backend/data.db`
+**Config**: `/opt/AI-CMO/.env`
 
 ### Deploy latest code
 
 ```bash
 ssh -p 2222 root@97.64.16.217 "
-  cd /opt/OpenCMO &&
+  cd /opt/AI-CMO &&
   git pull origin main &&
   pip install -e '.[all]' -q &&
-  systemctl restart opencmo &&
-  systemctl is-active opencmo
+  systemctl restart aicmo &&
+  systemctl is-active aicmo
 "
 ```
 
@@ -146,7 +146,7 @@ The server has only 1GB RAM — `npm run build` will OOM. **Always build locally
 
 ```bash
 cd frontend && npm run build
-rsync -avz --delete dist/ root@97.64.16.217:/opt/OpenCMO/frontend/dist/ -e "ssh -p 2222"
+rsync -avz --delete dist/ root@97.64.16.217:/opt/AI-CMO/frontend/dist/ -e "ssh -p 2222"
 ```
 
 ### Nginx

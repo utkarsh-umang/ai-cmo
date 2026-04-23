@@ -10,7 +10,7 @@ import aiosqlite
 
 logger = logging.getLogger(__name__)
 
-_DB_PATH = Path(os.environ.get("OPENCMO_DB_PATH", Path.home() / ".opencmo" / "data.db"))
+_DB_PATH = Path(os.environ.get("AICMO_DB_PATH", Path.home() / ".aicmo" / "data.db"))
 _SCHEMA_READY_FOR: Path | None = None
 
 _SCHEMA = """

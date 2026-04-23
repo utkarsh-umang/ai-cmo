@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 
-from opencmo import llm
+from aicmo import llm
 
 _REVIEWED_AGENT_NAMES = {
     "CMO Agent",

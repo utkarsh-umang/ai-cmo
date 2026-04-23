@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (robotsMeta) {
       robotsMeta.setAttribute("content", "noindex,nofollow,noarchive,nosnippet");
     }
-    document.title = "OpenCMO Workspace";
+    document.title = "AI-CMO Workspace";
 
     return () => {
       if (robotsMeta && previousRobots) {

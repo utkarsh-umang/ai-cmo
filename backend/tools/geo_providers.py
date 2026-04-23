@@ -8,8 +8,8 @@ from dataclasses import dataclass
 
 from crawl4ai import AsyncWebCrawler
 
-from opencmo.tools.browser_pool import browser_slot
-from opencmo.tools.crawl import _extract_markdown
+from aicmo.tools.browser_pool import browser_slot
+from aicmo.tools.crawl import _extract_markdown
 
 # ---------------------------------------------------------------------------
 # Conditional imports for API-based providers
@@ -77,7 +77,7 @@ _QUERY_TEMPLATES = [
 
 def _get_query_templates(brand_name: str, category: str) -> list[str]:
     """Generate query list based on scrape depth."""
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     profile = get_scrape_profile()
     n = min(profile.geo_query_templates, len(_QUERY_TEMPLATES))
     templates = _QUERY_TEMPLATES[:n]
@@ -88,12 +88,12 @@ def _get_query_templates(brand_name: str, category: str) -> list[str]:
 
 
 def _get_snippet_chars() -> int:
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     return get_scrape_profile().geo_content_snippet_chars
 
 
 def _get_request_delay() -> float:
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     return get_scrape_profile().request_delay_seconds
 
 
@@ -144,7 +144,7 @@ class GeoProvider(ABC):
         if self.status == "disabled":
             return False
         if self.requires_auth:
-            from opencmo import llm
+            from aicmo import llm
             return all(llm.get_key(v) for v in self.auth_env_vars)
         return True
 
@@ -212,8 +212,8 @@ class GeoProvider(ABC):
 class DefaultLLMProvider(GeoProvider):
     """GEO provider that queries the user's configured default LLM.
 
-    Always enabled because OpenCMO requires an LLM to function at all.
-    Uses opencmo.llm.chat_completion_messages() so it respects BYOK keys,
+    Always enabled because AI-CMO requires an LLM to function at all.
+    Uses aicmo.llm.chat_completion_messages() so it respects BYOK keys,
     custom base URLs, and per-request ContextVar isolation.
     """
 
@@ -237,7 +237,7 @@ class DefaultLLMProvider(GeoProvider):
     ) -> GeoProviderResult:
         snippet_chars = _get_snippet_chars()
         try:
-            from opencmo import llm
+            from aicmo import llm
 
             content = await llm.chat_completion_messages(
                 [{"role": "user", "content": query}],
@@ -378,9 +378,9 @@ class ChatGPTProvider(GeoProvider):
 
     @property
     def is_enabled(self) -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return (
-            llm.get_key("OPENCMO_GEO_CHATGPT") == "1"
+            llm.get_key("AICMO_GEO_CHATGPT") == "1"
             and bool(llm.get_key("OPENAI_API_KEY"))
         )
 
@@ -395,7 +395,7 @@ class ChatGPTProvider(GeoProvider):
     ) -> GeoProviderResult:
         snippet_chars = _get_snippet_chars()
         try:
-            from opencmo import llm
+            from aicmo import llm
 
             content = await llm.chat_completion_messages(
                 messages=[
@@ -441,7 +441,7 @@ class ClaudeProvider(GeoProvider):
     def is_enabled(self) -> bool:
         if not _HAS_ANTHROPIC:
             return False
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("ANTHROPIC_API_KEY"))
 
     async def check_visibility(
@@ -455,7 +455,7 @@ class ClaudeProvider(GeoProvider):
     ) -> GeoProviderResult:
         snippet_chars = _get_snippet_chars()
         try:
-            from opencmo import llm
+            from aicmo import llm
             client = anthropic.AsyncAnthropic(
                 api_key=llm.get_key("ANTHROPIC_API_KEY"),
             )
@@ -504,7 +504,7 @@ class GeminiProvider(GeoProvider):
     def is_enabled(self) -> bool:
         if not _HAS_GENAI:
             return False
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("GOOGLE_AI_API_KEY"))
 
     async def check_visibility(
@@ -518,7 +518,7 @@ class GeminiProvider(GeoProvider):
     ) -> GeoProviderResult:
         snippet_chars = _get_snippet_chars()
         try:
-            from opencmo import llm
+            from aicmo import llm
             genai.configure(api_key=llm.get_key("GOOGLE_AI_API_KEY"))
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = await model.generate_content_async(query)
@@ -565,7 +565,7 @@ class _OpenAICompatibleProvider(GeoProvider):
 
     @property
     def is_enabled(self) -> bool:
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key(self.api_key_env))
 
     async def check_visibility(
@@ -579,7 +579,7 @@ class _OpenAICompatibleProvider(GeoProvider):
     ) -> GeoProviderResult:
         snippet_chars = _get_snippet_chars()
         try:
-            from opencmo import llm
+            from aicmo import llm
 
             content = await llm.chat_completion_messages(
                 messages=[{"role": "user", "content": query}],

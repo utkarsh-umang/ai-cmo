@@ -6,8 +6,8 @@ import asyncio
 import logging
 import os
 
-from opencmo import storage
-from opencmo.tools.browser_pool import browser_slot
+from aicmo import storage
+from aicmo.tools.browser_pool import browser_slot
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ _FALSEY_VALUES = {"0", "false", "no", "off"}
 def _require_apscheduler():
     if not _HAS_APSCHEDULER:
         raise RuntimeError(
-            "APScheduler is required for scheduling. Install with: pip install opencmo[scheduler]"
+            "APScheduler is required for scheduling. Install with: pip install aicmo[scheduler]"
         )
 
 
@@ -38,12 +38,12 @@ def is_scheduler_available() -> bool:
 
 def is_scheduler_enabled() -> bool:
     """Return whether runtime scheduling is enabled."""
-    raw = os.environ.get("OPENCMO_ENABLE_SCHEDULER", "1")
+    raw = os.environ.get("AICMO_ENABLE_SCHEDULER", "1")
     return raw.strip().lower() not in _FALSEY_VALUES
 
 
 def _job_key(job_id: int) -> str:
-    return f"opencmo_job_{job_id}"
+    return f"aicmo_job_{job_id}"
 
 
 async def _maybe_send_email_report(project_id: int, job_type: str, triggered_by: str):
@@ -51,7 +51,7 @@ async def _maybe_send_email_report(project_id: int, job_type: str, triggered_by:
     if job_type != "full" or triggered_by != "cron":
         return
     try:
-        from opencmo.tools.email_report import _get_smtp_config, send_report_impl
+        from aicmo.tools.email_report import _get_smtp_config, send_report_impl
 
         if _get_smtp_config() is None:
             return
@@ -84,7 +84,7 @@ async def run_scheduled_scan(
         try:
             from crawl4ai import AsyncWebCrawler
 
-            from opencmo.tools.seo_audit import (
+            from aicmo.tools.seo_audit import (
                 _build_report,
                 _check_robots_and_sitemap,
                 _compute_seo_health_score,
@@ -122,7 +122,7 @@ async def run_scheduled_scan(
 
         # SERP tracking (independent — runs even if SEO audit fails)
         try:
-            from opencmo.tools.serp_tracker import track_project_keywords
+            from aicmo.tools.serp_tracker import track_project_keywords
 
             await track_project_keywords(project_id)
             logger.info("SERP tracking done for project %d", project_id)
@@ -131,9 +131,9 @@ async def run_scheduled_scan(
 
         # Keyword suggestions (independent — refreshes suggestions each scan)
         try:
-            from opencmo.tools.keyword_suggest import suggest_keywords_impl
+            from aicmo.tools.keyword_suggest import suggest_keywords_impl
         except ModuleNotFoundError as exc:
-            if exc.name == "opencmo.tools.keyword_suggest":
+            if exc.name == "aicmo.tools.keyword_suggest":
                 logger.debug("Keyword suggestion module not available; skipping for project %d", project_id)
             else:
                 logger.exception("Keyword suggestion failed for project %d", project_id)
@@ -150,7 +150,7 @@ async def run_scheduled_scan(
         try:
             import json as _json
 
-            from opencmo.tools.ai_crawler_check import _ai_crawler_impl
+            from aicmo.tools.ai_crawler_check import _ai_crawler_impl
 
             data = await _ai_crawler_impl(url)
             await storage.save_ai_crawler_scan(
@@ -167,8 +167,8 @@ async def run_scheduled_scan(
         try:
             import json
 
-            from opencmo.tools.geo_providers import GEO_PROVIDER_REGISTRY
-            from opencmo.tools.text_signals import analyze_geo_sentiment
+            from aicmo.tools.geo_providers import GEO_PROVIDER_REGISTRY
+            from aicmo.tools.text_signals import analyze_geo_sentiment
 
             enabled = [p for p in GEO_PROVIDER_REGISTRY if p.is_enabled]
             results = {}
@@ -226,7 +226,7 @@ async def run_scheduled_scan(
         try:
             import json as _json
 
-            from opencmo.tools.citability import _citability_impl
+            from aicmo.tools.citability import _citability_impl
 
             data = await _citability_impl(url)
             if not data.get("error"):
@@ -245,7 +245,7 @@ async def run_scheduled_scan(
         try:
             import json as _json
 
-            from opencmo.tools.brand_presence import _brand_presence_impl
+            from aicmo.tools.brand_presence import _brand_presence_impl
 
             data = await _brand_presence_impl(brand, url)
             await storage.save_brand_presence_scan(
@@ -260,7 +260,7 @@ async def run_scheduled_scan(
         try:
             import json
 
-            from opencmo.tools.community import _scan_community_impl
+            from aicmo.tools.community import _scan_community_impl
 
             tracked_keywords = [
                 item["keyword"]
@@ -288,7 +288,7 @@ async def run_scheduled_scan(
             await storage.save_community_scan(project_id, total_hits, raw)
 
             # Track discussions + snapshots (filter out irrelevant noise)
-            from opencmo.tools.community_scoring import text_relevance
+            from aicmo.tools.community_scoring import text_relevance
 
             for hit in data.get("hits", []):
                 if hit.get("source_kind") == "external_search":
@@ -322,14 +322,14 @@ async def run_scheduled_scan(
 
     # Detect insights (rule-based, zero LLM cost)
     try:
-        from opencmo.insights import detect_insights
+        from aicmo.insights import detect_insights
         await detect_insights(project_id)
     except Exception:
         logger.exception("Insight detection failed for project %d", project_id)
 
     # Autopilot: turn insights into content → approval queue
     try:
-        from opencmo.autopilot import execute_autopilot
+        from aicmo.autopilot import execute_autopilot
         results = await execute_autopilot(project_id)
         if results:
             logger.info("Autopilot generated %d approvals for project %d", len(results), project_id)
@@ -339,7 +339,7 @@ async def run_scheduled_scan(
     # Strategic + periodic reports
     if job_type == "full":
         try:
-            from opencmo.reports import generate_strategic_report_bundle
+            from aicmo.reports import generate_strategic_report_bundle
 
             await generate_strategic_report_bundle(project_id, source_run_id=None)
         except Exception:
@@ -347,7 +347,7 @@ async def run_scheduled_scan(
 
     if job_type == "full" and triggered_by == "cron":
         try:
-            from opencmo.reports import generate_periodic_report_bundle
+            from aicmo.reports import generate_periodic_report_bundle
 
             await generate_periodic_report_bundle(project_id, source_run_id=None)
         except Exception:

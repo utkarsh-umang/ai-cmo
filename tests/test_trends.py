@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from opencmo import storage
-from opencmo.tools.trends import _get_geo_trends_impl, _get_seo_trends_impl
+from aicmo import storage
+from aicmo.tools.trends import _get_geo_trends_impl, _get_seo_trends_impl
 
 
 @pytest.mark.asyncio

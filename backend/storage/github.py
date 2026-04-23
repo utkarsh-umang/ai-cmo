@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 
 def _lead_row_to_dict(row) -> dict:

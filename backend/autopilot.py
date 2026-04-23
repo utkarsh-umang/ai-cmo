@@ -10,7 +10,7 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from opencmo import storage
+from aicmo import storage
 
 logger = logging.getLogger(__name__)
 
@@ -117,9 +117,9 @@ async def _build_generation_agent(agent_name: str, project_id: int | None = None
     """Return an expert-grade content agent for autopilot generation."""
     from agents import Agent
 
-    from opencmo.agents.blog import blog_expert
-    from opencmo.agents.reddit import reddit_expert
-    from opencmo.storage.brand_kit import build_brand_kit_prompt
+    from aicmo.agents.blog import blog_expert
+    from aicmo.agents.reddit import reddit_expert
+    from aicmo.storage.brand_kit import build_brand_kit_prompt
 
     templates = {
         "blog_expert": blog_expert,

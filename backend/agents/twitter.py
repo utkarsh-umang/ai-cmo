@@ -1,8 +1,8 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
-from opencmo.tools.publishers import publish_to_twitter
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
+from aicmo.tools.publishers import publish_to_twitter
 
 twitter_expert = Agent(
     name="Twitter Expert",
@@ -58,7 +58,7 @@ Thread
 If the user wants to publish a tweet, use `publish_to_twitter`.
 - Always show the preview first (confirm=False).
 - Only set confirm=True when the user explicitly says "confirm publish" or similar.
-- Requires OPENCMO_AUTO_PUBLISH=1 environment variable to actually post.
+- Requires AICMO_AUTO_PUBLISH=1 environment variable to actually post.
 """,
         task_contract="""## Task Contract
 - Go straight to the post draft; do not add framing, recap, or analysis unless the user asks for it

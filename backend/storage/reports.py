@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 REPORT_KINDS = ("strategic", "periodic")
 REPORT_AUDIENCES = ("human", "agent")

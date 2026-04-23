@@ -211,11 +211,11 @@ export const BLOG_READER_PATHS: MarketingItem[] = [
 ];
 
 export const BLOG_DECISION_ARTICLE_SLUGS = [
-  "opencmo-vs-mautic-posthog",
-  "who-should-use-opencmo",
+  "aicmo-vs-mautic-posthog",
+  "who-should-use-aicmo",
 ] as const;
 
-export const BLOG_FEATURED_ARTICLE_SLUG = "opencmo-vs-mautic-posthog" as const;
+export const BLOG_FEATURED_ARTICLE_SLUG = "aicmo-vs-mautic-posthog" as const;
 
 export const BLOG_ARTICLES: BlogArticle[] = [
   {
@@ -475,7 +475,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "from-[#082032]/10 via-[#edf2f7] to-[#c96f45]/16",
   },
   {
-    slug: "inside-opencmo-workspace",
+    slug: "inside-aicmo-workspace",
     index: "09",
     category: "blog.post4.category",
     title: "blog.post4.title",
@@ -507,7 +507,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "from-[#f3dcc9]/55 via-[#f7ecde] to-[#86c8bc]/18",
   },
   {
-    slug: "opencmo-vs-mautic-posthog",
+    slug: "aicmo-vs-mautic-posthog",
     index: "10",
     category: "blog.post12.category",
     title: "blog.post12.title",
@@ -539,7 +539,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "from-[#c9e6df]/28 via-[#f5f1ea] to-[#d7e5ff]/26",
   },
   {
-    slug: "who-should-use-opencmo",
+    slug: "who-should-use-aicmo",
     index: "11",
     category: "blog.post5.category",
     title: "blog.post5.title",
@@ -571,7 +571,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "from-[#c96f45]/28 via-[#f8e6d7] to-[#f3dcc9]/52",
   },
   {
-    slug: "first-30-days-with-opencmo",
+    slug: "first-30-days-with-aicmo",
     index: "12",
     category: "blog.post6.category",
     title: "blog.post6.title",

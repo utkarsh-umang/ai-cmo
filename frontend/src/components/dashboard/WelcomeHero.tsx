@@ -49,11 +49,11 @@ export function WelcomeHero({
       setKeyRefresh((value) => value + 1);
       void settingsQuery.refetch();
     };
-    window.addEventListener("opencmo:keys-changed", refresh);
-    window.addEventListener("opencmo:settings-changed", refreshSettings);
+    window.addEventListener("aicmo:keys-changed", refresh);
+    window.addEventListener("aicmo:settings-changed", refreshSettings);
     return () => {
-      window.removeEventListener("opencmo:keys-changed", refresh);
-      window.removeEventListener("opencmo:settings-changed", refreshSettings);
+      window.removeEventListener("aicmo:keys-changed", refresh);
+      window.removeEventListener("aicmo:settings-changed", refreshSettings);
     };
   }, [settingsQuery]);
 

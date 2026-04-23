@@ -3,10 +3,10 @@
 
 def test_imports():
     """All modules can be imported without error."""
-    from opencmo.agents import (
+    from aicmo.agents import (
         cmo_agent,
     )
-    from opencmo.tools import (
+    from aicmo.tools import (
         check_keyword_ranking,
         crawl_website,
         publish_to_reddit,
@@ -19,7 +19,7 @@ def test_imports():
 
 
 def test_cmo_has_tools_and_handoffs():
-    from opencmo.agents import cmo_agent
+    from aicmo.agents import cmo_agent
 
     assert len(cmo_agent.tools) > 0, "CMO should have tools"
     assert len(cmo_agent.handoffs) > 0, "CMO should have handoffs"
@@ -27,7 +27,7 @@ def test_cmo_has_tools_and_handoffs():
 
 def test_cmo_has_as_tool_wrappers():
     """CMO should have generate_* tools for multi-channel mode."""
-    from opencmo.agents import cmo_agent
+    from aicmo.agents import cmo_agent
 
     tool_names = [t.name for t in cmo_agent.tools if hasattr(t, "name")]
     assert "generate_twitter_content" in tool_names
@@ -36,7 +36,7 @@ def test_cmo_has_as_tool_wrappers():
 
 
 def test_cmo_generate_tools_are_marked_multi_channel_only():
-    from opencmo.agents.cmo import linkedin_tool, reddit_tool, twitter_tool
+    from aicmo.agents.cmo import linkedin_tool, reddit_tool, twitter_tool
 
     for tool in [twitter_tool, reddit_tool, linkedin_tool]:
         assert "Use ONLY for coordinated multi-channel orchestration" in tool.description
@@ -45,7 +45,7 @@ def test_cmo_generate_tools_are_marked_multi_channel_only():
 
 def test_cmo_handoffs_have_descriptions():
     """Each handoff should have a tool_description_override."""
-    from opencmo.agents import cmo_agent
+    from aicmo.agents import cmo_agent
 
     for h in cmo_agent.handoffs:
         # handoff objects have tool_name and tool_description
@@ -53,7 +53,7 @@ def test_cmo_handoffs_have_descriptions():
 
 
 def test_all_experts_have_instructions():
-    from opencmo.agents import (
+    from aicmo.agents import (
         blog_expert,
         community_agent,
         geo_agent,
@@ -81,7 +81,7 @@ def test_all_experts_have_instructions():
 
 
 def test_platform_experts_keep_explicit_deliverable_labels():
-    from opencmo.agents import (
+    from aicmo.agents import (
         hackernews_expert,
         jike_expert,
         linkedin_expert,
@@ -99,7 +99,7 @@ def test_platform_experts_keep_explicit_deliverable_labels():
 
 
 def test_platform_prompt_examples_do_not_contain_hypey_fake_metrics():
-    from opencmo.agents import ruanyifeng_expert, sspai_expert, wechat_expert, xiaohongshu_expert
+    from aicmo.agents import ruanyifeng_expert, sspai_expert, wechat_expert, xiaohongshu_expert
 
     assert "10倍" not in xiaohongshu_expert.instructions
     assert "80%" not in sspai_expert.instructions
@@ -108,7 +108,7 @@ def test_platform_prompt_examples_do_not_contain_hypey_fake_metrics():
 
 
 def test_seo_agent_has_tools():
-    from opencmo.agents import seo_agent
+    from aicmo.agents import seo_agent
 
     assert len(seo_agent.tools) >= 4, "SEO agent needs audit_page_seo + web_search + serp tools"
     tool_names = [t.name for t in seo_agent.tools if hasattr(t, "name")]
@@ -117,19 +117,19 @@ def test_seo_agent_has_tools():
 
 
 def test_geo_agent_has_tools():
-    from opencmo.agents import geo_agent
+    from aicmo.agents import geo_agent
 
     assert len(geo_agent.tools) >= 2, "GEO agent needs scan_geo_visibility + web_search"
 
 
 def test_community_agent_has_tools():
-    from opencmo.agents import community_agent
+    from aicmo.agents import community_agent
 
     assert len(community_agent.tools) >= 3, "Community agent needs scan_community + fetch_discussion_detail + web_search"
 
 
 def test_blog_expert_has_tools():
-    from opencmo.agents import blog_expert
+    from aicmo.agents import blog_expert
 
     assert len(blog_expert.tools) >= 3, "Blog expert needs web_search + crawl_website + research_blog_topic"
     tool_names = [t.name for t in blog_expert.tools if hasattr(t, "name")]
@@ -137,7 +137,7 @@ def test_blog_expert_has_tools():
 
 
 def test_reddit_expert_has_publish_tool():
-    from opencmo.agents import reddit_expert
+    from aicmo.agents import reddit_expert
 
     assert len(reddit_expert.tools) >= 1
     tool_names = [t.name for t in reddit_expert.tools if hasattr(t, "name")]
@@ -145,7 +145,7 @@ def test_reddit_expert_has_publish_tool():
 
 
 def test_twitter_expert_has_publish_tool():
-    from opencmo.agents import twitter_expert
+    from aicmo.agents import twitter_expert
 
     assert len(twitter_expert.tools) >= 1
     tool_names = [t.name for t in twitter_expert.tools if hasattr(t, "name")]
@@ -154,7 +154,7 @@ def test_twitter_expert_has_publish_tool():
 
 def test_markdown_extraction():
     """Test _extract_markdown handles str, None, and object types."""
-    from opencmo.tools.crawl import _extract_markdown
+    from aicmo.tools.crawl import _extract_markdown
 
     # str case
     mock_str = type("R", (), {"markdown": "hello"})()

@@ -5,8 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
-from opencmo.tools.performance_tracker import (
+from aicmo import storage
+from aicmo.tools.performance_tracker import (
     add_manual_tracking,
     collect_approval_metrics,
     delete_manual_tracking,

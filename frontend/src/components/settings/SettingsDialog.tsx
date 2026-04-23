@@ -150,7 +150,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
     const uk = getUserKeys();
     if (uk.OPENAI_API_KEY) setApiKey(uk.OPENAI_API_KEY);
     if (uk.OPENAI_BASE_URL) setBaseUrl(uk.OPENAI_BASE_URL);
-    if (uk.OPENCMO_MODEL_DEFAULT) setModel(uk.OPENCMO_MODEL_DEFAULT);
+    if (uk.AICMO_MODEL_DEFAULT) setModel(uk.AICMO_MODEL_DEFAULT);
     if (uk.TAVILY_API_KEY) setTavilyKey(uk.TAVILY_API_KEY);
     if (uk.ANTHROPIC_API_KEY) setAnthropicKey(uk.ANTHROPIC_API_KEY);
     if (uk.GOOGLE_AI_API_KEY) setGoogleAiKey(uk.GOOGLE_AI_API_KEY);
@@ -160,7 +160,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
     getSettings().then((s) => {
       setStatus(s);
       if (!uk.OPENAI_BASE_URL && s.base_url) setBaseUrl(s.base_url);
-      if (!uk.OPENCMO_MODEL_DEFAULT && s.model) setModel(s.model);
+      if (!uk.AICMO_MODEL_DEFAULT && s.model) setModel(s.model);
       setAutoPublish(s.auto_publish);
       setGeoChatgpt(s.geo_chatgpt_enabled);
       setSmtpHost(s.smtp_host);
@@ -178,7 +178,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       const newKeys: UserKeys = {};
       if (apiKey) newKeys.OPENAI_API_KEY = apiKey;
       if (baseUrl) newKeys.OPENAI_BASE_URL = baseUrl;
-      if (model) newKeys.OPENCMO_MODEL_DEFAULT = model;
+      if (model) newKeys.AICMO_MODEL_DEFAULT = model;
       if (tavilyKey) newKeys.TAVILY_API_KEY = tavilyKey;
       if (anthropicKey) newKeys.ANTHROPIC_API_KEY = anthropicKey;
       if (googleAiKey) newKeys.GOOGLE_AI_API_KEY = googleAiKey;
@@ -191,19 +191,19 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
         REDDIT_CLIENT_SECRET: redditClientSecret || undefined,
         REDDIT_USERNAME: redditUsername || undefined,
         REDDIT_PASSWORD: redditPassword || undefined,
-        OPENCMO_AUTO_PUBLISH: autoPublish ? "1" : "0",
+        AICMO_AUTO_PUBLISH: autoPublish ? "1" : "0",
         TWITTER_API_KEY: twitterApiKey || undefined,
         TWITTER_API_SECRET: twitterApiSecret || undefined,
         TWITTER_ACCESS_TOKEN: twitterAccessToken || undefined,
         TWITTER_ACCESS_SECRET: twitterAccessSecret || undefined,
-        OPENCMO_GEO_CHATGPT: geoChatgpt ? "1" : "0",
+        AICMO_GEO_CHATGPT: geoChatgpt ? "1" : "0",
         DATAFORSEO_LOGIN: dataforseoLogin || undefined,
         DATAFORSEO_PASSWORD: dataforseoPassword || undefined,
-        OPENCMO_SMTP_HOST: smtpHost || undefined,
-        OPENCMO_SMTP_PORT: smtpPort || undefined,
-        OPENCMO_SMTP_USER: smtpUser || undefined,
-        OPENCMO_SMTP_PASS: smtpPass || undefined,
-        OPENCMO_REPORT_EMAIL: reportEmail || undefined,
+        AICMO_SMTP_HOST: smtpHost || undefined,
+        AICMO_SMTP_PORT: smtpPort || undefined,
+        AICMO_SMTP_USER: smtpUser || undefined,
+        AICMO_SMTP_PASS: smtpPass || undefined,
+        AICMO_REPORT_EMAIL: reportEmail || undefined,
       });
 
       setSaved(true);
@@ -222,7 +222,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       // Refresh server status
       const s = await getSettings();
       setStatus(s);
-      window.dispatchEvent(new CustomEvent("opencmo:settings-changed"));
+      window.dispatchEvent(new CustomEvent("aicmo:settings-changed"));
       setTimeout(() => setSaved(false), 2000);
     } finally {
       setLoading(false);

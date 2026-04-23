@@ -2,7 +2,7 @@ import json
 
 from agents import function_tool
 
-from opencmo.tools.geo_providers import GEO_PROVIDER_REGISTRY, GeoProviderResult
+from aicmo.tools.geo_providers import GEO_PROVIDER_REGISTRY, GeoProviderResult
 
 
 @function_tool
@@ -75,7 +75,7 @@ async def scan_geo_visibility(brand_name: str, category: str) -> str:
     sentiment_label = "unavailable"
     sentiment_reasoning = "Sentiment analysis unavailable."
     try:
-        from opencmo.tools.text_signals import analyze_geo_sentiment
+        from aicmo.tools.text_signals import analyze_geo_sentiment
 
         # Collect snippets from all platforms for sentiment analysis
         sentiment_snippets: dict[str, str] = {}
@@ -102,7 +102,7 @@ async def scan_geo_visibility(brand_name: str, category: str) -> str:
 
     # Persist scan (best-effort, do not block on failure)
     try:
-        from opencmo import storage
+        from aicmo import storage
 
         platform_results_json = json.dumps(
             {
@@ -182,7 +182,7 @@ async def scan_geo_visibility(brand_name: str, category: str) -> str:
             env_hint = ", ".join(p.auth_env_vars) if p.auth_env_vars else "N/A"
             extra = ""
             if p.name == "ChatGPT":
-                extra = " (also requires OPENCMO_GEO_CHATGPT=1)"
+                extra = " (also requires AICMO_GEO_CHATGPT=1)"
             elif p.name == "Claude":
                 extra = " (also requires `anthropic` package)"
             elif p.name == "Gemini":

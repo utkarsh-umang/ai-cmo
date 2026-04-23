@@ -1,4 +1,4 @@
-"""Composable prompt contracts for OpenCMO agents."""
+"""Composable prompt contracts for AI-CMO agents."""
 
 from __future__ import annotations
 

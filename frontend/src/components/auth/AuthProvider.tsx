@@ -24,7 +24,7 @@ export const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(
-    () => !!localStorage.getItem("opencmo_token"),
+    () => !!localStorage.getItem("aicmo_token"),
   );
   const [needsAuth, setNeedsAuth] = useState(false);
 
@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setNeedsAuth(true);
       queryClient.cancelQueries();
     };
-    window.addEventListener("opencmo:unauthorized", handler);
-    return () => window.removeEventListener("opencmo:unauthorized", handler);
+    window.addEventListener("aicmo:unauthorized", handler);
+    return () => window.removeEventListener("aicmo:unauthorized", handler);
   }, [queryClient]);
 
   // On mount, probe to detect if auth is needed
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetch("/api/v1/projects").then((r) => {
       if (r.status === 401) {
         setNeedsAuth(true);
-        if (!localStorage.getItem("opencmo_token")) {
+        if (!localStorage.getItem("aicmo_token")) {
           setIsAuthenticated(false);
         }
       }
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ token }),
       });
       if (resp.ok) {
-        localStorage.setItem("opencmo_token", token);
+        localStorage.setItem("aicmo_token", token);
         setIsAuthenticated(true);
         queryClient.invalidateQueries();
         return true;
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("opencmo_token");
+    localStorage.removeItem("aicmo_token");
     setIsAuthenticated(false);
     queryClient.cancelQueries();
   }, [queryClient]);

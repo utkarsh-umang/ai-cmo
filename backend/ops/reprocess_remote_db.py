@@ -24,8 +24,8 @@ T = TypeVar("T")
 
 REMOTE_HOST = "root@97.64.16.217"
 REMOTE_PORT = "2222"
-REMOTE_DB_PATH = "/root/.opencmo/data.db"
-REMOTE_APP_PATH = "/opt/OpenCMO"
+REMOTE_DB_PATH = "/root/.backend/data.db"
+REMOTE_APP_PATH = "/opt/AI-CMO"
 
 
 def _run(cmd: list[str], *, capture_output: bool = False) -> subprocess.CompletedProcess:
@@ -53,7 +53,7 @@ def _scp_to_remote(local_path: Path, remote_path: str) -> None:
 
 
 def create_remote_backup_copy(snapshot_name: str) -> str:
-    backup_path = f"/root/.opencmo/{snapshot_name}.db"
+    backup_path = f"/root/.backend/{snapshot_name}.db"
     _ssh(f"sqlite3 {REMOTE_DB_PATH} '.backup {backup_path}'")
     return backup_path
 
@@ -107,17 +107,17 @@ async def retry_async(
 
 
 async def _set_local_defaults(api_key: str, base_url: str, model: str) -> None:
-    from opencmo import storage
+    from aicmo import storage
 
     await storage.ensure_db()
     await storage.set_setting("OPENAI_API_KEY", api_key)
     await storage.set_setting("OPENAI_BASE_URL", base_url)
-    await storage.set_setting("OPENCMO_MODEL_DEFAULT", model)
+    await storage.set_setting("AICMO_MODEL_DEFAULT", model)
 
 
 async def _run_local_reprocess(*, scan_concurrency: int, report_concurrency: int, retry_policy: RetryPolicy) -> None:
-    from opencmo import service, storage
-    from opencmo.scheduler import run_scheduled_scan
+    from aicmo import service, storage
+    from aicmo.scheduler import run_scheduled_scan
 
     await storage.ensure_db()
     projects = await storage.list_projects()
@@ -171,9 +171,9 @@ def _replace_local_db(db_path: Path, temp_db: Path) -> None:
 
 
 def _push_remote_db(local_db: Path, remote_backup_tag: str) -> None:
-    _ssh(f"systemctl stop opencmo && sqlite3 {REMOTE_DB_PATH} '.backup /root/.opencmo/{remote_backup_tag}-preupload.db'")
+    _ssh(f"systemctl stop aicmo && sqlite3 {REMOTE_DB_PATH} '.backup /root/.backend/{remote_backup_tag}-preupload.db'")
     _scp_to_remote(local_db, REMOTE_DB_PATH)
-    _ssh("systemctl start opencmo && systemctl is-active opencmo")
+    _ssh("systemctl start aicmo && systemctl is-active aicmo")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -191,13 +191,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 async def _async_main(args: argparse.Namespace) -> int:
-    from opencmo.storage import _db as _db_module
+    from aicmo.storage import _db as _db_module
 
     snapshot_tag = f"data-{os.getpid()}"
     remote_snapshot = create_remote_backup_copy(snapshot_tag)
     print(f"[info] remote snapshot created at {remote_snapshot}", flush=True)
 
-    with tempfile.TemporaryDirectory(prefix="opencmo-bwg-") as tmp_dir:
+    with tempfile.TemporaryDirectory(prefix="aicmo-bwg-") as tmp_dir:
         tmp_path = Path(tmp_dir)
         local_snapshot = tmp_path / "remote.db"
         _scp_from_remote(remote_snapshot, local_snapshot)

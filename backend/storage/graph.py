@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from opencmo.storage._db import get_db
-from opencmo.storage.competitors import batch_list_competitor_keywords, list_competitors
-from opencmo.storage.discussions import get_tracked_discussions
-from opencmo.storage.projects import get_project
-from opencmo.storage.serp import get_all_serp_latest, list_tracked_keywords
+from aicmo.storage._db import get_db
+from aicmo.storage.competitors import batch_list_competitor_keywords, list_competitors
+from aicmo.storage.discussions import get_tracked_discussions
+from aicmo.storage.projects import get_project
+from aicmo.storage.serp import get_all_serp_latest, list_tracked_keywords
 
 # --- Graph expansion state ---
 

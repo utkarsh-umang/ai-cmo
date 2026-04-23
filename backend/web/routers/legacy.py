@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from opencmo import storage
+from aicmo import storage
 
 router = APIRouter()
 

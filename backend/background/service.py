@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 
-from opencmo.background import storage as bg_storage
+from aicmo.background import storage as bg_storage
 
 
 async def enqueue_task(
@@ -17,7 +17,7 @@ async def enqueue_task(
     max_attempts: int = 3,
     run_after: str | None = None,
 ) -> dict:
-    from opencmo import llm
+    from aicmo import llm
 
     # Capture BYOK keys from current request context
     keys = llm.get_request_keys()
@@ -144,7 +144,7 @@ async def fail_task(task_id: str, *, error: dict) -> None:
     # Keep scan_runs table in sync when a scan task is failed externally
     if task and task.get("kind") == "scan":
         try:
-            from opencmo.storage import fail_scan_run_by_task_id
+            from aicmo.storage import fail_scan_run_by_task_id
             await fail_scan_run_by_task_id(task_id, error.get("message", "Task failed"))
         except Exception:
             pass

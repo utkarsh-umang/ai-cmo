@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="assets/logo.png" alt="OpenCMO Logo" width="120" />
+  <img src="assets/logo.png" alt="AI-CMO Logo" width="120" />
 </div>
 
 <h1 align="center">AI-CMO</h1>
 
 <p align="center">
-  <strong>OpenCMO is an open-source growth system that unifies SEO, GEO, SERP, and community monitoring.</strong><br/>
+  <strong>AI-CMO is an open-source growth system that unifies SEO, GEO, SERP, and community monitoring.</strong><br/>
   <sub>Built for open-source projects and developer products. See where your project is discovered, discussed, and compared — then turn those signals into reports, briefs, approvals, and actions.</sub>
 </p>
 
@@ -16,7 +16,7 @@
 <p align="center">
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=for-the-badge" alt="License"></a>
-  <a href="https://github.com/study8677/OpenCMO/stargazers"><img src="https://img.shields.io/github/stars/study8677/OpenCMO?style=for-the-badge&color=yellow&logo=github" alt="Stars"></a>
+  <a href="https://github.com/study8677/AI-CMO/stargazers"><img src="https://img.shields.io/github/stars/study8677/AI-CMO?style=for-the-badge&color=yellow&logo=github" alt="Stars"></a>
   <img src="https://img.shields.io/badge/react-SPA-61DAFB.svg?style=for-the-badge&logo=react" alt="React SPA">
 </p>
 
@@ -28,7 +28,7 @@
 
 <div align="center">
   <a href="https://www.aidcmo.com/">
-    <img src="assets/screenshots/demo-cover.png" alt="OpenCMO in action" width="850" />
+    <img src="assets/screenshots/demo-cover.png" alt="AI-CMO in action" width="850" />
   </a>
   <p><i>Turn visibility signals into growth decisions from one open-source workspace.</i></p>
 </div>
@@ -37,19 +37,19 @@
 
 ## Showcase: Real-World Example
 
-See OpenCMO in action with a **real scan of [Cursor.com](https://cursor.com)** — 176 community discussions discovered across Reddit, Hacker News, Bilibili, Dev.to, and V2EX, with a 177-node knowledge graph.
+See AI-CMO in action with a **real scan of [Cursor.com](https://cursor.com)** — 176 community discussions discovered across Reddit, Hacker News, Bilibili, Dev.to, and V2EX, with a 177-node knowledge graph.
 
 **[View the Cursor showcase with full data](docs/showcase/cursor/)**
 
 ---
 
-## What Makes OpenCMO Different
+## What Makes AI-CMO Different
 
 - **It treats growth as a system, not a checklist**: SEO, GEO, SERP, community discussion, competitors, reports, and approvals live in one loop.
 - **It is built for open-source reality**: before you have a marketing team, you still need discovery, discussion, and credibility.
 - **It helps you act on signals**: not just dashboards, but next actions, briefs, drafts, and human-in-the-loop approvals grounded in project context.
 
-## What OpenCMO Helps You Do
+## What AI-CMO Helps You Do
 
 - **See where your project is visible**: monitor search rankings, AI-search presence, community mentions, and crawler accessibility.
 - **Understand who you are competing with**: map competitors, keyword overlap, and community context in the knowledge graph.
@@ -91,26 +91,26 @@ One URL triggers a 6-stage AI pipeline that builds a complete growth picture:
 
 ## Deep Reports
 
-OpenCMO includes a report system inside each project workspace. Open the **Reports** tab or visit `/projects/<id>/reports`.
+AI-CMO includes a report system inside each project workspace. Open the **Reports** tab or visit `/projects/<id>/reports`.
 
 - **Strategic reports**: full-scan analysis with positioning, competitor context, risks, and recommendations.
 - **Weekly reports**: 7-day monitoring summaries with trend changes, risks, wins, and next actions.
 - **Dual outputs**: every report is stored as both a **Human Readout** and an **Agent Brief**.
 - **Multi-agent pipeline**: human-facing reports use a 6-phase pipeline instead of a single prompt.
-- **Graceful fallback**: if the deep pipeline fails, OpenCMO falls back to simpler generation paths so reports stay available.
+- **Graceful fallback**: if the deep pipeline fails, AI-CMO falls back to simpler generation paths so reports stay available.
 
 ## Quick Start
 
-OpenCMO works with OpenAI-compatible APIs, including OpenAI, DeepSeek, NVIDIA NIM, Kimi-compatible gateways, and Ollama.
+AI-CMO works with OpenAI-compatible APIs, including OpenAI, DeepSeek, NVIDIA NIM, Kimi-compatible gateways, and Ollama.
 
 ```bash
-git clone https://github.com/study8677/OpenCMO.git
-cd OpenCMO
+git clone https://github.com/study8677/AI-CMO.git
+cd AI-CMO
 pip install -e ".[all]"
 crawl4ai-setup
 
 cp .env.example .env
-opencmo-web
+aicmo-web
 ```
 
 Then open `http://localhost:8080`.
@@ -167,8 +167,8 @@ The dev app runs at `http://localhost:5173` and proxies API traffic to `:8080`.
 
 - [study8677](https://github.com/study8677) - Creator and maintainer
 - [Lling0000](https://github.com/Lling0000) - Lead contributor
-- [ParakhJaggi](https://github.com/ParakhJaggi) - Tavily integration ([#2](https://github.com/study8677/OpenCMO/pull/2), [#3](https://github.com/study8677/OpenCMO/pull/3))
-- [BBear0115](https://github.com/BBear0115) - Bug fixes for BYOK key isolation, base_url normalization, and reports ([#9](https://github.com/study8677/OpenCMO/pull/9))
+- [ParakhJaggi](https://github.com/ParakhJaggi) - Tavily integration ([#2](https://github.com/study8677/AI-CMO/pull/2), [#3](https://github.com/study8677/AI-CMO/pull/3))
+- [BBear0115](https://github.com/BBear0115) - Bug fixes for BYOK key isolation, base_url normalization, and reports ([#9](https://github.com/study8677/AI-CMO/pull/9))
 - See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full contributor list
 
 ## Acknowledgments
@@ -179,11 +179,11 @@ The dev app runs at `http://localhost:5173` and proxies API traffic to `:8080`.
 
 ## Star History
 
-<a href="https://star-history.com/#study8677/OpenCMO&Date">
+<a href="https://star-history.com/#study8677/AI-CMO&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=study8677/OpenCMO&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=study8677/OpenCMO&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=study8677/OpenCMO&type=Date" width="100%" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date" width="100%" />
  </picture>
 </a>
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from agents import function_tool
 
-from opencmo import storage
+from aicmo import storage
 
 
 async def _get_seo_trends_impl(brand_name: str, url: str) -> str:

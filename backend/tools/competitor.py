@@ -1,6 +1,6 @@
 from agents import function_tool
 
-from opencmo.tools.crawl import fetch_url_content
+from aicmo.tools.crawl import fetch_url_content
 
 
 @function_tool

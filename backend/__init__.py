@@ -1,1 +1,1 @@
-"""OpenCMO - Open-source AI CMO multi-agent system."""
+"""AI-CMO - Open-source AI CMO multi-agent system."""

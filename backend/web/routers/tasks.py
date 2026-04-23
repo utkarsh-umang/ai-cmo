@@ -5,9 +5,9 @@ from __future__ import annotations
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
-from opencmo.background import service as bg_service
-from opencmo.opportunities import build_project_opportunity_snapshot
+from aicmo import storage
+from aicmo.background import service as bg_service
+from aicmo.opportunities import build_project_opportunity_snapshot
 
 router = APIRouter(prefix="/api/v1")
 
@@ -107,7 +107,7 @@ def _watchout_from_event(event: dict) -> dict | None:
     elif not code and "recovered" in text and "page metadata" in text:
         code = "html_meta_fallback"
         kind = "fallback"
-        hint = hint or "OpenCMO recovered metadata from the page title and meta tags because the rendered page body was not usable."
+        hint = hint or "AI-CMO recovered metadata from the page title and meta tags because the rendered page body was not usable."
     elif not code and ("rate limit" in text or "429" in text):
         code = "provider_rate_limit"
         kind = "source_limit"
@@ -274,7 +274,7 @@ def _scan_quality(task: dict, watchouts: list[dict]) -> dict:
         return {
             "level": "partial",
             "headline": "This run is usable, but some sources were degraded.",
-            "summary": "OpenCMO completed the scan with fallback paths or provider limits, so treat the output as directionally useful rather than fully complete.",
+            "summary": "AI-CMO completed the scan with fallback paths or provider limits, so treat the output as directionally useful rather than fully complete.",
             "blocking": False,
             "fallbacks_used": fallback_titles,
             "source_warnings": source_warnings,

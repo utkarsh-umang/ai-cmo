@@ -34,7 +34,7 @@ function ensureCanonical() {
 }
 
 function syncAlternateLinks(alternates: Array<{ hrefLang: string; path: string }>) {
-  const managedSelector = 'link[rel="alternate"][data-opencmo-managed="true"]';
+  const managedSelector = 'link[rel="alternate"][data-aicmo-managed="true"]';
   document.querySelectorAll<HTMLLinkElement>(managedSelector).forEach((node) => node.remove());
 
   const canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -45,7 +45,7 @@ function syncAlternateLinks(alternates: Array<{ hrefLang: string; path: string }
     node.setAttribute("rel", "alternate");
     node.setAttribute("hreflang", alternate.hrefLang);
     node.setAttribute("href", new URL(alternate.path, window.location.origin).toString());
-    node.setAttribute("data-opencmo-managed", "true");
+    node.setAttribute("data-aicmo-managed", "true");
     currentAnchor?.insertAdjacentElement("afterend", node);
     currentAnchor = node;
   });
@@ -117,7 +117,7 @@ export function usePageMetadata({
       if (previousCanonical) {
         canonicalLink.setAttribute("href", previousCanonical);
       }
-      document.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][data-opencmo-managed="true"]').forEach((node) => node.remove());
+      document.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][data-aicmo-managed="true"]').forEach((node) => node.remove());
     };
   }, [alternates, canonicalPath, description, robots, title]);
 }

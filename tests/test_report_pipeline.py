@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo import storage
+from aicmo import storage
 
 
 @pytest.fixture(autouse=True)
@@ -173,7 +173,7 @@ async def test_pipeline_phases_called_in_order():
     """Verify that all 6 phases run in the correct sequence with multi-agent sub-calls."""
     project_id = await _seed_project()
 
-    from opencmo.reports import _build_strategic_facts
+    from aicmo.reports import _build_strategic_facts
 
     facts, meta = await _build_strategic_facts(project_id)
 
@@ -226,9 +226,9 @@ async def test_pipeline_phases_called_in_order():
             return json.loads(MOCK_GRADE_PASS)
         return {}
 
-    with patch("opencmo.report_pipeline._llm_text_call", side_effect=mock_text_call), \
-         patch("opencmo.report_pipeline._llm_json_call", side_effect=mock_json_call):
-        from opencmo.report_pipeline import run_deep_report_pipeline
+    with patch("aicmo.report_pipeline._llm_text_call", side_effect=mock_text_call), \
+         patch("aicmo.report_pipeline._llm_json_call", side_effect=mock_json_call):
+        from aicmo.report_pipeline import run_deep_report_pipeline
 
         result = await run_deep_report_pipeline(facts, meta, False, kind="strategic")
 
@@ -267,7 +267,7 @@ async def test_pipeline_grader_retries_on_failure():
     """Verify the grader retry loop works correctly."""
     project_id = await _seed_project()
 
-    from opencmo.reports import _build_strategic_facts
+    from aicmo.reports import _build_strategic_facts
 
     facts, meta = await _build_strategic_facts(project_id)
 
@@ -303,9 +303,9 @@ async def test_pipeline_grader_retries_on_failure():
             return json.loads(MOCK_GRADE_PASS)
         return {}
 
-    with patch("opencmo.report_pipeline._llm_text_call", side_effect=mock_text_call), \
-         patch("opencmo.report_pipeline._llm_json_call", side_effect=mock_json_call):
-        from opencmo.report_pipeline import run_deep_report_pipeline
+    with patch("aicmo.report_pipeline._llm_text_call", side_effect=mock_text_call), \
+         patch("aicmo.report_pipeline._llm_json_call", side_effect=mock_json_call):
+        from aicmo.report_pipeline import run_deep_report_pipeline
 
         result = await run_deep_report_pipeline(facts, meta, False)
 
@@ -320,8 +320,8 @@ async def test_pipeline_fallback_on_error():
     """Verify that pipeline failure falls back to single-call in reports.py."""
     project_id = await _seed_project()
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         # Pipeline fails
         mock_pipeline.side_effect = RuntimeError("Pipeline exploded")
         # Single-call works for both human and agent
@@ -330,7 +330,7 @@ async def test_pipeline_fallback_on_error():
             "# Agent Brief\n\n- objective: test",
         ]
 
-        from opencmo import service
+        from aicmo import service
 
         result = await service.regenerate_project_report(project_id, "strategic")
 
@@ -346,13 +346,13 @@ async def test_pipeline_full_fallback_to_template():
     """Verify that if both pipeline AND single-call fail, the report is marked failed."""
     project_id = await _seed_project()
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         # Everything fails
         mock_pipeline.side_effect = RuntimeError("Pipeline exploded")
         mock_llm.side_effect = RuntimeError("LLM is down")
 
-        from opencmo import service
+        from aicmo import service
 
         result = await service.regenerate_project_report(project_id, "strategic")
 
@@ -367,9 +367,9 @@ async def test_pipeline_full_fallback_to_template():
 
 @pytest.mark.asyncio
 async def test_section_grading_failure_does_not_auto_pass():
-    from opencmo.report_pipeline import _phase_grade_section
+    from aicmo.report_pipeline import _phase_grade_section
 
-    with patch("opencmo.report_pipeline._llm_json_call", new_callable=AsyncMock) as mock_grade:
+    with patch("aicmo.report_pipeline._llm_json_call", new_callable=AsyncMock) as mock_grade:
         mock_grade.side_effect = RuntimeError("grader offline")
         grade = await _phase_grade_section(
             {"id": "sec-1", "title": "Section", "thesis": "Core thesis"},
@@ -386,14 +386,14 @@ async def test_agent_brief_skips_pipeline():
     """Agent audience should NOT use the pipeline."""
     project_id = await _seed_project()
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         # Pipeline handles human report
         mock_pipeline.return_value = "# Pipeline Human\n\n## Section\n- pipeline content"
         # Single-call handles agent brief
         mock_llm.return_value = "# Agent Brief\n\n- objective: test"
 
-        from opencmo import service
+        from aicmo import service
 
         result = await service.regenerate_project_report(project_id, "strategic")
 
@@ -409,7 +409,7 @@ async def test_agent_brief_skips_pipeline():
 
 def test_synthesis_prompts_do_not_force_ungrounded_quantification():
     """Synthesis prompts should stay within the evidence available in section summaries."""
-    from opencmo import report_pipeline
+    from aicmo import report_pipeline
 
     forbidden_exec_summary_phrases = (
         "预计每月损失X流量",

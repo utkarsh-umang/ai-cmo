@@ -5,14 +5,14 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from opencmo.background import service as bg_service
-from opencmo.background import storage as bg_storage
-from opencmo.background.worker import BackgroundWorker
+from aicmo.background import service as bg_service
+from aicmo.background import storage as bg_storage
+from aicmo.background.worker import BackgroundWorker
 
 
 @pytest.mark.asyncio
 async def test_worker_claims_and_completes_executor_task(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -43,7 +43,7 @@ async def test_worker_claims_and_completes_executor_task(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_worker_stop_cancels_inflight_executor(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -79,7 +79,7 @@ async def test_worker_stop_cancels_inflight_executor(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_worker_respects_max_concurrency(tmp_path, monkeypatch):
     """Worker should not run more tasks concurrently than max_concurrency."""
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -132,7 +132,7 @@ async def test_worker_respects_max_concurrency(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_worker_respects_kind_concurrency(tmp_path, monkeypatch):
     """Per-kind semaphore should limit concurrency within a single kind."""
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -180,13 +180,13 @@ async def test_worker_respects_kind_concurrency(tmp_path, monkeypatch):
 
 
 def test_get_background_worker_uses_env_backed_limits(monkeypatch):
-    from opencmo.background import worker as worker_module
+    from aicmo.background import worker as worker_module
 
-    monkeypatch.setenv("OPENCMO_WORKER_MAX_CONCURRENCY", "3")
-    monkeypatch.setenv("OPENCMO_SCAN_CONCURRENCY", "1")
-    monkeypatch.setenv("OPENCMO_REPORT_CONCURRENCY", "2")
-    monkeypatch.setenv("OPENCMO_GRAPH_EXPANSION_CONCURRENCY", "4")
-    monkeypatch.setenv("OPENCMO_GITHUB_ENRICH_CONCURRENCY", "5")
+    monkeypatch.setenv("AICMO_WORKER_MAX_CONCURRENCY", "3")
+    monkeypatch.setenv("AICMO_SCAN_CONCURRENCY", "1")
+    monkeypatch.setenv("AICMO_REPORT_CONCURRENCY", "2")
+    monkeypatch.setenv("AICMO_GRAPH_EXPANSION_CONCURRENCY", "4")
+    monkeypatch.setenv("AICMO_GITHUB_ENRICH_CONCURRENCY", "5")
 
     original_worker = worker_module._default_worker
     worker_module._default_worker = None
@@ -206,7 +206,7 @@ def test_get_background_worker_uses_env_backed_limits(monkeypatch):
 @pytest.mark.asyncio
 async def test_run_after_delays_task_execution(tmp_path, monkeypatch):
     """Tasks with run_after in the future should not be claimed."""
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -234,7 +234,7 @@ async def test_run_after_delays_task_execution(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_dedupe_index_prevents_duplicate_active_tasks(tmp_path, monkeypatch):
     """Partial unique index on dedupe_key should prevent duplicates at DB level."""
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)

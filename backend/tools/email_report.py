@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 
 def _get_smtp_config() -> dict | None:
     """Read SMTP config from env/ContextVar. Returns None if any required var is missing."""
-    from opencmo import llm
+    from aicmo import llm
 
-    host = llm.get_key("OPENCMO_SMTP_HOST")
-    port = llm.get_key("OPENCMO_SMTP_PORT")
-    user = llm.get_key("OPENCMO_SMTP_USER")
-    password = llm.get_key("OPENCMO_SMTP_PASS")
-    recipient = llm.get_key("OPENCMO_REPORT_EMAIL")
+    host = llm.get_key("AICMO_SMTP_HOST")
+    port = llm.get_key("AICMO_SMTP_PORT")
+    user = llm.get_key("AICMO_SMTP_USER")
+    password = llm.get_key("AICMO_SMTP_PASS")
+    recipient = llm.get_key("AICMO_REPORT_EMAIL")
 
     if not all([host, port, user, password, recipient]):
         return None
@@ -36,7 +36,7 @@ def _get_smtp_config() -> dict | None:
 
 async def send_report_impl(project_id: int) -> dict:
     """Build and send the latest periodic human report for a project."""
-    from opencmo import storage
+    from aicmo import storage
 
     config = _get_smtp_config()
     if not config:
@@ -48,7 +48,7 @@ async def send_report_impl(project_id: int) -> dict:
 
     report = await storage.get_latest_report(project_id, "periodic", "human")
     if not report:
-        from opencmo.reports import generate_periodic_report_bundle
+        from aicmo.reports import generate_periodic_report_bundle
 
         generated = await generate_periodic_report_bundle(project_id, source_run_id=None)
         report = generated["human"]
@@ -58,10 +58,10 @@ async def send_report_impl(project_id: int) -> dict:
     html = report.get("content_html") or f"<pre>{report.get('content', '')}</pre>"
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"OpenCMO Weekly Brief: {project['brand_name']}"
+    msg["Subject"] = f"AI-CMO Weekly Brief: {project['brand_name']}"
     msg["From"] = config["user"]
     msg["To"] = config["recipient"]
-    msg["X-OpenCMO-Report-Title"] = report.get("content", "").splitlines()[0].lstrip("# ").strip() or "Weekly Brief"
+    msg["X-AI-CMO-Report-Title"] = report.get("content", "").splitlines()[0].lstrip("# ").strip() or "Weekly Brief"
     msg.attach(MIMEText(html, "html"))
 
     try:

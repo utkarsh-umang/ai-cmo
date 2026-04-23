@@ -9,16 +9,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo import storage
+from aicmo import storage
 
 # FastAPI is an optional dependency
 pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from opencmo.web import app as app_module
-from opencmo.web import chat_sessions, task_registry
-from opencmo.web.app import app
+from aicmo.web import app as app_module
+from aicmo.web import chat_sessions, task_registry
+from aicmo.web.app import app
 
 
 @pytest.fixture
@@ -61,7 +61,7 @@ def _wait_for_report_task(client: TestClient, task_id: str, *, timeout_seconds: 
 def test_dashboard_empty(client):
     resp = client.get("/legacy/")
     assert resp.status_code == 200
-    assert "OpenCMO" in resp.text
+    assert "AI-CMO" in resp.text
 
 
 @pytest.mark.skip(reason="Legacy Jinja2 SSR routes superseded by React SPA")
@@ -166,8 +166,8 @@ def test_api_v1_community_discussions_include_match_metadata(client):
             {
                 "platform": "reddit",
                 "detail_id": "abc123",
-                "title": "OpenCMO review",
-                "url": "https://reddit.com/r/saas/comments/abc123/opencmo_review",
+                "title": "AI-CMO review",
+                "url": "https://reddit.com/r/saas/comments/abc123/aicmo_review",
             },
         )
     )
@@ -182,12 +182,12 @@ def test_api_v1_community_discussions_include_match_metadata(client):
                         {
                             "platform": "reddit",
                             "detail_id": "abc123",
-                            "title": "OpenCMO review",
-                            "url": "https://reddit.com/r/saas/comments/abc123/opencmo_review",
+                            "title": "AI-CMO review",
+                            "url": "https://reddit.com/r/saas/comments/abc123/aicmo_review",
                             "intent_type": "direct_mention",
                             "match_reason": "Matched the exact brand in the title.",
-                            "matched_query": "\"OpenCMO\"",
-                            "matched_terms": ["OpenCMO"],
+                            "matched_query": "\"AI-CMO\"",
+                            "matched_terms": ["AI-CMO"],
                             "confidence": 0.92,
                             "source_kind": "post",
                         }
@@ -203,14 +203,14 @@ def test_api_v1_community_discussions_include_match_metadata(client):
     assert len(payload) == 1
     assert payload[0]["intent_type"] == "direct_mention"
     assert payload[0]["match_reason"] == "Matched the exact brand in the title."
-    assert payload[0]["matched_query"] == "\"OpenCMO\""
-    assert payload[0]["matched_terms"] == ["OpenCMO"]
+    assert payload[0]["matched_query"] == "\"AI-CMO\""
+    assert payload[0]["matched_terms"] == ["AI-CMO"]
     assert payload[0]["confidence"] == 0.92
     assert payload[0]["source_kind"] == "post"
 
 
 def test_api_v1_task_artifacts_summarize_scan_story(client):
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     pid = _seed_project("Artifacts", "https://artifacts.test")
 
@@ -354,7 +354,7 @@ def test_api_v1_task_artifacts_summarize_scan_story(client):
 
 
 def test_api_v1_task_artifacts_mark_keywords_gap_as_limited(client):
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     pid = _seed_project("Coverage Gap", "https://coverage-gap.test")
     task = asyncio.run(
@@ -413,7 +413,7 @@ def test_api_v1_task_artifacts_mark_keywords_gap_as_limited(client):
 
 
 def test_api_v1_task_artifacts_include_opportunities_and_cluster_summary(client):
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     pid = _seed_project("Opportunity Engine", "https://opportunity.test")
     asyncio.run(storage.add_tracked_keyword(pid, "ai code review"))
@@ -667,11 +667,11 @@ def test_api_v1_monitors_create_url_only(client):
 def test_web_lifecycle_starts_and_stops_scheduler(tmp_path):
     db_path = tmp_path / "test.db"
     with patch.object(storage, "_DB_PATH", db_path), \
-         patch("opencmo.scheduler.is_scheduler_enabled", return_value=True), \
-         patch("opencmo.scheduler.is_scheduler_available", return_value=True), \
-         patch("opencmo.scheduler.load_jobs_from_db", new_callable=AsyncMock, return_value=0) as mock_load, \
-         patch("opencmo.scheduler.start_scheduler") as mock_start, \
-         patch("opencmo.scheduler.stop_scheduler") as mock_stop:
+         patch("aicmo.scheduler.is_scheduler_enabled", return_value=True), \
+         patch("aicmo.scheduler.is_scheduler_available", return_value=True), \
+         patch("aicmo.scheduler.load_jobs_from_db", new_callable=AsyncMock, return_value=0) as mock_load, \
+         patch("aicmo.scheduler.start_scheduler") as mock_start, \
+         patch("aicmo.scheduler.stop_scheduler") as mock_stop:
         with TestClient(app) as test_client:
             resp = test_client.get("/api/v1/health")
             assert resp.status_code == 200
@@ -684,11 +684,11 @@ def test_web_lifecycle_starts_and_stops_scheduler(tmp_path):
 def test_web_lifecycle_skips_scheduler_when_disabled(tmp_path):
     db_path = tmp_path / "test.db"
     with patch.object(storage, "_DB_PATH", db_path), \
-         patch("opencmo.scheduler.is_scheduler_enabled", return_value=False), \
-         patch("opencmo.scheduler.is_scheduler_available", return_value=True), \
-         patch("opencmo.scheduler.load_jobs_from_db", new_callable=AsyncMock) as mock_load, \
-         patch("opencmo.scheduler.start_scheduler") as mock_start, \
-         patch("opencmo.scheduler.stop_scheduler") as mock_stop:
+         patch("aicmo.scheduler.is_scheduler_enabled", return_value=False), \
+         patch("aicmo.scheduler.is_scheduler_available", return_value=True), \
+         patch("aicmo.scheduler.load_jobs_from_db", new_callable=AsyncMock) as mock_load, \
+         patch("aicmo.scheduler.start_scheduler") as mock_start, \
+         patch("aicmo.scheduler.stop_scheduler") as mock_stop:
         with TestClient(app) as test_client:
             resp = test_client.get("/api/v1/health")
             assert resp.status_code == 200
@@ -705,7 +705,7 @@ def test_api_v1_monitor_run_conflict(client):
     })
     mid = resp.json()["monitor_id"]
 
-    with patch("opencmo.background.service.find_active_task_by_dedupe_key", new_callable=AsyncMock) as mock_active:
+    with patch("aicmo.background.service.find_active_task_by_dedupe_key", new_callable=AsyncMock) as mock_active:
         mock_active.return_value = {
             "task_id": "scan-conflict",
             "status": "running",
@@ -715,7 +715,7 @@ def test_api_v1_monitor_run_conflict(client):
 
 
 def test_api_v1_create_monitor_syncs_scheduler(client):
-    with patch("opencmo.scheduler.sync_job_record") as mock_sync:
+    with patch("aicmo.scheduler.sync_job_record") as mock_sync:
         resp = client.post("/api/v1/monitors", json={
             "brand": "SyncMon", "url": "https://syncmon.com", "category": "dev",
         })
@@ -729,7 +729,7 @@ def test_api_v1_update_monitor_syncs_scheduler(client):
     })
     mid = resp.json()["monitor_id"]
 
-    with patch("opencmo.scheduler.sync_job_record") as mock_sync:
+    with patch("aicmo.scheduler.sync_job_record") as mock_sync:
         resp = client.patch(f"/api/v1/monitors/{mid}", json={"enabled": False})
         assert resp.status_code == 200
         mock_sync.assert_called_once()
@@ -741,7 +741,7 @@ def test_api_v1_delete_monitor_unschedules_job(client):
     })
     mid = resp.json()["monitor_id"]
 
-    with patch("opencmo.scheduler.unschedule_job") as mock_unschedule:
+    with patch("aicmo.scheduler.unschedule_job") as mock_unschedule:
         resp = client.delete(f"/api/v1/monitors/{mid}")
         assert resp.status_code == 200
         mock_unschedule.assert_called_once_with(mid)
@@ -828,10 +828,10 @@ def test_api_v1_approvals_queue_and_reject(client):
         "project_id": pid,
         "approval_type": "twitter_post",
         "title": "Launch thread",
-        "content": "OpenCMO turns monitoring into measurable growth loops.",
-        "payload": {"text": "OpenCMO turns monitoring into measurable growth loops."},
+        "content": "AI-CMO turns monitoring into measurable growth loops.",
+        "payload": {"text": "AI-CMO turns monitoring into measurable growth loops."},
         "agent_name": "Growth Agent",
-        "target_url": "https://twitter.com/opencmo",
+        "target_url": "https://twitter.com/aicmo",
     })
     assert resp.status_code == 201
     approval_id = resp.json()["id"]
@@ -859,8 +859,8 @@ def test_api_v1_approve_approval_uses_stored_payload(client):
     })
     approval_id = create.json()["id"]
 
-    with patch.dict(os.environ, {"OPENCMO_AUTO_PUBLISH": "1"}), \
-         patch("opencmo.tools.publishers.publish_tweet_impl", new_callable=AsyncMock) as mock_publish:
+    with patch.dict(os.environ, {"AICMO_AUTO_PUBLISH": "1"}), \
+         patch("aicmo.tools.publishers.publish_tweet_impl", new_callable=AsyncMock) as mock_publish:
         mock_publish.return_value = {
             "ok": True,
             "dry_run": False,
@@ -881,7 +881,7 @@ def test_api_v1_approve_approval_uses_stored_payload(client):
 
 
 def test_api_v1_task_status(client):
-    with patch("opencmo.monitoring.run_monitoring_workflow", new_callable=AsyncMock) as mock_workflow:
+    with patch("aicmo.monitoring.run_monitoring_workflow", new_callable=AsyncMock) as mock_workflow:
         mock_workflow.return_value = {
             "run_id": 1,
             "summary": "done",
@@ -907,7 +907,7 @@ def test_api_v1_task_status(client):
 
 
 def test_api_v1_task_events_stream_background_history(client):
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     pid = _seed_project("Eventful", "https://events.test")
     task = asyncio.run(
@@ -981,7 +981,7 @@ def test_api_v1_report(client):
     })
     pid = resp.json()["project_id"]
 
-    with patch("opencmo.tools.email_report.send_report_impl", new_callable=AsyncMock) as mock:
+    with patch("aicmo.tools.email_report.send_report_impl", new_callable=AsyncMock) as mock:
         mock.return_value = {"ok": True, "recipient": "test@test.com"}
         resp = client.post(f"/api/v1/projects/{pid}/report")
         assert resp.status_code == 200
@@ -999,8 +999,8 @@ def test_api_v1_reports_lifecycle(client):
     })
     pid = resp.json()["project_id"]
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.side_effect = [
             "# Strategic Human",
             "# Weekly Human",
@@ -1052,8 +1052,8 @@ def test_api_v1_report_task_fails_when_human_report_is_not_usable(client):
     })
     pid = resp.json()["project_id"]
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.side_effect = RuntimeError("Pipeline exploded")
         mock_llm.side_effect = RuntimeError("LLM unavailable")
 
@@ -1079,7 +1079,7 @@ def test_api_v1_report_task_fails_when_human_report_is_not_usable(client):
 def test_api_v1_graph_expansion_progress_uses_background_runtime(client):
     pid = _seed_project("Graphy", "https://graphy.test")
 
-    with patch("opencmo.graph_expansion.run_expansion", new_callable=AsyncMock) as mock_run:
+    with patch("aicmo.graph_expansion.run_expansion", new_callable=AsyncMock) as mock_run:
         async def _fake_run(project_id: int, on_progress=None):
             await storage.update_expansion(
                 project_id,
@@ -1226,7 +1226,7 @@ def test_api_v1_chat_uses_session_project_context(client):
 
     mock_result.stream_events = mock_stream
 
-    with patch("opencmo.context.build_project_context", new_callable=AsyncMock) as mock_context:
+    with patch("aicmo.context.build_project_context", new_callable=AsyncMock) as mock_context:
         mock_context.return_value = "# Context"
         with patch("agents.Runner.run_streamed", return_value=mock_result) as mock_runner:
             resp = client.post("/api/v1/chat", json={
@@ -1268,7 +1268,7 @@ def test_api_v1_chat_applies_marketing_review_to_final_output(client):
     mock_result.stream_events = mock_stream
 
     with patch("agents.Runner.run_streamed", return_value=mock_result), \
-         patch("opencmo.marketing_review.review_marketing_output_with_metadata", new_callable=AsyncMock) as mock_review:
+         patch("aicmo.marketing_review.review_marketing_output_with_metadata", new_callable=AsyncMock) as mock_review:
         mock_review.return_value = {
             "final_output": "Reviewed answer",
             "review_applied": True,
@@ -1324,8 +1324,8 @@ def test_api_v1_chat_finalizes_partial_stream_after_idle_timeout(client):
     mock_result.stream_events = mock_stream
 
     with patch("agents.Runner.run_streamed", return_value=mock_result), \
-         patch("opencmo.web.routers.chat._STREAM_IDLE_EVENT_TIMEOUT_SECONDS", 0.01), \
-         patch("opencmo.marketing_review.review_marketing_output_with_metadata", new_callable=AsyncMock) as mock_review:
+         patch("aicmo.web.routers.chat._STREAM_IDLE_EVENT_TIMEOUT_SECONDS", 0.01), \
+         patch("aicmo.marketing_review.review_marketing_output_with_metadata", new_callable=AsyncMock) as mock_review:
         mock_review.return_value = {
             "final_output": "Partial answer",
             "review_applied": False,
@@ -1389,8 +1389,8 @@ def test_api_v1_chat_skips_slow_marketing_review(client):
     mock_result.stream_events = mock_stream
 
     with patch("agents.Runner.run_streamed", return_value=mock_result), \
-         patch("opencmo.web.routers.chat._MARKETING_REVIEW_TIMEOUT_SECONDS", 0.01), \
-         patch("opencmo.marketing_review.review_marketing_output_with_metadata", side_effect=slow_review):
+         patch("aicmo.web.routers.chat._MARKETING_REVIEW_TIMEOUT_SECONDS", 0.01), \
+         patch("aicmo.marketing_review.review_marketing_output_with_metadata", side_effect=slow_review):
         resp = client.post("/api/v1/chat", json={
             "session_id": session_id,
             "message": "hi",
@@ -1414,22 +1414,22 @@ def test_api_v1_chat_skips_slow_marketing_review(client):
 
 
 def test_resolve_direct_platform_agent_detects_single_platform_content_request():
-    from opencmo.web.routers.chat import _resolve_direct_platform_agent
+    from aicmo.web.routers.chat import _resolve_direct_platform_agent
 
     assert _resolve_direct_platform_agent("帮我写 3 条 Twitter/X 推文和 1 条 thread").name == "Twitter Expert"
-    assert _resolve_direct_platform_agent("帮我写一条 X 帖子，介绍 OpenCMO").name == "Twitter Expert"
+    assert _resolve_direct_platform_agent("帮我写一条 X 帖子，介绍 AI-CMO").name == "Twitter Expert"
     assert _resolve_direct_platform_agent("帮我写一篇知乎回答，主题是 AI 搜索品牌监控").name == "Zhihu Expert"
-    assert _resolve_direct_platform_agent("Draft a Reddit post for OpenCMO and keep it humble").name == "Reddit Expert"
+    assert _resolve_direct_platform_agent("Draft a Reddit post for AI-CMO and keep it humble").name == "Reddit Expert"
     assert _resolve_direct_platform_agent("Draft a Reddit post for r/SideProject and ask for feedback").name == "Reddit Expert"
-    assert _resolve_direct_platform_agent("帮我写一篇 V2EX 帖子，介绍 OpenCMO 做 AI 搜索品牌监控").name == "V2EX Expert"
-    assert _resolve_direct_platform_agent("帮我写一篇 OSChina 项目介绍，主题是 OpenCMO").name == "OSChina Expert"
-    assert _resolve_direct_platform_agent("帮我写一篇 GitCode/CSDN 风格的项目介绍，介绍 OpenCMO").name == "GitCode Expert"
+    assert _resolve_direct_platform_agent("帮我写一篇 V2EX 帖子，介绍 AI-CMO 做 AI 搜索品牌监控").name == "V2EX Expert"
+    assert _resolve_direct_platform_agent("帮我写一篇 OSChina 项目介绍，主题是 AI-CMO").name == "OSChina Expert"
+    assert _resolve_direct_platform_agent("帮我写一篇 GitCode/CSDN 风格的项目介绍，介绍 AI-CMO").name == "GitCode Expert"
     assert _resolve_direct_platform_agent("帮我写一篇少数派文章，主题是 AI 搜索时代为什么要做品牌监控").name == "Sspai Expert"
     assert _resolve_direct_platform_agent("帮我写一篇 InfoQ 风格的文章，主题是 AI 搜索品牌监控").name == "InfoQ Expert"
     assert _resolve_direct_platform_agent("Write a Dev.to article about AI search brand monitoring").name == "Devto Expert"
-    assert _resolve_direct_platform_agent("帮我写一条阮一峰周刊投稿，主题是 OpenCMO").name == "Ruanyifeng Weekly Expert"
+    assert _resolve_direct_platform_agent("帮我写一条阮一峰周刊投稿，主题是 AI-CMO").name == "Ruanyifeng Weekly Expert"
     assert _resolve_direct_platform_agent("给我做一个全平台分发策略，包含知乎和小红书") is None
-    assert _resolve_direct_platform_agent("帮我监控 Reddit 上关于 OpenCMO 的讨论") is None
+    assert _resolve_direct_platform_agent("帮我监控 Reddit 上关于 AI-CMO 的讨论") is None
 
 
 def test_api_v1_chat_routes_single_platform_requests_directly_to_platform_expert(client):
@@ -1460,7 +1460,7 @@ def test_api_v1_chat_routes_single_platform_requests_directly_to_platform_expert
     with patch("agents.Runner.run_streamed", return_value=mock_result) as mock_runner:
         resp = client.post("/api/v1/chat", json={
             "session_id": session_id,
-            "message": "Draft a Reddit post for OpenCMO and ask for feedback",
+            "message": "Draft a Reddit post for AI-CMO and ask for feedback",
         })
 
     assert resp.status_code == 200
@@ -1517,13 +1517,13 @@ def test_spa_catchall_blog_route_injects_public_metadata(client, tmp_path):
         """
         <html>
           <head>
-            <title>OpenCMO | Home</title>
+            <title>AI-CMO | Home</title>
             <meta name="description" content="home desc" />
             <link rel="canonical" href="https://www.aidcmo.com/" />
-            <meta property="og:title" content="OpenCMO | Home" />
+            <meta property="og:title" content="AI-CMO | Home" />
             <meta property="og:description" content="home desc" />
             <meta property="og:url" content="https://www.aidcmo.com/" />
-            <meta name="twitter:title" content="OpenCMO | Home" />
+            <meta name="twitter:title" content="AI-CMO | Home" />
             <meta name="twitter:description" content="home desc" />
           </head>
           <body>
@@ -1536,11 +1536,11 @@ def test_spa_catchall_blog_route_injects_public_metadata(client, tmp_path):
     with patch.object(app_module, "_SPA_DIR", spa_dir):
         resp = client.get("/blog")
         assert resp.status_code == 200
-        assert "OpenCMO Blog | CMO, Product Marketing, GTM, and AI CMO Field Guide" in resp.text
+        assert "AI-CMO Blog | CMO, Product Marketing, GTM, and AI CMO Field Guide" in resp.text
         assert 'href="https://www.aidcmo.com/blog"' in resp.text
         assert 'hreflang="x-default"' in resp.text
         assert 'href="https://www.aidcmo.com/en/blog"' in resp.text
-        assert "A public field guide to what OpenCMO is, who it is for, and how the system should be used" in resp.text
+        assert "A public field guide to what AI-CMO is, who it is for, and how the system should be used" in resp.text
         assert "What is product marketing? Responsibilities, examples, and where it fits" in resp.text
 
 
@@ -1551,13 +1551,13 @@ def test_spa_catchall_zh_blog_route_injects_localized_metadata(client, tmp_path)
         """
         <html lang="en">
           <head>
-            <title>OpenCMO | Home</title>
+            <title>AI-CMO | Home</title>
             <meta name="description" content="home desc" />
             <link rel="canonical" href="https://www.aidcmo.com/" />
-            <meta property="og:title" content="OpenCMO | Home" />
+            <meta property="og:title" content="AI-CMO | Home" />
             <meta property="og:description" content="home desc" />
             <meta property="og:url" content="https://www.aidcmo.com/" />
-            <meta name="twitter:title" content="OpenCMO | Home" />
+            <meta name="twitter:title" content="AI-CMO | Home" />
             <meta name="twitter:description" content="home desc" />
             <script type="application/ld+json">{}</script>
           </head>
@@ -1572,10 +1572,10 @@ def test_spa_catchall_zh_blog_route_injects_localized_metadata(client, tmp_path)
         resp = client.get("/zh/blog")
         assert resp.status_code == 200
         assert '<html lang="zh-CN">' in resp.text
-        assert "OpenCMO Blog | CMO、产品营销、GTM 与 AI CMO 公开说明" in resp.text
+        assert "AI-CMO Blog | CMO、产品营销、GTM 与 AI CMO 公开说明" in resp.text
         assert 'href="https://www.aidcmo.com/zh/blog"' in resp.text
         assert 'hreflang="zh-CN"' in resp.text
-        assert "一组公开文章：解释 CMO、营销运营和 OpenCMO 到底在做什么" in resp.text
+        assert "一组公开文章：解释 CMO、营销运营和 AI-CMO 到底在做什么" in resp.text
 
 
 def test_spa_catchall_no_dist(client, tmp_path):

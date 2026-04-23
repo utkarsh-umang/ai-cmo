@@ -88,7 +88,7 @@ async def _check_via_tavily(brand_name: str, site: str, platform: str) -> dict:
         "score": 0,
     }
     try:
-        from opencmo.tools.tavily_helper import tavily_search
+        from aicmo.tools.tavily_helper import tavily_search
         results = await tavily_search(
             f'site:{site} "{brand_name}"',
             max_results=5,

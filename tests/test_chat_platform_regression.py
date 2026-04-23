@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from opencmo.ops.chat_platform_regression import DEFAULT_CASES, PlatformCase, _iter_sse_payloads, run_case, select_cases
+from aicmo.ops.chat_platform_regression import DEFAULT_CASES, PlatformCase, _iter_sse_payloads, run_case, select_cases
 
 
 def test_select_cases_returns_all_by_default():

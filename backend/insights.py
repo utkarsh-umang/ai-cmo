@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from opencmo import storage
+from aicmo import storage
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
-from opencmo.tools.community_providers import (
+from aicmo.tools.community_providers import (
     QuerySpec,
     SearchQueryPlan,
     _get_subreddits_for_category,

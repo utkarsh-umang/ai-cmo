@@ -8,8 +8,8 @@ import json
 from fastapi import APIRouter
 from starlette.responses import StreamingResponse
 
-from opencmo.background import service as bg_service
-from opencmo.web.routers.tasks import serialize_background_task
+from aicmo.background import service as bg_service
+from aicmo.web.routers.tasks import serialize_background_task
 
 router = APIRouter(prefix="/api/v1")
 

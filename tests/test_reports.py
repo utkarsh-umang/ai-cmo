@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo import service, storage
-from opencmo.reports import _classify_findings
+from aicmo import service, storage
+from aicmo.reports import _classify_findings
 
 
 @pytest.fixture(autouse=True)
@@ -176,8 +176,8 @@ async def test_generate_strategic_report_bundle_creates_human_and_agent_versions
     project_id = await _seed_project()
 
     # Human now goes through the pipeline; agent uses single-call
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.side_effect = [
             "# Strategic Human\n\n## 当前优势\n- 好",
             "# Strategic Human v2\n\n## 最近变化摘要\n- GEO up",
@@ -213,8 +213,8 @@ async def test_generate_periodic_report_bundle_marks_sparse_samples():
         platform_results_json='{}',
     )
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.return_value = "# Weekly Human\n\n样本稀疏"
         mock_llm.return_value = "# Weekly Agent\n\nsample_count: 1"
         report = await service.regenerate_project_report(project_id, "periodic")
@@ -231,14 +231,14 @@ async def test_generate_periodic_report_bundle_marks_sparse_samples():
 @pytest.mark.asyncio
 async def test_send_project_report_reuses_latest_periodic_human_report(monkeypatch):
     project_id = await _seed_project()
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.setenv("OPENCMO_SMTP_USER", "user@test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PASS", "pass")
-    monkeypatch.setenv("OPENCMO_REPORT_EMAIL", "report@test.com")
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.test.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.setenv("AICMO_SMTP_USER", "user@test.com")
+    monkeypatch.setenv("AICMO_SMTP_PASS", "pass")
+    monkeypatch.setenv("AICMO_REPORT_EMAIL", "report@test.com")
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.return_value = "# Weekly Human\n\n重要变化"
         mock_llm.return_value = "# Weekly Agent\n\nbrief"
         await service.regenerate_project_report(project_id, "periodic")
@@ -259,11 +259,11 @@ async def test_generate_report_uses_persisted_llm_settings(monkeypatch):
     project_id = await _seed_project()
     await storage.set_setting("OPENAI_API_KEY", "persisted-key")
     await storage.set_setting("OPENAI_BASE_URL", "https://example.test/v1")
-    await storage.set_setting("OPENCMO_MODEL_DEFAULT", "provider-model")
+    await storage.set_setting("AICMO_MODEL_DEFAULT", "provider-model")
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
-    monkeypatch.delenv("OPENCMO_MODEL_DEFAULT", raising=False)
+    monkeypatch.delenv("AICMO_MODEL_DEFAULT", raising=False)
 
     def fake_response(text: str):
         return SimpleNamespace(
@@ -283,7 +283,7 @@ async def test_generate_report_uses_persisted_llm_settings(monkeypatch):
         )
     )
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
          patch("openai.AsyncOpenAI", return_value=fake_client) as mock_client:
         mock_pipeline.return_value = "# Human report via pipeline"
         report = await service.regenerate_project_report(project_id, "strategic")
@@ -306,8 +306,8 @@ async def test_generate_report_uses_persisted_llm_settings(monkeypatch):
 async def test_generate_report_marks_failed_when_all_generation_paths_fail():
     project_id = await _seed_project()
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.side_effect = RuntimeError("Pipeline exploded")
         mock_llm.side_effect = RuntimeError("LLM unavailable")
 
@@ -330,9 +330,9 @@ async def test_generate_report_marks_failed_when_all_generation_paths_fail():
 async def test_generate_report_retries_empty_content_on_same_model():
     project_id = await _seed_project()
 
-    with patch("opencmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
-         patch("opencmo.reports._get_report_model", new_callable=AsyncMock, return_value="gpt-5.4"), \
-         patch("opencmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
+    with patch("aicmo.report_pipeline.run_deep_report_pipeline", new_callable=AsyncMock) as mock_pipeline, \
+         patch("aicmo.reports._get_report_model", new_callable=AsyncMock, return_value="gpt-5.4"), \
+         patch("aicmo.reports._generate_llm_markdown", new_callable=AsyncMock) as mock_llm:
         mock_pipeline.side_effect = RuntimeError("Pipeline exploded")
         mock_llm.side_effect = ["", "# Same-model retry report", "# Agent brief"]
 
@@ -357,7 +357,7 @@ def test_classify_findings_separates_verified_hypothesis_and_environment():
     assert [item["title"] for item in hypotheses] == ["Maybe"]
 
 def test_strategic_agent_prompt_avoids_nonexistent_cli_contracts():
-    from opencmo.reports import _prompts
+    from aicmo.reports import _prompts
 
     facts = {
         "project": {
@@ -371,14 +371,14 @@ def test_strategic_agent_prompt_avoids_nonexistent_cli_contracts():
     system, user = _prompts("strategic", "agent", facts, meta, previous_exists=False)
 
     assert "Task X.Y" not in system
-    assert "opencmo seo setup --project=X" not in system
-    assert "opencmo health check --module=seo" not in system
+    assert "aicmo seo setup --project=X" not in system
+    assert "aicmo health check --module=seo" not in system
     assert "Google Search Console、Ahrefs" not in system
     assert user.startswith("项目战略事实包：")
 
 
 def test_report_prompt_fragments_preserve_truth_rules_across_audiences():
-    from opencmo.reports import _prompts
+    from aicmo.reports import _prompts
 
     facts = {
         "project": {
@@ -399,7 +399,7 @@ def test_report_prompt_fragments_preserve_truth_rules_across_audiences():
 
 
 def test_report_prompt_distinguishes_facts_from_recommendations_when_data_is_sparse():
-    from opencmo.reports import _prompts
+    from aicmo.reports import _prompts
 
     facts = {
         "project": {

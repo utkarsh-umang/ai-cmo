@@ -66,7 +66,7 @@ def _truncate_list(data: list | None, max_items: int, sort_key: str | None = Non
 
 async def _llm_text_call(system: str, user: str) -> str:
     """Single LLM call returning plain text / markdown."""
-    from opencmo.reports import _generate_llm_markdown
+    from aicmo.reports import _generate_llm_markdown
     return await _generate_llm_markdown(system, user)
 
 

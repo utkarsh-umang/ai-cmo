@@ -1,7 +1,7 @@
 """Service layer — shared business logic for CLI and Web.
 
 This module is a backward-compatible re-export layer.  The actual
-implementations now live in focused domain modules under ``opencmo.services``:
+implementations now live in focused domain modules under ``aicmo.services``:
 
 - ``monitoring_service`` — monitors, keywords, reports, status
 - ``approval_service``  — content approval queue and publishing
@@ -11,7 +11,7 @@ implementations now live in focused domain modules under ``opencmo.services``:
 from __future__ import annotations
 
 # ── Approval & publishing ────────────────────────────────────────────
-from opencmo.services.approval_service import (  # noqa: F401
+from aicmo.services.approval_service import (  # noqa: F401
     approve_approval,
     create_approval,
     get_approval,
@@ -20,14 +20,14 @@ from opencmo.services.approval_service import (  # noqa: F401
 )
 
 # ── AI intelligence (URL analysis, competitor discovery) ─────────────
-from opencmo.services.intelligence_service import (  # noqa: F401
+from aicmo.services.intelligence_service import (  # noqa: F401
     analyze_and_enrich_project,
     analyze_url_with_ai,
     discover_competitors,
 )
 
 # ── Monitoring & project management ──────────────────────────────────
-from opencmo.services.monitoring_service import (  # noqa: F401
+from aicmo.services.monitoring_service import (  # noqa: F401
     create_monitor,
     get_monitor,
     get_monitor_history,

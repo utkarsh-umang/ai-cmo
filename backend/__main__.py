@@ -1,3 +1,3 @@
-from opencmo.cli import main
+from aicmo.cli import main
 
 main()

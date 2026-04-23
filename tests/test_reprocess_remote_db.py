@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo.ops.reprocess_remote_db import RetryPolicy, _extract_provider_delay_seconds, retry_async
+from aicmo.ops.reprocess_remote_db import RetryPolicy, _extract_provider_delay_seconds, retry_async
 
 
 def test_extract_provider_delay_seconds_reads_reset_seconds():

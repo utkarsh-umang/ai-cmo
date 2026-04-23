@@ -8,8 +8,8 @@ import json
 import logging
 from datetime import datetime, timedelta, timezone
 
-from opencmo import storage
-from opencmo.opportunities import build_project_opportunity_snapshot
+from aicmo import storage
+from aicmo.opportunities import build_project_opportunity_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ def _simple_markdown_to_html(markdown_text: str) -> str:
 
 async def _generate_llm_markdown(system_prompt: str, user_prompt: str, *, model_override: str | None = None) -> str:
     """Generate markdown with the configured LLM."""
-    from opencmo import llm
+    from aicmo import llm
 
     api_key = await llm.get_key_async("OPENAI_API_KEY")
     if not api_key:
@@ -184,18 +184,18 @@ async def _generate_llm_markdown_with_empty_retry(
 
 
 async def _get_runtime_setting(key: str, default: str | None = None) -> str | None:
-    from opencmo import llm
+    from aicmo import llm
     return await llm.get_key_async(key, default)
 
 
 async def _get_report_model() -> str:
-    from opencmo import llm
+    from aicmo import llm
     return await llm.get_model()
 
 
 async def _get_report_timeout_seconds() -> float:
     raw_value = await _get_runtime_setting(
-        "OPENCMO_REPORT_LLM_TIMEOUT_SECONDS",
+        "AICMO_REPORT_LLM_TIMEOUT_SECONDS",
         str(_REPORT_LLM_TIMEOUT_SECONDS),
     )
     try:
@@ -771,7 +771,7 @@ async def _generate_report_record(
     # Agent briefs stay single-call (they need to be concise).
     if audience == "human":
         try:
-            from opencmo.report_pipeline import run_deep_report_pipeline
+            from aicmo.report_pipeline import run_deep_report_pipeline
 
             content = await run_deep_report_pipeline(
                 facts, meta, previous_exists, kind=kind,

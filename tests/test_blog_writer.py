@@ -5,13 +5,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo.tools.tavily_helper import TavilyResult
+from aicmo.tools.tavily_helper import TavilyResult
 
 
 @pytest.mark.asyncio
 async def test_research_topic():
     """research_blog_topic returns structured JSON with competing articles."""
-    from opencmo.tools.blog_writer import _research_topic_impl
+    from aicmo.tools.blog_writer import _research_topic_impl
 
     # Mock httpx search
     mock_resp = MagicMock()
@@ -48,7 +48,7 @@ async def test_research_topic():
 @pytest.mark.asyncio
 async def test_research_crawl_failure():
     """Partial crawl failure still returns valid data."""
-    from opencmo.tools.blog_writer import _research_topic_impl
+    from aicmo.tools.blog_writer import _research_topic_impl
 
     mock_resp = MagicMock()
     mock_resp.text = '<a href="/url?q=https://example.com/a">A</a>'
@@ -77,7 +77,7 @@ async def test_research_crawl_failure():
 @pytest.mark.asyncio
 async def test_research_topic_uses_shared_fetch_helper():
     """Blog research should use shared Tavily-first fetch for article content."""
-    from opencmo.tools.blog_writer import _research_topic_impl
+    from aicmo.tools.blog_writer import _research_topic_impl
 
     search_results = [
         TavilyResult(
@@ -97,8 +97,8 @@ async def test_research_topic_uses_shared_fetch_helper():
     mock_crawler.__aexit__ = AsyncMock(return_value=False)
     mock_crawler.arun = AsyncMock(side_effect=AssertionError("crawl should not be used"))
 
-    with patch("opencmo.tools.tavily_helper.tavily_search", AsyncMock(return_value=search_results)), \
-         patch("opencmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
+    with patch("aicmo.tools.tavily_helper.tavily_search", AsyncMock(return_value=search_results)), \
+         patch("aicmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
          patch("crawl4ai.AsyncWebCrawler", return_value=mock_crawler):
         result = await _research_topic_impl("web scraping tools", "web scraping,python")
 
@@ -113,7 +113,7 @@ async def test_research_topic_uses_shared_fetch_helper():
 
 def test_blog_expert_has_tools():
     """Blog expert should have research + search + crawl tools."""
-    from opencmo.agents.blog import blog_expert
+    from aicmo.agents.blog import blog_expert
 
     tool_names = [t.name for t in blog_expert.tools if hasattr(t, "name")]
     assert "research_blog_topic" in tool_names
@@ -123,7 +123,7 @@ def test_blog_expert_has_tools():
 
 def test_blog_expert_instructions_mention_full_article():
     """Blog expert instructions should mention full article mode."""
-    from opencmo.agents.blog import blog_expert
+    from aicmo.agents.blog import blog_expert
 
     assert "Full Article" in blog_expert.instructions
     assert "2000" in blog_expert.instructions

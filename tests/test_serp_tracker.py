@@ -8,7 +8,7 @@ import pytest
 @pytest.fixture
 def tmp_db(tmp_path, monkeypatch):
     """Use a temporary DB for tests."""
-    from opencmo import storage
+    from aicmo import storage
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path)
     return db_path
@@ -22,7 +22,7 @@ def tmp_db(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_serp_provider_crawl_failure():
     """Crawl failure returns position=None + error string, doesn't raise."""
-    from opencmo.tools.serp_tracker import CrawlSerpProvider
+    from aicmo.tools.serp_tracker import CrawlSerpProvider
 
     provider = CrawlSerpProvider()
     with patch("httpx.AsyncClient") as mock_client_cls:
@@ -43,7 +43,7 @@ async def test_serp_provider_crawl_failure():
 @pytest.mark.asyncio
 async def test_serp_provider_success_found():
     """Provider finds target domain in results."""
-    from opencmo.tools.serp_tracker import CrawlSerpProvider
+    from aicmo.tools.serp_tracker import CrawlSerpProvider
 
     provider = CrawlSerpProvider()
     fake_html = '''
@@ -71,7 +71,7 @@ async def test_serp_provider_success_found():
 @pytest.mark.asyncio
 async def test_serp_provider_success_not_found():
     """Provider correctly reports not-found (no matching domain)."""
-    from opencmo.tools.serp_tracker import CrawlSerpProvider
+    from aicmo.tools.serp_tracker import CrawlSerpProvider
 
     provider = CrawlSerpProvider()
     fake_html = '<a href="/url?q=https://other.com/page">Other</a>'
@@ -95,8 +95,8 @@ async def test_serp_provider_success_not_found():
 @pytest.mark.asyncio
 async def test_check_ranking_falls_back_to_crawl_on_provider_error(monkeypatch):
     """A Tavily quota/rate error should not be persisted if crawl fallback succeeds."""
-    from opencmo.tools import serp_tracker
-    from opencmo.tools.serp_tracker import SerpResult
+    from aicmo.tools import serp_tracker
+    from aicmo.tools.serp_tracker import SerpResult
 
     calls: list[str] = []
 
@@ -156,7 +156,7 @@ async def test_check_ranking_falls_back_to_crawl_on_provider_error(monkeypatch):
 @pytest.mark.asyncio
 async def test_tracked_keywords_crud(tmp_db):
     """Add, list, remove tracked keywords."""
-    from opencmo import storage
+    from aicmo import storage
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
 
@@ -181,7 +181,7 @@ async def test_tracked_keywords_crud(tmp_db):
 @pytest.mark.asyncio
 async def test_serp_snapshot_crud(tmp_db):
     """Save and query SERP snapshots with provider + error columns."""
-    from opencmo import storage
+    from aicmo import storage
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
     await storage.add_tracked_keyword(pid, "test keyword")
@@ -201,7 +201,7 @@ async def test_serp_snapshot_crud(tmp_db):
 @pytest.mark.asyncio
 async def test_serp_snapshot_error_vs_not_ranked(tmp_db):
     """Distinguish error (error IS NOT NULL) from not-ranked (position IS NULL, error IS NULL)."""
-    from opencmo import storage
+    from aicmo import storage
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
 
@@ -223,8 +223,8 @@ async def test_serp_snapshot_error_vs_not_ranked(tmp_db):
 @pytest.mark.asyncio
 async def test_serp_trends_with_data(tmp_db):
     """get_serp_trends returns markdown table when data exists."""
-    from opencmo import storage
-    from opencmo.tools.serp_tracker import _get_serp_trends_impl
+    from aicmo import storage
+    from aicmo.tools.serp_tracker import _get_serp_trends_impl
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
     await storage.add_tracked_keyword(pid, "test kw")
@@ -238,8 +238,8 @@ async def test_serp_trends_with_data(tmp_db):
 @pytest.mark.asyncio
 async def test_serp_trends_no_data(tmp_db):
     """get_serp_trends returns 'no data' when empty."""
-    from opencmo import storage
-    from opencmo.tools.serp_tracker import _get_serp_trends_impl
+    from aicmo import storage
+    from aicmo.tools.serp_tracker import _get_serp_trends_impl
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
     result = await _get_serp_trends_impl(pid)
@@ -249,14 +249,14 @@ async def test_serp_trends_no_data(tmp_db):
 @pytest.mark.asyncio
 async def test_track_project_keywords_derives_domain(tmp_db):
     """track_project_keywords uses domain from project.url."""
-    from opencmo import storage
-    from opencmo.tools.serp_tracker import track_project_keywords
+    from aicmo import storage
+    from aicmo.tools.serp_tracker import track_project_keywords
 
     pid = await storage.ensure_project("Test", "https://www.example.com/path", "saas")
     await storage.add_tracked_keyword(pid, "test")
 
-    with patch("opencmo.tools.serp_tracker._check_ranking") as mock_check:
-        from opencmo.tools.serp_tracker import SerpResult
+    with patch("aicmo.tools.serp_tracker._check_ranking") as mock_check:
+        from aicmo.tools.serp_tracker import SerpResult
 
         mock_check.return_value = SerpResult(
             position=1, url_found="https://example.com", total_results=10, provider="crawl", error=None
@@ -269,7 +269,7 @@ async def test_track_project_keywords_derives_domain(tmp_db):
 
 def test_get_active_provider_default():
     """Default provider is CrawlSerpProvider."""
-    from opencmo.tools.serp_tracker import _get_active_provider
+    from aicmo.tools.serp_tracker import _get_active_provider
 
     provider = _get_active_provider()
     assert provider.name == "crawl"
@@ -277,7 +277,7 @@ def test_get_active_provider_default():
 
 def test_get_active_provider_dataforseo(monkeypatch):
     """DataForSeoProvider enabled when env vars are set."""
-    from opencmo.tools.serp_tracker import DataForSeoProvider
+    from aicmo.tools.serp_tracker import DataForSeoProvider
 
     monkeypatch.setenv("DATAFORSEO_LOGIN", "test")
     monkeypatch.setenv("DATAFORSEO_PASSWORD", "test")

@@ -10,7 +10,7 @@ import {
   isPublicRoutePath,
 } from "../../utils/publicRoutes";
 
-const GITHUB_REPO = "https://github.com/study8677/OpenCMO";
+const GITHUB_REPO = "https://github.com/study8677/AI-CMO";
 
 type PublicSiteHeaderProps = {
   items: PublicNavItem[];
@@ -103,7 +103,7 @@ export function PublicSiteHeader({
             <Sparkles size={18} />
           </div>
           <div className="min-w-0">
-            <p className="font-display text-base font-semibold tracking-tight">OpenCMO</p>
+            <p className="font-display text-base font-semibold tracking-tight">AI-CMO</p>
             <p className={`truncate text-xs ${brandMetaClass}`}>
               {t("landing.headerTagline")}
             </p>

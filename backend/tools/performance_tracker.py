@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import logging
 
-from opencmo import storage
-from opencmo.storage._db import get_db
+from aicmo import storage
+from aicmo.storage._db import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ async def fetch_reddit_post_metrics(post_url: str) -> dict | None:
             client_secret=os.environ.get("REDDIT_CLIENT_SECRET", ""),
             username=os.environ.get("REDDIT_USERNAME", ""),
             password=os.environ.get("REDDIT_PASSWORD", ""),
-            user_agent="OpenCMO/1.0",
+            user_agent="AI-CMO/1.0",
         )
         submission = reddit.submission(url=post_url)
         return {

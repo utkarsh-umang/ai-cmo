@@ -5,8 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
-from opencmo.background import service as bg_service
+from aicmo import storage
+from aicmo.background import service as bg_service
 
 router = APIRouter(prefix="/api/v1")
 
@@ -26,7 +26,7 @@ async def api_v1_discover_competitors(project_id: int):
     project = await storage.get_project(project_id)
     if not project:
         return JSONResponse({"error": "Not found"}, status_code=404)
-    from opencmo.service import discover_competitors
+    from aicmo.service import discover_competitors
     result = await discover_competitors(project_id)
     return JSONResponse({"competitors": result})
 

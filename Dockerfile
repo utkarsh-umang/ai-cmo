@@ -13,14 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml README.md ./
-COPY src/ ./src/
+COPY backend/ ./backend/
 RUN pip install --no-cache-dir -e ".[all]"
 # Install system deps for Chromium (used by crawl4ai), then set up crawl4ai
 RUN playwright install-deps chromium \
     && crawl4ai-setup || true
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 VOLUME ["/data"]
-ENV OPENCMO_DB_PATH=/data/data.db
-ENV OPENCMO_WEB_HOST=0.0.0.0
+ENV AICMO_DB_PATH=/data/data.db
+ENV AICMO_WEB_HOST=0.0.0.0
 EXPOSE 8080
-CMD ["opencmo-web"]
+CMD ["aicmo-web"]

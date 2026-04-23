@@ -10,7 +10,7 @@ Key resolution priority:
     4. os.environ (from .env or system environment) for all other keys
 
 Usage:
-    from opencmo import llm
+    from aicmo import llm
 
     # In BYOK middleware — inject per-request keys:
     token = llm.set_request_keys({"OPENAI_API_KEY": "sk-user-xxx"})
@@ -48,7 +48,7 @@ _MODEL_DEFAULT = "gpt-5.4"
 _ENV_PRIORITY_KEYS = frozenset({
     "OPENAI_API_KEY",
     "OPENAI_BASE_URL",
-    "OPENCMO_MODEL_DEFAULT",
+    "AICMO_MODEL_DEFAULT",
 })
 
 # ---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ async def get_key_async(name: str, default: str | None = None) -> str | None:
 
     # 3. DB settings
     try:
-        from opencmo import storage
+        from aicmo import storage
         val = await storage.get_setting(name)
         if val:
             return val
@@ -200,13 +200,13 @@ def normalize_base_url(base_url: str | None) -> str | None:
 async def get_model(purpose: str = "default") -> str:
     """Get the model name for a given purpose.
 
-    Resolution: OPENCMO_MODEL_{PURPOSE} > OPENCMO_MODEL_DEFAULT > 'gpt-5.4'
+    Resolution: AICMO_MODEL_{PURPOSE} > AICMO_MODEL_DEFAULT > 'gpt-5.4'
     """
     if purpose and purpose != "default":
-        specific = await get_key_async(f"OPENCMO_MODEL_{purpose.upper()}")
+        specific = await get_key_async(f"AICMO_MODEL_{purpose.upper()}")
         if specific:
             return specific
-    return (await get_key_async("OPENCMO_MODEL_DEFAULT")) or _MODEL_DEFAULT
+    return (await get_key_async("AICMO_MODEL_DEFAULT")) or _MODEL_DEFAULT
 
 
 # ---------------------------------------------------------------------------

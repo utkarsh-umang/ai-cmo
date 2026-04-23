@@ -32,7 +32,7 @@ async def save_blog_draft_impl(payload: dict) -> dict:
     in the database for the user to review, edit, and copy-paste to their
     blog, Dev.to, Medium, etc.
     """
-    from opencmo import storage
+    from aicmo import storage
 
     title = payload.get("title", "Untitled Draft")
     body = payload.get("body", "")
@@ -68,8 +68,8 @@ async def save_blog_draft_impl(payload: dict) -> dict:
 
 
 def _auto_publish_enabled() -> bool:
-    from opencmo import llm
-    return llm.get_key("OPENCMO_AUTO_PUBLISH", "0") == "1"
+    from aicmo import llm
+    return llm.get_key("AICMO_AUTO_PUBLISH", "0") == "1"
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ async def publish_reddit_post_impl(
     if not _HAS_PRAW:
         return {"ok": False, "error": "praw not installed. pip install praw"}
 
-    from opencmo import llm
+    from aicmo import llm
     client_id = llm.get_key("REDDIT_CLIENT_ID")
     client_secret = llm.get_key("REDDIT_CLIENT_SECRET")
     username = llm.get_key("REDDIT_USERNAME")
@@ -110,7 +110,7 @@ async def publish_reddit_post_impl(
             client_secret=client_secret,
             username=username,
             password=password,
-            user_agent="OpenCMO/1.0",
+            user_agent="AI-CMO/1.0",
         )
         # praw is synchronous, use executor
         loop = asyncio.get_event_loop()
@@ -148,7 +148,7 @@ async def publish_reddit_reply_impl(
     if not _HAS_PRAW:
         return {"ok": False, "error": "praw not installed. pip install praw"}
 
-    from opencmo import llm
+    from aicmo import llm
     client_id = llm.get_key("REDDIT_CLIENT_ID")
     client_secret = llm.get_key("REDDIT_CLIENT_SECRET")
     username = llm.get_key("REDDIT_USERNAME")
@@ -163,7 +163,7 @@ async def publish_reddit_reply_impl(
             client_secret=client_secret,
             username=username,
             password=password,
-            user_agent="OpenCMO/1.0",
+            user_agent="AI-CMO/1.0",
         )
         loop = asyncio.get_event_loop()
 
@@ -213,7 +213,7 @@ async def publish_tweet_impl(text: str, *, dry_run: bool = True) -> dict:
     if not _HAS_TWEEPY:
         return {"ok": False, "error": "tweepy not installed. pip install tweepy"}
 
-    from opencmo import llm
+    from aicmo import llm
     api_key = llm.get_key("TWITTER_API_KEY")
     api_secret = llm.get_key("TWITTER_API_SECRET")
     access_token = llm.get_key("TWITTER_ACCESS_TOKEN")
@@ -251,7 +251,7 @@ async def publish_tweet_impl(text: str, *, dry_run: bool = True) -> dict:
 async def publish_to_reddit(
     subreddit: str, title: str, body: str, confirm: bool = False
 ) -> str:
-    """Publish a post to Reddit. Always shows preview first; only publishes when confirm=True AND OPENCMO_AUTO_PUBLISH=1.
+    """Publish a post to Reddit. Always shows preview first; only publishes when confirm=True AND AICMO_AUTO_PUBLISH=1.
 
     Args:
         subreddit: Target subreddit name (without r/).
@@ -271,7 +271,7 @@ async def publish_to_reddit(
             f"**Body:** {preview['body']}\n\n"
         )
         if not _auto_publish_enabled():
-            msg += "Set OPENCMO_AUTO_PUBLISH=1 to enable real publishing.\n"
+            msg += "Set AICMO_AUTO_PUBLISH=1 to enable real publishing.\n"
         msg += "Say 'confirm publish' to post for real."
         return msg
 
@@ -286,7 +286,7 @@ async def publish_to_reddit(
 async def reply_to_reddit_comment(
     parent_id: str, body: str, confirm: bool = False
 ) -> str:
-    """Reply to an existing Reddit post or comment. Always shows preview first; only publishes when confirm=True AND OPENCMO_AUTO_PUBLISH=1.
+    """Reply to an existing Reddit post or comment. Always shows preview first; only publishes when confirm=True AND AICMO_AUTO_PUBLISH=1.
 
     Args:
         parent_id: The ID or fullname of the post or comment to reply to (e.g. from fetch_discussion_detail).
@@ -304,7 +304,7 @@ async def reply_to_reddit_comment(
             f"**Body:** {preview['body']}\n\n"
         )
         if not _auto_publish_enabled():
-            msg += "Set OPENCMO_AUTO_PUBLISH=1 to enable real publishing.\n"
+            msg += "Set AICMO_AUTO_PUBLISH=1 to enable real publishing.\n"
         msg += "Say 'confirm publish' to post for real."
         return msg
 
@@ -317,7 +317,7 @@ async def reply_to_reddit_comment(
 
 @function_tool
 async def publish_to_twitter(text: str, confirm: bool = False) -> str:
-    """Publish a tweet. Always shows preview first; only publishes when confirm=True AND OPENCMO_AUTO_PUBLISH=1.
+    """Publish a tweet. Always shows preview first; only publishes when confirm=True AND AICMO_AUTO_PUBLISH=1.
 
     Args:
         text: Tweet text (max 280 characters).
@@ -334,7 +334,7 @@ async def publish_to_twitter(text: str, confirm: bool = False) -> str:
             f"({preview['length']} chars)\n\n"
         )
         if not _auto_publish_enabled():
-            msg += "Set OPENCMO_AUTO_PUBLISH=1 to enable real publishing.\n"
+            msg += "Set AICMO_AUTO_PUBLISH=1 to enable real publishing.\n"
         msg += "Say 'confirm publish' to post for real."
         return msg
 

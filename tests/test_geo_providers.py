@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo.tools.geo_providers import (
+from aicmo.tools.geo_providers import (
     GEO_PROVIDER_REGISTRY,
     ChatGPTProvider,
     ClaudeProvider,
@@ -22,7 +22,7 @@ from opencmo.tools.geo_providers import (
 
 @pytest.fixture(autouse=True)
 def _use_light_profile(monkeypatch):
-    monkeypatch.setenv("OPENCMO_SCRAPE_DEPTH", "light")
+    monkeypatch.setenv("AICMO_SCRAPE_DEPTH", "light")
 
 
 # ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ def test_crawl_providers_enabled_by_default():
 def test_api_providers_disabled_without_keys():
     """API-based providers should be disabled without their env vars."""
     env_clean = {
-        "OPENCMO_GEO_CHATGPT": "",
+        "AICMO_GEO_CHATGPT": "",
         "ANTHROPIC_API_KEY": "",
         "GOOGLE_AI_API_KEY": "",
         "MOONSHOT_API_KEY": "",
@@ -70,12 +70,12 @@ def test_api_providers_disabled_without_keys():
 
 
 def test_chatgpt_requires_opt_in():
-    """ChatGPT needs both OPENCMO_GEO_CHATGPT=1 and OPENAI_API_KEY."""
-    with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test", "OPENCMO_GEO_CHATGPT": ""}, clear=False):
+    """ChatGPT needs both AICMO_GEO_CHATGPT=1 and OPENAI_API_KEY."""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test", "AICMO_GEO_CHATGPT": ""}, clear=False):
         p = ChatGPTProvider()
         assert not p.is_enabled
 
-    with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test", "OPENCMO_GEO_CHATGPT": "1"}, clear=False):
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test", "AICMO_GEO_CHATGPT": "1"}, clear=False):
         p = ChatGPTProvider()
         assert p.is_enabled
 
@@ -125,7 +125,7 @@ async def test_chatgpt_provider_parse():
     mock_response.choices = [MagicMock()]
     mock_response.choices[0].message.content = "Top tools: 1. Crawl4AI - great for scraping. 2. Scrapy - classic."
 
-    with patch("opencmo.tools.geo_providers.ChatGPTProvider.is_enabled", True):
+    with patch("aicmo.tools.geo_providers.ChatGPTProvider.is_enabled", True):
         with patch("openai.AsyncOpenAI") as mock_cls:
             mock_client = AsyncMock()
             mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
@@ -144,8 +144,8 @@ async def test_claude_provider_parse():
     mock_response = MagicMock()
     mock_response.content = [MagicMock(text="Top tools: 1. Crawl4AI 2. BeautifulSoup")]
 
-    with patch("opencmo.tools.geo_providers._HAS_ANTHROPIC", True):
-        with patch("opencmo.tools.geo_providers.anthropic") as mock_anthropic:
+    with patch("aicmo.tools.geo_providers._HAS_ANTHROPIC", True):
+        with patch("aicmo.tools.geo_providers.anthropic") as mock_anthropic:
             mock_client = AsyncMock()
             mock_client.messages.create = AsyncMock(return_value=mock_response)
             mock_anthropic.AsyncAnthropic.return_value = mock_client
@@ -162,8 +162,8 @@ async def test_gemini_provider_parse():
     mock_response = MagicMock()
     mock_response.text = "Best tools: Crawl4AI, Playwright, Puppeteer"
 
-    with patch("opencmo.tools.geo_providers._HAS_GENAI", True):
-        with patch("opencmo.tools.geo_providers.genai") as mock_genai:
+    with patch("aicmo.tools.geo_providers._HAS_GENAI", True):
+        with patch("aicmo.tools.geo_providers.genai") as mock_genai:
             with patch.dict(os.environ, {"GOOGLE_AI_API_KEY": "test-key"}):
                 mock_model = AsyncMock()
                 mock_model.generate_content_async = AsyncMock(return_value=mock_response)
@@ -230,7 +230,7 @@ async def test_provider_failure_graceful():
     """Single provider failure should return error result, not raise."""
     provider = PerplexityProvider()
 
-    with patch("opencmo.tools.geo_providers.AsyncWebCrawler") as mock_cls:
+    with patch("aicmo.tools.geo_providers.AsyncWebCrawler") as mock_cls:
         mock_crawler = AsyncMock()
         mock_crawler.__aenter__ = AsyncMock(return_value=mock_crawler)
         mock_crawler.__aexit__ = AsyncMock(return_value=False)

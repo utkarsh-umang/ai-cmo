@@ -7,8 +7,8 @@ import logging
 
 from agents import function_tool
 
-from opencmo import llm, storage
-from opencmo.tools.github_api import (
+from aicmo import llm, storage
+from aicmo.tools.github_api import (
     fetch_followers,
     fetch_following,
 )
@@ -63,7 +63,7 @@ async def discover_github_users(
     # Enqueue background enrichment task
     task_id = ""
     try:
-        from opencmo.background import service as bg_service
+        from aicmo.background import service as bg_service
         task = await bg_service.enqueue_task(
             kind="github_enrich",
             project_id=project_id,
@@ -154,12 +154,12 @@ async def score_github_leads(project_id: int) -> str:
     Args:
         project_id: The project whose leads to score.
     """
-    from opencmo.services.github_service import compute_outreach_score, has_contact_info
+    from aicmo.services.github_service import compute_outreach_score, has_contact_info
 
     project = await storage.get_project(project_id)
     category = project.get("category", "") if project else ""
 
-    from opencmo.storage.serp import list_tracked_keywords
+    from aicmo.storage.serp import list_tracked_keywords
     kw_rows = await list_tracked_keywords(project_id)
     keywords = [r["keyword"] for r in kw_rows] if kw_rows else []
 

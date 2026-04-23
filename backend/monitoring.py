@@ -9,10 +9,10 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 
-from opencmo import llm, storage
-from opencmo.finding_contract import upgrade_legacy_finding
-from opencmo.finding_verifier import run_verifier_suite
-from opencmo.tools.browser_pool import browser_slot
+from aicmo import llm, storage
+from aicmo.finding_contract import upgrade_legacy_finding
+from aicmo.finding_verifier import run_verifier_suite
+from aicmo.tools.browser_pool import browser_slot
 
 ProgressCallback = Callable[[dict], None]
 
@@ -121,7 +121,7 @@ async def _build_project_context(
     locale: str,
     on_progress: ProgressCallback | None,
 ) -> dict:
-    from opencmo import service
+    from aicmo import service
 
     await _emit(run_id, on_progress, _event(
         "context_build",
@@ -194,7 +194,7 @@ async def _collect_signals(
     job_id: int,
     on_progress: ProgressCallback | None,
 ) -> None:
-    from opencmo import storage as _storage
+    from aicmo import storage as _storage
 
     await _emit(run_id, on_progress, _event(
         "signal_collect",
@@ -231,7 +231,7 @@ async def _collect_signals(
         try:
             from crawl4ai import AsyncWebCrawler
 
-            from opencmo.tools.seo_audit import (
+            from aicmo.tools.seo_audit import (
                 _build_report,
                 _check_robots_and_sitemap,
                 _compute_seo_health_score,
@@ -282,7 +282,7 @@ async def _collect_signals(
             agent="Signal Collector",
         ))
         try:
-            from opencmo.tools.serp_tracker import track_project_keywords
+            from aicmo.tools.serp_tracker import track_project_keywords
             await track_project_keywords(project_id)
             await _emit(run_id, on_progress, _event(
                 "signal_collect",
@@ -306,8 +306,8 @@ async def _collect_signals(
         try:
             import json as _json
 
-            from opencmo.tools.geo_providers import GEO_PROVIDER_REGISTRY
-            from opencmo.tools.text_signals import analyze_geo_sentiment
+            from aicmo.tools.geo_providers import GEO_PROVIDER_REGISTRY
+            from aicmo.tools.text_signals import analyze_geo_sentiment
 
             enabled = [p for p in GEO_PROVIDER_REGISTRY if p.is_enabled]
             results = {}
@@ -379,8 +379,8 @@ async def _collect_signals(
         try:
             import json as _json
 
-            from opencmo.tools.community import _scan_community_impl
-            from opencmo.tools.community_scoring import text_relevance
+            from aicmo.tools.community import _scan_community_impl
+            from aicmo.tools.community_scoring import text_relevance
 
             tracked_keywords = [
                 item["keyword"]
@@ -443,7 +443,7 @@ async def _collect_signals(
             agent="Signal Collector",
         ))
         try:
-            from opencmo.services.github_service import auto_discover_from_product
+            from aicmo.services.github_service import auto_discover_from_product
 
             result = await auto_discover_from_product(project_id)
             discovered = result.get("discovered", 0)
@@ -1100,7 +1100,7 @@ async def run_monitoring_workflow(
 
         if job_type == "full":
             try:
-                from opencmo.background import service as _bg_service
+                from aicmo.background import service as _bg_service
 
                 # Queue report generation as a separate background task so the scan
                 # task can complete quickly and not be vulnerable to server restarts.
@@ -1125,7 +1125,7 @@ async def run_monitoring_workflow(
         # Auto-trigger graph expansion after successful full scan
         if job_type == "full":
             try:
-                from opencmo.background import service as bg_service
+                from aicmo.background import service as bg_service
 
                 existing = await bg_service.find_active_task_by_dedupe_key(f"graph:project:{project_id}")
                 if existing is None:

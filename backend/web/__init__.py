@@ -1,1 +1,1 @@
-"""OpenCMO Web Dashboard."""
+"""AI-CMO Web Dashboard."""

@@ -1,7 +1,7 @@
 """ENV-driven configuration system — supports OpenAI, NVIDIA, DeepSeek, and any OpenAI-compatible API.
 
 This module provides the get_model() function used by the openai-agents framework.
-LLM client creation is delegated to opencmo.llm for ContextVar-based key isolation.
+LLM client creation is delegated to aicmo.llm for ContextVar-based key isolation.
 """
 
 from dotenv import load_dotenv
@@ -14,17 +14,17 @@ def get_model(agent_name: str):
     """Return the model for a given agent.
 
     Resolution order for model name:
-        OPENCMO_MODEL_{AGENT} > OPENCMO_MODEL_DEFAULT > 'gpt-5.4'
+        AICMO_MODEL_{AGENT} > AICMO_MODEL_DEFAULT > 'gpt-5.4'
 
     If OPENAI_BASE_URL is set, returns an OpenAIChatCompletionsModel
     configured with a custom client (works with NVIDIA, DeepSeek, etc.).
     Otherwise returns a plain model name string (uses OpenAI default).
     """
-    from opencmo import llm
+    from aicmo import llm
 
-    model_name = llm.get_key(f"OPENCMO_MODEL_{agent_name.upper()}")
+    model_name = llm.get_key(f"AICMO_MODEL_{agent_name.upper()}")
     if not model_name:
-        model_name = llm.get_key("OPENCMO_MODEL_DEFAULT", "gpt-5.4")
+        model_name = llm.get_key("AICMO_MODEL_DEFAULT", "gpt-5.4")
 
     base_url = llm.normalize_base_url(llm.get_key("OPENAI_BASE_URL"))
     if base_url:
@@ -45,7 +45,7 @@ def get_model(agent_name: str):
 
 def is_custom_provider() -> bool:
     """True if a non-default OPENAI_BASE_URL is configured."""
-    from opencmo import llm
+    from aicmo import llm
     return bool(llm.get_key("OPENAI_BASE_URL"))
 
 
@@ -76,9 +76,9 @@ async def apply_runtime_settings():
     """
     import os
 
-    from opencmo import storage
+    from aicmo import storage
 
-    for key in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENCMO_MODEL_DEFAULT"):
+    for key in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "AICMO_MODEL_DEFAULT"):
         val = await storage.get_setting(key)
         if val:
             os.environ[key] = val

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo.tools.seo_audit import (
+from aicmo.tools.seo_audit import (
     _build_report,
     _check_robots_and_sitemap,
     _cwv_status,
@@ -100,7 +100,7 @@ def test_cwv_status_critical():
 @pytest.mark.asyncio
 async def test_cwv_api_failure_graceful():
     """API failure -> report still complete with CWV section marked unavailable."""
-    with patch("opencmo.tools.seo_audit.httpx.AsyncClient") as mock_client_cls:
+    with patch("aicmo.tools.seo_audit.httpx.AsyncClient") as mock_client_cls:
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
@@ -132,7 +132,7 @@ async def test_robots_txt_parsing():
             return MockResponse(200, "<urlset><url><loc>https://example.com/</loc></url><url><loc>https://example.com/about</loc></url></urlset>")
         return MockResponse(404, "")
 
-    with patch("opencmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
+    with patch("aicmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
@@ -158,7 +158,7 @@ async def test_robots_txt_disallow_all():
             return MockResponse(200, "User-agent: *\nDisallow: /\n")
         return MockResponse(404, "")
 
-    with patch("opencmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
+    with patch("aicmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
@@ -190,7 +190,7 @@ async def test_sitemap_page_count():
             return MockResponse(200, f"<urlset>{locs}</urlset>")
         return MockResponse(404, "")
 
-    with patch("opencmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
+    with patch("aicmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
@@ -217,7 +217,7 @@ async def test_robots_and_sitemap_ignore_html_shell_false_positives():
             return MockResponse(200, html_shell)
         return MockResponse(404, "")
 
-    with patch("opencmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
+    with patch("aicmo.tools.seo_audit.httpx.AsyncClient") as mock_cls:
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)

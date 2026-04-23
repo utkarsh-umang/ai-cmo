@@ -27,7 +27,7 @@ def _get_positive_int_env(name: str, default: int) -> int:
 
 def get_browser_concurrency() -> int:
     """Return the global browser concurrency cap for Crawl4AI usage."""
-    return _get_positive_int_env("OPENCMO_BROWSER_CONCURRENCY", _DEFAULT_BROWSER_CONCURRENCY)
+    return _get_positive_int_env("AICMO_BROWSER_CONCURRENCY", _DEFAULT_BROWSER_CONCURRENCY)
 
 
 def _get_browser_semaphore() -> asyncio.Semaphore:

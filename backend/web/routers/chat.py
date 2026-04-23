@@ -11,8 +11,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from starlette.responses import StreamingResponse
 
-from opencmo import storage
-from opencmo.opportunities import build_project_opportunity_snapshot
+from aicmo import storage
+from aicmo.opportunities import build_project_opportunity_snapshot
 
 router = APIRouter(prefix="/api/v1")
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ async def api_v1_chat_context(project_id: int):
     ][:5]
 
     # Latest findings from most recent scan run
-    from opencmo.storage._db import get_db
+    from aicmo.storage._db import get_db
     findings = []
     try:
         db = await get_db()
@@ -157,7 +157,7 @@ def _extract_assistant_text(items: list[dict]) -> str:
 
 @router.post("/chat/sessions")
 async def api_v1_chat_session_create(request: Request):
-    from opencmo.web import chat_sessions
+    from aicmo.web import chat_sessions
     body_bytes = await request.body()
     try:
         body = json.loads(body_bytes) if body_bytes else {}
@@ -181,14 +181,14 @@ async def api_v1_chat_session_create(request: Request):
 
 @router.get("/chat/sessions")
 async def api_v1_chat_sessions_list():
-    from opencmo.web import chat_sessions
+    from aicmo.web import chat_sessions
     sessions = await chat_sessions.list_sessions()
     return JSONResponse(sessions)
 
 
 @router.get("/chat/sessions/{session_id}/messages")
 async def api_v1_chat_session_messages(session_id: str):
-    from opencmo.web import chat_sessions
+    from aicmo.web import chat_sessions
     messages = await chat_sessions.get_session_messages(session_id)
     if messages is None:
         return JSONResponse({"error": "Session not found"}, status_code=404)
@@ -197,7 +197,7 @@ async def api_v1_chat_session_messages(session_id: str):
 
 @router.delete("/chat/sessions/{session_id}")
 async def api_v1_chat_session_delete(session_id: str):
-    from opencmo.web import chat_sessions
+    from aicmo.web import chat_sessions
     ok = await chat_sessions.delete_session(session_id)
     if not ok:
         return JSONResponse({"error": "Not found"}, status_code=404)
@@ -393,7 +393,7 @@ def _resolve_direct_platform_agent(message: str):
     if _contains_any(normalized, _STRATEGY_MARKERS) and not _contains_any(normalized, tuple(spec.get("content_markers", ()))):
         return None
 
-    from opencmo.agents import (
+    from aicmo.agents import (
         devto_expert,
         gitcode_expert,
         hackernews_expert,
@@ -437,7 +437,7 @@ def _resolve_direct_platform_agent(message: str):
 
 @router.post("/chat")
 async def api_v1_chat(request: Request):
-    from opencmo.web import chat_sessions
+    from aicmo.web import chat_sessions
     body = await request.json()
     session_id = body.get("session_id", "")
     message = body.get("message", "").strip()
@@ -455,7 +455,7 @@ async def api_v1_chat(request: Request):
 
     context_item = None
     # Inject project context from knowledge graph
-    from opencmo.context import build_project_context, resolve_chat_project
+    from aicmo.context import build_project_context, resolve_chat_project
     project_id = await resolve_chat_project(body)
     if project_id:
         ctx = await build_project_context(project_id, depth="full")
@@ -479,8 +479,8 @@ async def api_v1_chat(request: Request):
         try:
             from agents import Runner
 
-            from opencmo.agents.cmo import cmo_agent
-            from opencmo.marketing_review import review_marketing_output_with_metadata
+            from aicmo.agents.cmo import cmo_agent
+            from aicmo.marketing_review import review_marketing_output_with_metadata
 
             selected_agent = _resolve_direct_platform_agent(message) or cmo_agent
             result = Runner.run_streamed(selected_agent, input_items, max_turns=15)

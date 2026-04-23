@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opencmo import service, storage
+from aicmo import service, storage
 
 
 @pytest.fixture(autouse=True)
@@ -56,7 +56,7 @@ def test_get_monitor():
 
 
 def test_run_monitor():
-    with patch("opencmo.scheduler.run_scheduled_scan", new_callable=AsyncMock) as mock_scan:
+    with patch("aicmo.scheduler.run_scheduled_scan", new_callable=AsyncMock) as mock_scan:
         result = run(service.create_monitor("R", "https://r.com", "cat"))
         run_result = run(service.run_monitor(result["monitor_id"]))
         assert run_result["ok"] is True
@@ -114,7 +114,7 @@ def test_get_status_summary():
 
 
 def test_create_monitor_syncs_runtime_job():
-    with patch("opencmo.scheduler.sync_job_record") as mock_sync:
+    with patch("aicmo.scheduler.sync_job_record") as mock_sync:
         result = run(service.create_monitor("Sync", "https://sync.com", "saas"))
         assert result["monitor_id"] >= 1
         mock_sync.assert_called_once()
@@ -124,7 +124,7 @@ def test_create_monitor_syncs_runtime_job():
 def test_update_monitor_syncs_runtime_job():
     result = run(service.create_monitor("Upd", "https://upd.com", "saas"))
 
-    with patch("opencmo.scheduler.sync_job_record") as mock_sync:
+    with patch("aicmo.scheduler.sync_job_record") as mock_sync:
         ok = run(service.update_monitor(result["monitor_id"], cron_expr="15 8 * * *", enabled=False))
         assert ok is True
         mock_sync.assert_called_once()
@@ -134,7 +134,7 @@ def test_update_monitor_syncs_runtime_job():
 def test_remove_monitor_unschedules_runtime_job():
     result = run(service.create_monitor("Rm", "https://rm.com", "saas"))
 
-    with patch("opencmo.scheduler.unschedule_job") as mock_unschedule:
+    with patch("aicmo.scheduler.unschedule_job") as mock_unschedule:
         ok = run(service.remove_monitor(result["monitor_id"]))
         assert ok is True
         mock_unschedule.assert_called_once_with(result["monitor_id"])
@@ -165,10 +165,10 @@ async def test_analyze_url_uses_shared_fetch_helper():
     ])
 
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}, clear=False), \
-         patch("opencmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
+         patch("aicmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
          patch("crawl4ai.AsyncWebCrawler", return_value=crawl_mock), \
          patch("openai.AsyncOpenAI", return_value=MagicMock()), \
-         patch("opencmo.services.intelligence_service._llm_call", llm_mock):
+         patch("aicmo.services.intelligence_service._llm_call", llm_mock):
         result = await service.analyze_url_with_ai("https://supabase.com")
 
     assert result["brand_name"] == "Supabase"
@@ -199,9 +199,9 @@ async def test_analyze_url_helper_fallback_still_returns_result():
     ])
 
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}, clear=False), \
-         patch("opencmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
+         patch("aicmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
          patch("openai.AsyncOpenAI", return_value=MagicMock()), \
-         patch("opencmo.services.intelligence_service._llm_call", llm_mock):
+         patch("aicmo.services.intelligence_service._llm_call", llm_mock):
         result = await service.analyze_url_with_ai("https://example.com")
 
     assert result["brand_name"] == "Example"
@@ -233,9 +233,9 @@ async def test_analyze_url_uses_html_metadata_without_filter_roundtrip():
     ])
 
     with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}, clear=False), \
-         patch("opencmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
+         patch("aicmo.tools.crawl.fetch_url_content", fetch_mock, create=True), \
          patch("openai.AsyncOpenAI", return_value=MagicMock()), \
-         patch("opencmo.services.intelligence_service._llm_call", llm_mock):
+         patch("aicmo.services.intelligence_service._llm_call", llm_mock):
         result = await service.analyze_url_with_ai("https://www.coze.com/")
 
     assert result["brand_name"] == "Coze"

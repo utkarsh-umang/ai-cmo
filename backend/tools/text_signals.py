@@ -50,7 +50,7 @@ async def analyze_geo_sentiment(
     context = "\n\n".join(combined)
 
     try:
-        from opencmo import llm
+        from aicmo import llm
 
         text = await llm.chat_completion_messages(
             messages=[

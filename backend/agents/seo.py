@@ -1,13 +1,13 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
-from opencmo.tools.ai_crawler_check import check_ai_crawler_access, check_llms_txt
-from opencmo.tools.llmstxt import generate_llmstxt, validate_llmstxt
-from opencmo.tools.search import web_search
-from opencmo.tools.seo_audit import audit_page_seo
-from opencmo.tools.serp_tracker import check_keyword_ranking, get_serp_trends
-from opencmo.tools.trends import get_seo_trends
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
+from aicmo.tools.ai_crawler_check import check_ai_crawler_access, check_llms_txt
+from aicmo.tools.llmstxt import generate_llmstxt, validate_llmstxt
+from aicmo.tools.search import web_search
+from aicmo.tools.seo_audit import audit_page_seo
+from aicmo.tools.serp_tracker import check_keyword_ranking, get_serp_trends
+from aicmo.tools.trends import get_seo_trends
 
 seo_agent = Agent(
     name="SEO Audit Expert",

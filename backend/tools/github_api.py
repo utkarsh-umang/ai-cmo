@@ -18,7 +18,7 @@ _rate_remaining: int = 5000  # optimistic default
 async def _get_github_token() -> str | None:
     """Resolve token: DB settings > env var."""
     try:
-        from opencmo.storage.settings import get_setting
+        from aicmo.storage.settings import get_setting
         val = await get_setting("GITHUB_TOKEN")
         if val:
             return val

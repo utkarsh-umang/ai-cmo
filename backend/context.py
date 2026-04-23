@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from opencmo import storage
-from opencmo.opportunities import build_project_opportunity_snapshot
+from aicmo import storage
+from aicmo.opportunities import build_project_opportunity_snapshot
 
 
 async def build_project_context(project_id: int, depth: str = "brief") -> str:

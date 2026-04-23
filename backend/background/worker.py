@@ -14,8 +14,8 @@ import logging
 import os
 from collections.abc import Awaitable, Callable
 
-from opencmo.background import service as bg_service
-from opencmo.background.types import make_worker_id
+from aicmo.background import service as bg_service
+from aicmo.background.types import make_worker_id
 
 Executor = Callable[["ExecutorContext"], Awaitable[None]]
 logger = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ class BackgroundWorker:
                     kind_sem.release()
 
     async def _execute_task(self, task: dict) -> None:
-        from opencmo import llm
+        from aicmo import llm
 
         # Inject BYOK context if present in task payload
         byok_keys = task.get("payload", {}).get("_byok_keys", {})
@@ -205,10 +205,10 @@ def _get_positive_int_env(name: str, default: int) -> int:
 
 def _default_kind_concurrency() -> dict[str, int]:
     return {
-        "scan": _get_positive_int_env("OPENCMO_SCAN_CONCURRENCY", 1),
-        "report": _get_positive_int_env("OPENCMO_REPORT_CONCURRENCY", 1),
-        "graph_expansion": _get_positive_int_env("OPENCMO_GRAPH_EXPANSION_CONCURRENCY", 1),
-        "github_enrich": _get_positive_int_env("OPENCMO_GITHUB_ENRICH_CONCURRENCY", 1),
+        "scan": _get_positive_int_env("AICMO_SCAN_CONCURRENCY", 1),
+        "report": _get_positive_int_env("AICMO_REPORT_CONCURRENCY", 1),
+        "graph_expansion": _get_positive_int_env("AICMO_GRAPH_EXPANSION_CONCURRENCY", 1),
+        "github_enrich": _get_positive_int_env("AICMO_GITHUB_ENRICH_CONCURRENCY", 1),
     }
 
 
@@ -216,7 +216,7 @@ def get_background_worker() -> BackgroundWorker:
     global _default_worker
     if _default_worker is None:
         _default_worker = BackgroundWorker(
-            max_concurrency=_get_positive_int_env("OPENCMO_WORKER_MAX_CONCURRENCY", 4),
+            max_concurrency=_get_positive_int_env("AICMO_WORKER_MAX_CONCURRENCY", 4),
             kind_concurrency=_default_kind_concurrency(),
         )
     return _default_worker

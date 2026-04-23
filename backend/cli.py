@@ -4,12 +4,12 @@ import shlex
 from agents import Runner
 from dotenv import load_dotenv
 
-from opencmo.agents.cmo import cmo_agent
+from aicmo.agents.cmo import cmo_agent
 
 
 async def _handle_monitor(args: list[str]) -> str:
     """Handle /monitor subcommands."""
-    from opencmo import service
+    from aicmo import service
 
     if not args:
         return "Usage: /monitor add|list|remove|run|history ..."
@@ -103,7 +103,7 @@ async def _handle_monitor(args: list[str]) -> str:
 
 async def _handle_keywords(args: list[str]) -> str:
     """Handle /keywords <id_or_brand> [list|add|rm] subcommands."""
-    from opencmo import service
+    from aicmo import service
 
     if not args:
         return "Usage: /keywords <project_id_or_brand> [list|add \"keyword\"|rm <keyword_id>]"
@@ -143,7 +143,7 @@ async def _handle_keywords(args: list[str]) -> str:
 
 async def _handle_report(args: list[str]) -> str:
     """Handle /report <project_id> — send email report."""
-    from opencmo import service
+    from aicmo import service
 
     if not args:
         return "Usage: /report <project_id>"
@@ -162,7 +162,7 @@ async def _handle_report(args: list[str]) -> str:
 
 async def _handle_status() -> str:
     """Handle /status command."""
-    from opencmo import service
+    from aicmo import service
 
     projects = await service.get_status_summary()
     if not projects:
@@ -201,9 +201,9 @@ async def _handle_status() -> str:
 def _handle_web(args: list[str]) -> None:
     """Handle /web command — start web dashboard."""
     try:
-        from opencmo.web.app import run_server
+        from aicmo.web.app import run_server
     except ImportError:
-        print("Web dashboard requires additional dependencies. Install with: pip install opencmo[web]")
+        print("Web dashboard requires additional dependencies. Install with: pip install aicmo[web]")
         return
 
     port = 8080
@@ -217,7 +217,7 @@ def _handle_web(args: list[str]) -> None:
 
 async def run_cli():
     print("=" * 60)
-    print("  OpenCMO - Your AI Chief Marketing Officer")
+    print("  AI-CMO - Your AI Chief Marketing Officer")
     print("  Type a product URL and what you need, or 'quit' to exit.")
     print("  Commands: /monitor, /status, /keywords, /report, /web")
     print("=" * 60)
@@ -291,7 +291,7 @@ async def run_cli():
 
         print("\nCMO is working...\n")
         result = await Runner.run(cmo_agent, input_items, max_turns=15)
-        from opencmo.marketing_review import review_marketing_output_with_metadata
+        from aicmo.marketing_review import review_marketing_output_with_metadata
 
         review_result = await review_marketing_output_with_metadata(
             agent_name=result.last_agent.name if result.last_agent else "CMO Agent",
@@ -321,7 +321,7 @@ def main():
     load_dotenv()
 
     # Disable tracing for non-OpenAI providers (avoids 401 noise)
-    from opencmo.config import configure_agent_tracing
+    from aicmo.config import configure_agent_tracing
     configure_agent_tracing()
 
     asyncio.run(run_cli())

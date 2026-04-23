@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from opencmo import storage
+from aicmo import storage
 
 _APPROVAL_CHANNELS = {
     "reddit_post": "reddit",
@@ -16,14 +16,14 @@ _APPROVAL_CHANNELS = {
 
 _PUBLISH_ENV_KEYS = {
     "reddit": (
-        "OPENCMO_AUTO_PUBLISH",
+        "AICMO_AUTO_PUBLISH",
         "REDDIT_CLIENT_ID",
         "REDDIT_CLIENT_SECRET",
         "REDDIT_USERNAME",
         "REDDIT_PASSWORD",
     ),
     "twitter": (
-        "OPENCMO_AUTO_PUBLISH",
+        "AICMO_AUTO_PUBLISH",
         "TWITTER_API_KEY",
         "TWITTER_API_SECRET",
         "TWITTER_ACCESS_TOKEN",
@@ -34,7 +34,7 @@ _PUBLISH_ENV_KEYS = {
 
 async def _hydrate_publish_settings(channel: str) -> None:
     """Load publish-related keys from DB into env for non-BYOK flows."""
-    from opencmo import llm
+    from aicmo import llm
     for key in _PUBLISH_ENV_KEYS.get(channel, ()):
         value = await llm.get_key_async(key)
         if value and not os.environ.get(key):
@@ -48,7 +48,7 @@ def _require_payload_fields(payload: dict, *fields: str) -> None:
 
 
 async def _preview_approval_payload(approval_type: str, payload: dict) -> tuple[str, dict]:
-    from opencmo.tools import publishers
+    from aicmo.tools import publishers
 
     if approval_type == "reddit_post":
         _require_payload_fields(payload, "subreddit", "title", "body")
@@ -83,7 +83,7 @@ async def _preview_approval_payload(approval_type: str, payload: dict) -> tuple[
 
 
 async def _execute_approval_payload(approval_type: str, payload: dict) -> dict:
-    from opencmo.tools import publishers
+    from aicmo.tools import publishers
 
     if approval_type == "reddit_post":
         return await publishers.publish_reddit_post_impl(
@@ -152,10 +152,10 @@ async def approve_approval(approval_id: int, decision_note: str = "") -> dict:
     channel = approval["channel"]
     await _hydrate_publish_settings(channel)
     # Blog drafts are internal — skip the external publish gate
-    if channel != "blog" and os.environ.get("OPENCMO_AUTO_PUBLISH", "0") != "1":
+    if channel != "blog" and os.environ.get("AICMO_AUTO_PUBLISH", "0") != "1":
         return {
             "ok": False,
-            "error": "OPENCMO_AUTO_PUBLISH is not enabled.",
+            "error": "AICMO_AUTO_PUBLISH is not enabled.",
             "error_code": "auto_publish_disabled",
             "approval": approval,
         }

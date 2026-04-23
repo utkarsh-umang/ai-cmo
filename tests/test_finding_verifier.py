@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from opencmo.finding_contract import upgrade_legacy_finding
-from opencmo.finding_verifier import run_verifier_suite
+from aicmo.finding_contract import upgrade_legacy_finding
+from aicmo.finding_verifier import run_verifier_suite
 
 
 def _legacy_finding(*, title: str, summary: str, confidence: float | None = 0.8, evidence_refs=None):

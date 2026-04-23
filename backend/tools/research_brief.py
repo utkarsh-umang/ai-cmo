@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from agents import function_tool
 
-from opencmo import storage
-from opencmo.context import build_project_context
+from aicmo import storage
+from aicmo.context import build_project_context
 
 
 @function_tool

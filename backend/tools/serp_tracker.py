@@ -60,7 +60,7 @@ class CrawlSerpProvider(SerpProvider):
         self, keyword: str, target_domain: str, num_results: int = 0
     ) -> SerpResult:
         if num_results <= 0:
-            from opencmo.scrape_config import get_scrape_profile
+            from aicmo.scrape_config import get_scrape_profile
             num_results = get_scrape_profile().serp_num_results
         try:
             from urllib.parse import quote_plus
@@ -137,7 +137,7 @@ class DataForSeoProvider(SerpProvider):
     @property
     def is_enabled(self) -> bool:
 
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("DATAFORSEO_LOGIN") and llm.get_key("DATAFORSEO_PASSWORD"))
 
     async def check_ranking(
@@ -173,7 +173,7 @@ class TavilySerpProvider(SerpProvider):
     @property
     def is_enabled(self) -> bool:
 
-        from opencmo import llm
+        from aicmo import llm
         return bool(llm.get_key("TAVILY_API_KEY"))
 
     async def check_ranking(
@@ -249,7 +249,7 @@ def _get_crawl_provider() -> SerpProvider:
 
 async def _check_ranking(keyword: str, target_domain: str) -> SerpResult:
     """Run a single SERP check with the active provider."""
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
     profile = get_scrape_profile()
     provider = _get_active_provider()
     result = await provider.check_ranking(keyword, target_domain, num_results=profile.serp_num_results)
@@ -278,7 +278,7 @@ async def _check_ranking(keyword: str, target_domain: str) -> SerpResult:
 
 async def track_project_keywords(project_id: int) -> str:
     """Track all keywords for a project. Called by scheduler."""
-    from opencmo import storage
+    from aicmo import storage
 
     project = await storage.get_project(project_id)
     if not project:
@@ -313,7 +313,7 @@ async def track_project_keywords(project_id: int) -> str:
 
 async def _get_serp_trends_impl(project_id: int) -> str:
     """Return markdown table of SERP history for a project."""
-    from opencmo import storage
+    from aicmo import storage
 
     project = await storage.get_project(project_id)
     if not project:

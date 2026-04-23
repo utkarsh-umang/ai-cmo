@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from agents import function_tool
 
-from opencmo.context import build_project_context
+from aicmo.context import build_project_context
 
 
 @function_tool

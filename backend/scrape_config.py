@@ -197,6 +197,6 @@ _PROFILES = {"light": LIGHT, "normal": NORMAL, "deep": DEEP}
 
 
 def get_scrape_profile() -> ScrapeProfile:
-    """Return the active scrape profile based on env var OPENCMO_SCRAPE_DEPTH."""
-    depth = os.environ.get("OPENCMO_SCRAPE_DEPTH", "deep").lower()
+    """Return the active scrape profile based on env var AICMO_SCRAPE_DEPTH."""
+    depth = os.environ.get("AICMO_SCRAPE_DEPTH", "deep").lower()
     return _PROFILES.get(depth, DEEP)

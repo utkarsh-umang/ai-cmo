@@ -10,8 +10,8 @@ import httpx
 from agents import function_tool
 from crawl4ai import AsyncWebCrawler
 
-from opencmo.tools.browser_pool import browser_slot
-from opencmo.tools.crawl import _extract_markdown
+from aicmo.tools.browser_pool import browser_slot
+from aicmo.tools.crawl import _extract_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -218,7 +218,7 @@ async def _fetch_core_web_vitals(url: str) -> dict | None:
 
     Returns dict with keys: performance, lcp, cls, tbt; or None on failure.
     """
-    from opencmo import llm
+    from aicmo import llm
     api_key = llm.get_key("PAGESPEED_API_KEY", "")
     params: dict[str, str] = {
         "url": url,
@@ -530,7 +530,7 @@ async def audit_page_seo(url: str) -> str:
 
         # Persist to storage (best-effort)
         try:
-            from opencmo import storage
+            from aicmo import storage
 
             parsed = urlparse(url)
             domain = parsed.netloc.removeprefix("www.")

@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo.tools.community_providers import (
+from aicmo.tools.community_providers import (
     PROVIDER_REGISTRY,
     BilibiliProvider,
     BlogSearchProvider,
@@ -29,7 +29,7 @@ from opencmo.tools.community_providers import (
     XueQiuProvider,
     YouTubeProvider,
 )
-from opencmo.tools.community_scoring import (
+from aicmo.tools.community_scoring import (
     compute_composite_score,
     convergence_boost,
     detect_convergence_clusters,
@@ -46,7 +46,7 @@ from opencmo.tools.community_scoring import (
 
 @pytest.fixture(autouse=True)
 def _use_light_profile(monkeypatch):
-    monkeypatch.setenv("OPENCMO_SCRAPE_DEPTH", "light")
+    monkeypatch.setenv("AICMO_SCRAPE_DEPTH", "light")
 
 
 # ---------------------------------------------------------------------------
@@ -254,7 +254,7 @@ def test_devto_provider_tag_fallback():
     async def _mock_get_json(url, params=None, headers=None):
         return HttpResult(data=[], error=None, status_code=200)
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_get_json):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_get_json):
         provider = DevtoProvider()
         result = asyncio.run(provider.search("MyBrand", "web scraping"))
         assert len(result.hits) == 0
@@ -349,7 +349,7 @@ def test_bluesky_provider_search_mock():
             return HttpResult(data=_make_bluesky_search_json(3), error=None, status_code=200)
         return HttpResult(data=None, error="not_found", status_code=404)
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_bsky):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_bsky):
         provider = BlueskyProvider()
         result = asyncio.run(provider.search("TestBrand", "devtools"))
         # 3 posts from brand_search + 3 from category_search = 6 total
@@ -488,7 +488,7 @@ def test_twitter_provider_tavily_search_mock(monkeypatch):
     })
 
     import tavily as tavily_mod
-    with patch("opencmo.tools.community_providers.TwitterProvider._has_bearer_token", return_value=False):
+    with patch("aicmo.tools.community_providers.TwitterProvider._has_bearer_token", return_value=False):
         with patch.object(tavily_mod, "AsyncTavilyClient", return_value=mock_tavily_client):
             provider = TwitterProvider()
             assert provider.is_enabled
@@ -574,7 +574,7 @@ async def _mock_http_missing_fields(url, params=None, headers=None):
 
 
 def test_provider_timeout():
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_http_timeout):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_http_timeout):
         provider = RedditProvider()
         result = asyncio.run(provider.search("brand", "cat"))
         assert len(result.hits) == 0
@@ -582,7 +582,7 @@ def test_provider_timeout():
 
 
 def test_provider_429():
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_http_429):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_http_429):
         provider = RedditProvider()
         result = asyncio.run(provider.search("brand", "cat"))
         assert len(result.hits) == 0
@@ -591,7 +591,7 @@ def test_provider_429():
 
 def test_provider_empty_result():
     async def _run():
-        with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_http_empty):
+        with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_http_empty):
             provider = RedditProvider()
             r1 = await provider.search("brand", "cat")
             hn_provider = HackerNewsProvider()
@@ -605,7 +605,7 @@ def test_provider_empty_result():
 
 def test_provider_missing_fields():
     async def _run():
-        with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_http_missing_fields):
+        with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_http_missing_fields):
             provider = RedditProvider()
             r1 = await provider.search("brand", "cat")
             hn_provider = HackerNewsProvider()
@@ -651,7 +651,7 @@ def test_reddit_pagination():
         return HttpResult(data={"data": {"children": [], "after": None}}, error=None, status_code=200)
 
     async def _run():
-        with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_paginated):
+        with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_paginated):
             provider = RedditProvider()
             result = await provider.search("brand", "cat")
             return result
@@ -685,9 +685,9 @@ def test_scan_partial_failure():
     """Reddit fails + HN succeeds → envelope has HN hits + Reddit error."""
     import json
 
-    from opencmo.tools.community import _scan_community_impl
+    from aicmo.tools.community import _scan_community_impl
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_http_partial):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_http_partial):
         raw = asyncio.run(_scan_community_impl("TestBrand", "testing"))
         envelope = json.loads(raw)
 
@@ -715,7 +715,7 @@ def test_scan_partial_failure():
 
 
 def test_scrape_profiles():
-    from opencmo.scrape_config import DEEP, LIGHT, get_scrape_profile
+    from aicmo.scrape_config import DEEP, LIGHT, get_scrape_profile
 
     # Default is "deep" but we set "light" in fixture
     profile = get_scrape_profile()
@@ -729,9 +729,9 @@ def test_scrape_profiles():
 
 
 def test_scrape_profile_env_override(monkeypatch):
-    from opencmo.scrape_config import DEEP, get_scrape_profile
+    from aicmo.scrape_config import DEEP, get_scrape_profile
 
-    monkeypatch.setenv("OPENCMO_SCRAPE_DEPTH", "deep")
+    monkeypatch.setenv("AICMO_SCRAPE_DEPTH", "deep")
     profile = get_scrape_profile()
     assert profile == DEEP
 
@@ -942,7 +942,7 @@ def test_v2ex_search_mock():
             return HttpResult(data=[], error=None, status_code=200)
         return HttpResult(data=[], error=None, status_code=200)
 
-    with patch("opencmo.tools.community_providers._http_get_json", side_effect=_mock_v2ex):
+    with patch("aicmo.tools.community_providers._http_get_json", side_effect=_mock_v2ex):
         provider = V2EXProvider()
         result = asyncio.run(provider.search("TestBrand", "devtools"))
         # Only the hit containing "TestBrand" should match
@@ -1134,15 +1134,15 @@ def test_douyin_stub_returns_suggested_queries():
 
 
 def test_build_query_plan_uses_keywords_competitors_and_domains():
-    from opencmo.tools.community_query_planner import build_query_plan
+    from aicmo.tools.community_query_planner import build_query_plan
 
     plan = build_query_plan(
-        brand_name="OpenCMO",
+        brand_name="AI-CMO",
         category="ai marketing",
         tracked_keywords=["ai cmo", "open source marketing agent"],
         competitor_names=["HubSpot"],
         competitor_keywords=["marketing automation"],
-        canonical_url="https://opencmo.dev",
+        canonical_url="https://aicmo.dev",
         locale="en",
     )
 
@@ -1150,8 +1150,8 @@ def test_build_query_plan_uses_keywords_competitors_and_domains():
     query_texts = {q.query for q in reddit_queries}
     intent_types = {q.intent_type for q in reddit_queries}
 
-    assert '"OpenCMO"' in query_texts
-    assert any("opencmo.dev" in query for query in query_texts)
+    assert '"AI-CMO"' in query_texts
+    assert any("aicmo.dev" in query for query in query_texts)
     assert any("ai cmo" in query.lower() for query in query_texts)
     assert any("HubSpot" in query for query in query_texts)
     assert "direct_mention" in intent_types
@@ -1161,8 +1161,8 @@ def test_build_query_plan_uses_keywords_competitors_and_domains():
 def test_scan_community_sorts_direct_mentions_before_platform_groups():
     import json
 
-    from opencmo.tools.community import _scan_community_impl
-    from opencmo.tools.community_providers import CommunityProvider
+    from aicmo.tools.community import _scan_community_impl
+    from aicmo.tools.community_providers import CommunityProvider
 
     class _OpportunityProvider(CommunityProvider):
         name = "reddit"
@@ -1214,7 +1214,7 @@ def test_scan_community_sorts_direct_mentions_before_platform_groups():
                 hits=[
                     DiscussionHit(
                         platform="hackernews",
-                        title="OpenCMO launched today",
+                        title="AI-CMO launched today",
                         url="https://hn.test/1",
                         engagement_score=40,
                         raw_score=12,
@@ -1224,12 +1224,12 @@ def test_scan_community_sorts_direct_mentions_before_platform_groups():
                         detail_id="hn1",
                         extra_param_1="",
                         extra_param_2="",
-                        preview="OpenCMO helps founders monitor SEO, GEO and community signals",
+                        preview="AI-CMO helps founders monitor SEO, GEO and community signals",
                         source="brand_search",
                         intent_type="direct_mention",
                         match_reason="Matched the exact brand name in the title.",
-                        matched_query='"OpenCMO"',
-                        matched_terms=["OpenCMO"],
+                        matched_query='"AI-CMO"',
+                        matched_terms=["AI-CMO"],
                         confidence=0.94,
                         source_kind="post",
                     )
@@ -1237,10 +1237,10 @@ def test_scan_community_sorts_direct_mentions_before_platform_groups():
             )
 
     with patch(
-        "opencmo.tools.community.PROVIDER_REGISTRY",
+        "aicmo.tools.community.PROVIDER_REGISTRY",
         [_OpportunityProvider(), _DirectMentionProvider()],
     ):
-        raw = asyncio.run(_scan_community_impl("OpenCMO", "ai marketing"))
+        raw = asyncio.run(_scan_community_impl("AI-CMO", "ai marketing"))
 
     envelope = json.loads(raw)
     assert envelope["hits"][0]["platform"] == "hackernews"
@@ -1251,7 +1251,7 @@ def test_scan_community_sorts_direct_mentions_before_platform_groups():
 def test_scan_community_uses_external_fallback_for_stub_platforms(monkeypatch):
     import json
 
-    from opencmo.tools.community import _scan_community_impl
+    from aicmo.tools.community import _scan_community_impl
 
     monkeypatch.setenv("TAVILY_API_KEY", "test-key")
 
@@ -1260,8 +1260,8 @@ def test_scan_community_uses_external_fallback_for_stub_platforms(monkeypatch):
         "results": [
             {
                 "url": "https://www.xiaohongshu.com/explore/abc123",
-                "title": "OpenCMO 使用体验",
-                "content": "这是一个关于 OpenCMO 的测评笔记。",
+                "title": "AI-CMO 使用体验",
+                "content": "这是一个关于 AI-CMO 的测评笔记。",
                 "score": 0.88,
             }
         ]
@@ -1271,8 +1271,8 @@ def test_scan_community_uses_external_fallback_for_stub_platforms(monkeypatch):
         sys.modules,
         {"tavily": SimpleNamespace(AsyncTavilyClient=lambda api_key: mock_tavily_client)},
     ):
-        with patch("opencmo.tools.community.PROVIDER_REGISTRY", [XiaoHongShuProvider()]):
-            raw = asyncio.run(_scan_community_impl("OpenCMO", "marketing", locale="zh"))
+        with patch("aicmo.tools.community.PROVIDER_REGISTRY", [XiaoHongShuProvider()]):
+            raw = asyncio.run(_scan_community_impl("AI-CMO", "marketing", locale="zh"))
 
     envelope = json.loads(raw)
     assert envelope["hits"]

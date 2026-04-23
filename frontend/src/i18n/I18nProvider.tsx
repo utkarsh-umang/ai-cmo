@@ -13,7 +13,7 @@ import {
 const dictionaries: Record<Locale, Partial<Record<TranslationKey, string>>> = { en, zh, ja, ko, es };
 
 function getInitialLocale(): Locale {
-  const stored = localStorage.getItem("opencmo_lang");
+  const stored = localStorage.getItem("aicmo_lang");
   if (stored) return normalizeLocale(stored);
   return normalizeLocale(navigator.language);
 }
@@ -32,7 +32,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback((l: Locale) => {
     const nextLocale = normalizeLocale(l);
     setLocaleState(nextLocale);
-    localStorage.setItem("opencmo_lang", nextLocale);
+    localStorage.setItem("aicmo_lang", nextLocale);
   }, []);
 
   useEffect(() => {

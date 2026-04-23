@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 
 async def get_site_counter(key: str) -> int:

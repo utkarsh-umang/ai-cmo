@@ -7,31 +7,31 @@ import pytest
 
 def test_smtp_config_missing(monkeypatch):
     """Missing SMTP vars → None."""
-    from opencmo.tools.email_report import _get_smtp_config
+    from aicmo.tools.email_report import _get_smtp_config
 
-    monkeypatch.delenv("OPENCMO_SMTP_HOST", raising=False)
+    monkeypatch.delenv("AICMO_SMTP_HOST", raising=False)
     assert _get_smtp_config() is None
 
 
 def test_smtp_config_partial(monkeypatch):
     """Partial SMTP vars → None."""
-    from opencmo.tools.email_report import _get_smtp_config
+    from aicmo.tools.email_report import _get_smtp_config
 
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.gmail.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.delenv("OPENCMO_SMTP_USER", raising=False)
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.gmail.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.delenv("AICMO_SMTP_USER", raising=False)
     assert _get_smtp_config() is None
 
 
 def test_smtp_config_complete(monkeypatch):
     """All SMTP vars → valid config dict."""
-    from opencmo.tools.email_report import _get_smtp_config
+    from aicmo.tools.email_report import _get_smtp_config
 
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.gmail.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.setenv("OPENCMO_SMTP_USER", "user@gmail.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PASS", "secret")
-    monkeypatch.setenv("OPENCMO_REPORT_EMAIL", "report@example.com")
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.gmail.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.setenv("AICMO_SMTP_USER", "user@gmail.com")
+    monkeypatch.setenv("AICMO_SMTP_PASS", "secret")
+    monkeypatch.setenv("AICMO_REPORT_EMAIL", "report@example.com")
 
     config = _get_smtp_config()
     assert config is not None
@@ -47,16 +47,16 @@ def test_smtp_config_complete(monkeypatch):
 @pytest.mark.asyncio
 async def test_send_report_success(tmp_path, monkeypatch):
     """Successful SMTP send."""
-    from opencmo import storage as _st
+    from aicmo import storage as _st
     monkeypatch.setattr(_st, "_DB_PATH", tmp_path / "test.db")
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.setenv("OPENCMO_SMTP_USER", "user@test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PASS", "pass")
-    monkeypatch.setenv("OPENCMO_REPORT_EMAIL", "report@test.com")
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.test.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.setenv("AICMO_SMTP_USER", "user@test.com")
+    monkeypatch.setenv("AICMO_SMTP_PASS", "pass")
+    monkeypatch.setenv("AICMO_REPORT_EMAIL", "report@test.com")
 
-    from opencmo import storage
-    from opencmo.tools.email_report import send_report_impl
+    from aicmo import storage
+    from aicmo.tools.email_report import send_report_impl
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
 
@@ -69,7 +69,7 @@ async def test_send_report_success(tmp_path, monkeypatch):
     fake_bundle = {"human": fake_report, "agent": fake_report}
 
     with patch("smtplib.SMTP") as mock_smtp, \
-         patch("opencmo.reports.generate_periodic_report_bundle", AsyncMock(return_value=fake_bundle)):
+         patch("aicmo.reports.generate_periodic_report_bundle", AsyncMock(return_value=fake_bundle)):
         mock_server = MagicMock()
         mock_smtp.return_value.__enter__ = MagicMock(return_value=mock_server)
         mock_smtp.return_value.__exit__ = MagicMock(return_value=False)
@@ -82,16 +82,16 @@ async def test_send_report_success(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_send_report_smtp_error(tmp_path, monkeypatch):
     """SMTP error returns error dict, doesn't raise."""
-    from opencmo import storage as _st
+    from aicmo import storage as _st
     monkeypatch.setattr(_st, "_DB_PATH", tmp_path / "test.db")
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.setenv("OPENCMO_SMTP_USER", "user@test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PASS", "pass")
-    monkeypatch.setenv("OPENCMO_REPORT_EMAIL", "report@test.com")
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.test.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.setenv("AICMO_SMTP_USER", "user@test.com")
+    monkeypatch.setenv("AICMO_SMTP_PASS", "pass")
+    monkeypatch.setenv("AICMO_REPORT_EMAIL", "report@test.com")
 
-    from opencmo import storage
-    from opencmo.tools.email_report import send_report_impl
+    from aicmo import storage
+    from aicmo.tools.email_report import send_report_impl
 
     pid = await storage.ensure_project("Test", "https://example.com", "saas")
 
@@ -104,7 +104,7 @@ async def test_send_report_smtp_error(tmp_path, monkeypatch):
     fake_bundle = {"human": fake_report, "agent": fake_report}
 
     with patch("smtplib.SMTP", side_effect=Exception("Connection refused")), \
-         patch("opencmo.reports.generate_periodic_report_bundle", AsyncMock(return_value=fake_bundle)):
+         patch("aicmo.reports.generate_periodic_report_bundle", AsyncMock(return_value=fake_bundle)):
         result = await send_report_impl(pid)
 
     assert not result["ok"]
@@ -114,17 +114,17 @@ async def test_send_report_smtp_error(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_maybe_send_cron_full_only(tmp_path, monkeypatch):
     """Only (full, cron) triggers email; (full, manual) and (seo, cron) don't."""
-    from opencmo import storage as _st
+    from aicmo import storage as _st
     monkeypatch.setattr(_st, "_DB_PATH", tmp_path / "test.db")
-    monkeypatch.setenv("OPENCMO_SMTP_HOST", "smtp.test.com")
-    monkeypatch.setenv("OPENCMO_SMTP_PORT", "587")
-    monkeypatch.setenv("OPENCMO_SMTP_USER", "u")
-    monkeypatch.setenv("OPENCMO_SMTP_PASS", "p")
-    monkeypatch.setenv("OPENCMO_REPORT_EMAIL", "r@t.com")
+    monkeypatch.setenv("AICMO_SMTP_HOST", "smtp.test.com")
+    monkeypatch.setenv("AICMO_SMTP_PORT", "587")
+    monkeypatch.setenv("AICMO_SMTP_USER", "u")
+    monkeypatch.setenv("AICMO_SMTP_PASS", "p")
+    monkeypatch.setenv("AICMO_REPORT_EMAIL", "r@t.com")
 
-    from opencmo.scheduler import _maybe_send_email_report
+    from aicmo.scheduler import _maybe_send_email_report
 
-    with patch("opencmo.tools.email_report.send_report_impl", new_callable=AsyncMock) as mock_send:
+    with patch("aicmo.tools.email_report.send_report_impl", new_callable=AsyncMock) as mock_send:
         mock_send.return_value = {"ok": True, "recipient": "r@t.com"}
 
         await _maybe_send_email_report(1, "full", "cron")

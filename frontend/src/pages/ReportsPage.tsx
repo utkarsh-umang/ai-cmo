@@ -100,7 +100,7 @@ function ReportCard({
                 e.stopPropagation();
                 downloadAsPDF({
                   elementId: `report-content-${report.id}`,
-                  filename: `OpenCMO-${label.replace(/\s+/g, "-")}-v${report.version}.pdf`,
+                  filename: `AI-CMO-${label.replace(/\s+/g, "-")}-v${report.version}.pdf`,
                   title: `${label} (v${report.version})`
                 });
               }}

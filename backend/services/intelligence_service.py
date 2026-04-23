@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 
-from opencmo import storage
+from aicmo import storage
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ async def _llm_call(client, model: str, messages: list[dict]) -> str:
 
     Always uses the centralized llm module for automatic retry + backoff.
     """
-    from opencmo import llm
+    from aicmo import llm
     return await llm.chat_completion_messages(messages, temperature=0.7)
 
 
@@ -85,7 +85,7 @@ async def analyze_url_with_ai(url: str, on_progress=None, locale: str = "en") ->
 
     # 1. Crawl the URL
     try:
-        from opencmo.tools.crawl import fetch_url_content
+        from aicmo.tools.crawl import fetch_url_content
 
         emit("system", f"Fetching {url} ...", 0)
         raw_content, source = await fetch_url_content(
@@ -110,7 +110,7 @@ async def analyze_url_with_ai(url: str, on_progress=None, locale: str = "en") ->
 
     # 2. Filter: use LLM to extract only useful product info, discard nav/footer/ads
     try:
-        from opencmo import llm
+        from aicmo import llm
 
         client = await llm.get_openai_client()
         model = await llm.get_model()
@@ -480,7 +480,7 @@ async def discover_competitors(project_id: int, on_progress=None) -> list[dict]:
     kw_text = ", ".join(k["keyword"] for k in keywords_list) if keywords_list else "N/A"
 
     try:
-        from opencmo import llm
+        from aicmo import llm
 
         client = await llm.get_openai_client()
         model = await llm.get_model()

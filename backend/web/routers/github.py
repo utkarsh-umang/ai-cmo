@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
+from aicmo import storage
 
 router = APIRouter(prefix="/api/v1")
 
@@ -59,7 +59,7 @@ async def api_v1_github_discover(project_id: int, request: Request):
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
 
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     task = await bg_service.enqueue_task(
         kind="github_enrich",
@@ -109,7 +109,7 @@ async def api_v1_generate_outreach(project_id: int, request: Request):
     if not logins:
         return JSONResponse({"error": "No logins provided"}, status_code=400)
 
-    from opencmo.services.github_service import generate_outreach_batch
+    from aicmo.services.github_service import generate_outreach_batch
 
     result = await generate_outreach_batch(project_id, logins, channel)
     status_code = 200 if result.get("ok") else 400
@@ -118,12 +118,12 @@ async def api_v1_generate_outreach(project_id: int, request: Request):
 
 @router.post("/projects/{project_id}/github-leads/score")
 async def api_v1_score_leads(project_id: int):
-    from opencmo.services.github_service import compute_outreach_score, has_contact_info
+    from aicmo.services.github_service import compute_outreach_score, has_contact_info
 
     project = await storage.get_project(project_id)
     category = project.get("category", "") if project else ""
 
-    from opencmo.storage.serp import list_tracked_keywords
+    from aicmo.storage.serp import list_tracked_keywords
     kw_rows = await list_tracked_keywords(project_id)
     keywords = [r["keyword"] for r in kw_rows] if kw_rows else []
 

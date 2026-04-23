@@ -92,7 +92,7 @@ export function ApprovalCard({
             </span>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                {approval.agent_name || "OpenCMO Agent"}
+                {approval.agent_name || "AI-CMO Agent"}
               </p>
               <h2 className="mt-1 text-xl font-semibold text-slate-950">
                 {getTitle(approval)}

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from opencmo import storage
+from aicmo import storage
 
 router = APIRouter(prefix="/api/v1")
 
@@ -52,7 +52,7 @@ def _latest_surface_timestamp(latest: dict) -> datetime | None:
 
 @router.get("/projects")
 async def api_v1_projects():
-    from opencmo import service
+    from aicmo import service
     return JSONResponse(await service.get_status_summary())
 
 
@@ -78,7 +78,7 @@ async def api_v1_delete_project(project_id: int):
 async def api_v1_pause_project(project_id: int):
     # 1. Pause scheduled jobs
     jobs = await storage.list_scheduled_jobs()
-    from opencmo.scheduler import sync_job_record
+    from aicmo.scheduler import sync_job_record
     for job in jobs:
         if job["project_id"] == project_id and job["enabled"]:
             await storage.update_scheduled_job(job["id"], enabled=False)
@@ -97,7 +97,7 @@ async def api_v1_pause_project(project_id: int):
 async def api_v1_resume_project(project_id: int):
     # 1. Resume scheduled jobs
     jobs = await storage.list_scheduled_jobs()
-    from opencmo.scheduler import sync_job_record
+    from aicmo.scheduler import sync_job_record
     for job in jobs:
         if job["project_id"] == project_id and not job["enabled"]:
             await storage.update_scheduled_job(job["id"], enabled=True)
@@ -105,7 +105,7 @@ async def api_v1_resume_project(project_id: int):
             sync_job_record(job)
 
     # 2. Resume graph expansion
-    from opencmo.web.routers.graph import api_v1_expansion_start
+    from aicmo.web.routers.graph import api_v1_expansion_start
     await api_v1_expansion_start(project_id)
 
     return JSONResponse({"ok": True, "status": "running"})

@@ -1,7 +1,7 @@
 """SQLite storage layer for persistent scan data.
 
 This package re-exports all public functions from its submodules so that
-existing code using ``from opencmo import storage`` followed by
+existing code using ``from aicmo import storage`` followed by
 ``storage.some_function()`` continues to work unchanged.
 """
 
@@ -14,17 +14,17 @@ from __future__ import annotations
 # ---------------------------------------------------------------------------
 import sys as _sys
 
-from opencmo.storage import _db as _db_module
+from aicmo.storage import _db as _db_module
 
 # Expose internal DB helpers (tests patch _DB_PATH and _SCHEMA_READY_FOR)
-from opencmo.storage._db import (
+from aicmo.storage._db import (
     _SCHEMA,
     ensure_db,
     get_db,
 )
 
 # --- Approvals ---
-from opencmo.storage.approvals import (
+from aicmo.storage.approvals import (
     create_approval,
     create_approval_with_source,
     get_approval,
@@ -33,14 +33,14 @@ from opencmo.storage.approvals import (
 )
 
 # --- Brand Kit ---
-from opencmo.storage.brand_kit import (
+from aicmo.storage.brand_kit import (
     build_brand_kit_prompt,
     get_brand_kit,
     upsert_brand_kit,
 )
 
 # --- Campaigns ---
-from opencmo.storage.campaigns import (
+from aicmo.storage.campaigns import (
     add_campaign_artifact,
     create_campaign_run,
     get_campaign_run,
@@ -49,7 +49,7 @@ from opencmo.storage.campaigns import (
 )
 
 # --- Chat sessions ---
-from opencmo.storage.chat import (
+from aicmo.storage.chat import (
     clear_chat_sessions,
     create_chat_session,
     delete_chat_session,
@@ -59,7 +59,7 @@ from opencmo.storage.chat import (
 )
 
 # --- Competitors ---
-from opencmo.storage.competitors import (
+from aicmo.storage.competitors import (
     add_competitor,
     add_competitor_keyword,
     batch_list_competitor_keywords,
@@ -70,7 +70,7 @@ from opencmo.storage.competitors import (
 )
 
 # --- Discussions ---
-from opencmo.storage.discussions import (
+from aicmo.storage.discussions import (
     get_discussion_snapshots,
     get_tracked_discussions,
     save_discussion_snapshot,
@@ -78,7 +78,7 @@ from opencmo.storage.discussions import (
 )
 
 # --- GEO tools (citability / crawler / brand presence) ---
-from opencmo.storage.geo_tools import (
+from aicmo.storage.geo_tools import (
     get_ai_crawler_history,
     get_brand_presence_history,
     get_citability_history,
@@ -88,7 +88,7 @@ from opencmo.storage.geo_tools import (
 )
 
 # --- GitHub Leads ---
-from opencmo.storage.github import (
+from aicmo.storage.github import (
     batch_update_enrichment,
     batch_upsert_github_leads,
     count_github_leads,
@@ -106,7 +106,7 @@ from opencmo.storage.github import (
 )
 
 # --- Graph expansion ---
-from opencmo.storage.graph import (
+from aicmo.storage.graph import (
     add_expansion_edge,
     add_expansion_node,
     fix_stale_expansions,
@@ -123,7 +123,7 @@ from opencmo.storage.graph import (
 )
 
 # --- Insights + autopilot ---
-from opencmo.storage.insights import (
+from aicmo.storage.insights import (
     count_recent_autopilot_approvals,
     get_insights_summary,
     get_pending_actionable_insights,
@@ -137,7 +137,7 @@ from opencmo.storage.insights import (
 )
 
 # --- Scheduled jobs ---
-from opencmo.storage.jobs import (
+from aicmo.storage.jobs import (
     add_scheduled_job,
     get_scheduled_job,
     list_scheduled_jobs,
@@ -147,7 +147,7 @@ from opencmo.storage.jobs import (
 )
 
 # --- Projects ---
-from opencmo.storage.projects import (
+from aicmo.storage.projects import (
     delete_project,
     ensure_project,
     find_projects_by_brand,
@@ -157,7 +157,7 @@ from opencmo.storage.projects import (
 )
 
 # --- Reports ---
-from opencmo.storage.reports import (
+from aicmo.storage.reports import (
     create_report_bundle,
     get_latest_report,
     get_latest_reports,
@@ -166,7 +166,7 @@ from opencmo.storage.reports import (
 )
 
 # --- Scan runs / findings / recommendations ---
-from opencmo.storage.scan_runs import (
+from aicmo.storage.scan_runs import (
     add_scan_run_step,
     create_scan_run,
     fail_scan_run_by_task_id,
@@ -180,7 +180,7 @@ from opencmo.storage.scan_runs import (
 )
 
 # --- Scans (SEO / GEO / Community) ---
-from opencmo.storage.scans import (
+from aicmo.storage.scans import (
     get_community_history,
     get_geo_history,
     get_latest_scans,
@@ -192,7 +192,7 @@ from opencmo.storage.scans import (
 )
 
 # --- SERP tracking ---
-from opencmo.storage.serp import (
+from aicmo.storage.serp import (
     add_tracked_keyword,
     get_all_serp_latest,
     get_serp_history,
@@ -202,14 +202,14 @@ from opencmo.storage.serp import (
 )
 
 # --- Settings ---
-from opencmo.storage.settings import (
+from aicmo.storage.settings import (
     delete_setting,
     get_setting,
     set_setting,
 )
 
 # --- Site stats ---
-from opencmo.storage.site_stats import (
+from aicmo.storage.site_stats import (
     get_site_counter,
     increment_site_counter,
 )
@@ -220,7 +220,7 @@ def __getattr__(name: str):
         return _db_module._DB_PATH
     if name == "_SCHEMA_READY_FOR":
         return _db_module._SCHEMA_READY_FOR
-    raise AttributeError(f"module 'opencmo.storage' has no attribute {name!r}")
+    raise AttributeError(f"module 'aicmo.storage' has no attribute {name!r}")
 
 
 # Called by ``setattr(storage, "_DB_PATH", value)`` — i.e. when unittest.mock
@@ -240,7 +240,7 @@ class _PatchableModule(type(_original_module)):
     def __getattr__(self, name):
         if name in _PROPAGATED_ATTRS:
             return getattr(_db_module, name)
-        raise AttributeError(f"module 'opencmo.storage' has no attribute {name!r}")
+        raise AttributeError(f"module 'aicmo.storage' has no attribute {name!r}")
 
 
 _sys.modules[__name__].__class__ = _PatchableModule

@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_autopilot_uses_expert_grade_prompt_contract_for_blog():
-    from opencmo.autopilot import _build_generation_agent
+    from aicmo.autopilot import _build_generation_agent
 
     agent = await _build_generation_agent("blog_expert")
 
@@ -19,10 +19,10 @@ async def test_autopilot_uses_expert_grade_prompt_contract_for_blog():
 
 @pytest.mark.asyncio
 async def test_autopilot_applies_brand_overlay_without_losing_truth_rules():
-    from opencmo.autopilot import _build_generation_agent
+    from aicmo.autopilot import _build_generation_agent
 
     with patch(
-        "opencmo.storage.brand_kit.build_brand_kit_prompt",
+        "aicmo.storage.brand_kit.build_brand_kit_prompt",
         AsyncMock(return_value="## Brand Overlay\n- This overlay is lower priority than truth, evidence, and channel-native rules.\n- Tone: calm"),
     ):
         agent = await _build_generation_agent("blog_expert", project_id=42)

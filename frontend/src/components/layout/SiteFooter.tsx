@@ -2,7 +2,7 @@ import { ExternalLink, Github, Link2 } from "lucide-react";
 import { useSiteStats } from "../../hooks/useSiteStats";
 import { useI18n } from "../../i18n";
 
-const GITHUB_REPO = "https://github.com/study8677/OpenCMO";
+const GITHUB_REPO = "https://github.com/study8677/AI-CMO";
 const FRIEND_LINKS = [
   {
     href: "https://okara.ai/",
@@ -19,7 +19,7 @@ export function SiteFooter() {
     <footer className="mt-10 border-t border-slate-200/80 pt-6 pb-8 text-sm text-slate-500">
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-slate-900">OpenCMO</p>
+          <p className="text-sm font-semibold text-slate-900">AI-CMO</p>
           <p className="max-w-sm leading-6 text-slate-500">
             {t("siteFooter.description")}
           </p>

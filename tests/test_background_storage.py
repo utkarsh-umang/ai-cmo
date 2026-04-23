@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from opencmo.background import storage as bg_storage
+from aicmo.background import storage as bg_storage
 
 
 @pytest.mark.asyncio
 async def test_insert_and_fetch_background_task(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)
@@ -34,7 +34,7 @@ async def test_insert_and_fetch_background_task(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_append_task_event_and_list_events(tmp_path, monkeypatch):
-    from opencmo import storage
+    from aicmo import storage
 
     db_path = tmp_path / "test.db"
     monkeypatch.setattr(storage, "_DB_PATH", db_path, raising=False)

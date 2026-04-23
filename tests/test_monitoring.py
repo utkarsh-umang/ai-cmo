@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from opencmo import storage
-from opencmo.monitoring import _collect_signals, run_monitoring_workflow
+from aicmo import storage
+from aicmo.monitoring import _collect_signals, run_monitoring_workflow
 
 
 @pytest.fixture(autouse=True)
@@ -48,8 +48,8 @@ def test_run_monitoring_workflow_persists_artifacts():
     ))
     run(storage.save_community_scan(project_id, 0, '{"hits": []}'))
 
-    with patch("opencmo.scheduler.run_scheduled_scan", new_callable=AsyncMock), \
-         patch("opencmo.monitoring._collect_signals", new_callable=AsyncMock):
+    with patch("aicmo.scheduler.run_scheduled_scan", new_callable=AsyncMock), \
+         patch("aicmo.monitoring._collect_signals", new_callable=AsyncMock):
         result = run(run_monitoring_workflow(
             "task_monitor_1",
             project_id,
@@ -85,9 +85,9 @@ async def test_collect_signals_surfaces_github_rate_limit_as_warning():
     async def capture(_run_id: int, _callback, event: dict) -> None:
         captured.append(event)
 
-    with patch("opencmo.monitoring._emit", side_effect=capture), \
+    with patch("aicmo.monitoring._emit", side_effect=capture), \
          patch(
-             "opencmo.services.github_service.auto_discover_from_product",
+             "aicmo.services.github_service.auto_discover_from_product",
              new=AsyncMock(return_value={
                  "discovered": 0,
                  "contactable": 0,

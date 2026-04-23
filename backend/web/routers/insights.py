@@ -8,7 +8,7 @@ import logging
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from opencmo import llm, storage
+from aicmo import llm, storage
 
 logger = logging.getLogger(__name__)
 

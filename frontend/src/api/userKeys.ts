@@ -8,13 +8,13 @@
 
 import type { AISettings } from "../types";
 
-const STORAGE_KEY = "opencmo_user_keys";
+const STORAGE_KEY = "aicmo_user_keys";
 
 /** Keys that the backend reads from X-User-Keys header */
 export const USER_KEY_NAMES = [
   "OPENAI_API_KEY",
   "OPENAI_BASE_URL",
-  "OPENCMO_MODEL_DEFAULT",
+  "AICMO_MODEL_DEFAULT",
   "TAVILY_API_KEY",
   "ANTHROPIC_API_KEY",
   "GOOGLE_AI_API_KEY",
@@ -38,7 +38,7 @@ export function getUserKeys(): UserKeys {
 export function setUserKeys(keys: UserKeys): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
   // Dispatch event so SetupBanner and other components can react
-  window.dispatchEvent(new CustomEvent("opencmo:keys-changed"));
+  window.dispatchEvent(new CustomEvent("aicmo:keys-changed"));
 }
 
 /** Get a single key */

@@ -41,9 +41,9 @@ const PROOF_ICONS = [Search, Bot, Users];
 const CAPABILITY_ICONS = [Search, Globe, Users, GitBranch, FileText];
 const OPEN_SOURCE_ICONS = [GitBranch, ShieldCheck, Globe, FileText];
 const TRUST_ICONS = [ShieldCheck, Bot, GitBranch, CheckCircle2];
-const GITHUB_REPO_URL = "https://github.com/study8677/OpenCMO";
-const LICENSE_URL = "https://github.com/study8677/OpenCMO/blob/main/LICENSE";
-const QUICK_START_URL = "https://github.com/study8677/OpenCMO#quick-start";
+const GITHUB_REPO_URL = "https://github.com/study8677/AI-CMO";
+const LICENSE_URL = "https://github.com/study8677/AI-CMO/blob/main/LICENSE";
+const QUICK_START_URL = "https://github.com/study8677/AI-CMO#quick-start";
 
 export function LandingPage() {
   const { t, locale } = useI18n();
@@ -55,8 +55,8 @@ export function LandingPage() {
     day: "numeric",
   });
   const seoLocale = getSeoLocaleFromLocale(locale);
-  const comparisonArticlePath = getLocalizedBlogArticlePath("opencmo-vs-mautic-posthog", seoLocale);
-  const architectureArticlePath = getLocalizedBlogArticlePath("inside-opencmo-workspace", seoLocale);
+  const comparisonArticlePath = getLocalizedBlogArticlePath("aicmo-vs-mautic-posthog", seoLocale);
+  const architectureArticlePath = getLocalizedBlogArticlePath("inside-aicmo-workspace", seoLocale);
   const featuredBlogArticle =
     BLOG_ARTICLES.find((article) => article.slug === BLOG_FEATURED_ARTICLE_SLUG)
     ?? BLOG_ARTICLES.find((article) => article.slug === BLOG_DECISION_ARTICLE_SLUGS[0])

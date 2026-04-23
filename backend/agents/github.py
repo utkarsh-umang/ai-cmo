@@ -1,14 +1,14 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
-from opencmo.tools.github_discovery import (
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
+from aicmo.tools.github_discovery import (
     discover_github_users,
     generate_github_outreach,
     list_github_leads_tool,
     score_github_leads,
 )
-from opencmo.tools.search import web_search
+from aicmo.tools.search import web_search
 
 github_outreach_agent = Agent(
     name="GitHub Outreach Expert",

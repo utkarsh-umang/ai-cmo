@@ -1,7 +1,7 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
 
 v2ex_expert = Agent(
     name="V2EX Expert",

@@ -8,13 +8,13 @@ export function getSettings(): Promise<AISettings> {
 export function saveSettings(data: {
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
-  OPENCMO_MODEL_DEFAULT?: string;
+  AICMO_MODEL_DEFAULT?: string;
   // Reddit
   REDDIT_CLIENT_ID?: string;
   REDDIT_CLIENT_SECRET?: string;
   REDDIT_USERNAME?: string;
   REDDIT_PASSWORD?: string;
-  OPENCMO_AUTO_PUBLISH?: string;
+  AICMO_AUTO_PUBLISH?: string;
   // Twitter
   TWITTER_API_KEY?: string;
   TWITTER_API_SECRET?: string;
@@ -23,7 +23,7 @@ export function saveSettings(data: {
   // GEO
   ANTHROPIC_API_KEY?: string;
   GOOGLE_AI_API_KEY?: string;
-  OPENCMO_GEO_CHATGPT?: string;
+  AICMO_GEO_CHATGPT?: string;
   // SEO
   PAGESPEED_API_KEY?: string;
   // Search (Tavily)
@@ -32,11 +32,11 @@ export function saveSettings(data: {
   DATAFORSEO_LOGIN?: string;
   DATAFORSEO_PASSWORD?: string;
   // Email
-  OPENCMO_SMTP_HOST?: string;
-  OPENCMO_SMTP_PORT?: string;
-  OPENCMO_SMTP_USER?: string;
-  OPENCMO_SMTP_PASS?: string;
-  OPENCMO_REPORT_EMAIL?: string;
+  AICMO_SMTP_HOST?: string;
+  AICMO_SMTP_PORT?: string;
+  AICMO_SMTP_USER?: string;
+  AICMO_SMTP_PASS?: string;
+  AICMO_REPORT_EMAIL?: string;
 }): Promise<{ ok: boolean }> {
   return apiJson("/settings", {
     method: "POST",

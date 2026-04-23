@@ -9,9 +9,9 @@ from datetime import datetime, timezone
 from typing import Callable
 from urllib.parse import urlparse
 
-from opencmo import storage
-from opencmo.scrape_config import get_scrape_profile
-from opencmo.tools.browser_pool import browser_slot
+from aicmo import storage
+from aicmo.scrape_config import get_scrape_profile
+from aicmo.tools.browser_pool import browser_slot
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ async def _web_search_direct(query: str) -> str:
     """Search via Tavily (preferred) or crawl4ai Google scrape fallback."""
     # Try Tavily first for more reliable structured results
     try:
-        from opencmo.tools.tavily_helper import tavily_search
+        from aicmo.tools.tavily_helper import tavily_search
 
         tavily_results = await tavily_search(query, max_results=5)
         if tavily_results:
@@ -55,7 +55,7 @@ async def _web_search_direct(query: str) -> str:
     try:
         from crawl4ai import AsyncWebCrawler
 
-        from opencmo.tools.crawl import _extract_markdown
+        from aicmo.tools.crawl import _extract_markdown
 
         url = f"https://www.google.com/search?q={query.replace(' ', '+')}&num=5"
         async with browser_slot():
@@ -74,7 +74,7 @@ async def _web_search_direct(query: str) -> str:
 
 
 async def _llm_call(messages: list[dict]) -> str:
-    from opencmo import llm
+    from aicmo import llm
 
     return await llm.chat_completion_messages(messages=messages, temperature=0.7)
 
@@ -196,7 +196,7 @@ async def _expand_keyword(
     if project:
         domain = urlparse(project["url"]).netloc.removeprefix("www.")
         try:
-            from opencmo.tools.serp_tracker import _check_ranking
+            from aicmo.tools.serp_tracker import _check_ranking
 
             result = await _check_ranking(keyword_text, domain)
             await storage.save_serp_snapshot(
@@ -285,7 +285,7 @@ async def _expand_competitor_keyword(
     domain = urlparse(project["url"]).netloc.removeprefix("www.")
 
     try:
-        from opencmo.tools.serp_tracker import _check_ranking
+        from aicmo.tools.serp_tracker import _check_ranking
 
         result = await _check_ranking(keyword_text, domain)
         await storage.save_serp_snapshot(

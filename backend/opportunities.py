@@ -6,7 +6,7 @@ import asyncio
 import re
 from collections import Counter
 
-from opencmo import storage
+from aicmo import storage
 
 _GENERIC_TOKENS = {
     "a", "an", "and", "app", "apps", "best", "compare", "comparison", "for",

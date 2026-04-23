@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 
-from opencmo import storage
+from aicmo import storage
 
 MAX_HISTORY = 20
 

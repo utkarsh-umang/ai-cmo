@@ -23,7 +23,7 @@ export function TokenPrompt() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
       <div className="w-full max-w-sm rounded-2xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
         <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-slate-900">OpenCMO</h2>
+          <h2 className="text-2xl font-bold text-slate-900">AI-CMO</h2>
           <p className="mt-1 text-sm text-slate-500">
             {t("auth.enterToken")}
           </p>

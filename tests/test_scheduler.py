@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-import opencmo.scheduler as scheduler_module
-from opencmo import storage
-from opencmo.scheduler import run_scheduled_scan
+import aicmo.scheduler as scheduler_module
+from aicmo import storage
+from aicmo.scheduler import run_scheduled_scan
 
 
 class _FakeCronTrigger:
@@ -99,8 +99,8 @@ async def test_load_jobs_from_db_only_schedules_enabled_jobs(tmp_path):
         loaded = await scheduler_module.load_jobs_from_db()
 
         assert loaded == 1
-        assert fake_scheduler.get_job(f"opencmo_job_{enabled_id}") is not None
-        assert fake_scheduler.get_job(f"opencmo_job_{disabled_id}") is None
+        assert fake_scheduler.get_job(f"aicmo_job_{enabled_id}") is not None
+        assert fake_scheduler.get_job(f"aicmo_job_{disabled_id}") is None
 
 
 @pytest.mark.asyncio
@@ -117,15 +117,15 @@ async def test_sync_job_record_replaces_and_removes_jobs(tmp_path):
         job = await storage.get_scheduled_job(job_id)
 
         scheduler_module.sync_job_record(job)
-        assert fake_scheduler.get_job(f"opencmo_job_{job_id}")["trigger"]["expr"] == "0 9 * * *"
+        assert fake_scheduler.get_job(f"aicmo_job_{job_id}")["trigger"]["expr"] == "0 9 * * *"
 
         await storage.update_scheduled_job(job_id, cron_expr="15 8 * * *")
         scheduler_module.sync_job_record(await storage.get_scheduled_job(job_id))
-        assert fake_scheduler.get_job(f"opencmo_job_{job_id}")["trigger"]["expr"] == "15 8 * * *"
+        assert fake_scheduler.get_job(f"aicmo_job_{job_id}")["trigger"]["expr"] == "15 8 * * *"
 
         await storage.update_scheduled_job(job_id, enabled=False)
         scheduler_module.sync_job_record(await storage.get_scheduled_job(job_id))
-        assert fake_scheduler.get_job(f"opencmo_job_{job_id}") is None
+        assert fake_scheduler.get_job(f"aicmo_job_{job_id}") is None
 
 
 def test_stop_scheduler_clears_global_state():
@@ -138,7 +138,7 @@ def test_stop_scheduler_clears_global_state():
 
 
 def test_sync_job_record_returns_false_when_scheduler_disabled(monkeypatch):
-    monkeypatch.setenv("OPENCMO_ENABLE_SCHEDULER", "0")
+    monkeypatch.setenv("AICMO_ENABLE_SCHEDULER", "0")
     job = {
         "id": 1,
         "enabled": True,
@@ -163,17 +163,17 @@ async def test_run_scheduled_scan_generates_periodic_report_on_cron_full(tmp_pat
         crawler.arun.return_value = crawl_result
 
         with patch("crawl4ai.AsyncWebCrawler", return_value=crawler), \
-             patch("opencmo.tools.seo_audit._fetch_core_web_vitals", new_callable=AsyncMock, return_value={"performance": 0.8, "lcp": 2200, "cls": 0.02, "tbt": 150}), \
-             patch("opencmo.tools.seo_audit._check_robots_and_sitemap", new_callable=AsyncMock, return_value={"has_robots": True, "has_sitemap": True}), \
-             patch("opencmo.tools.serp_tracker.track_project_keywords", new_callable=AsyncMock), \
-             patch("opencmo.tools.ai_crawler_check._ai_crawler_impl", new_callable=AsyncMock, return_value={"blocked_count": 0, "total_crawlers": 14, "has_llms_txt": True, "crawler_results": []}), \
-             patch("opencmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", []), \
-             patch("opencmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
-             patch("opencmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
-             patch("opencmo.tools.community._scan_community_impl", new_callable=AsyncMock, return_value='{"hits": []}'), \
-             patch("opencmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
-             patch("opencmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]), \
-             patch("opencmo.reports.generate_periodic_report_bundle", new_callable=AsyncMock) as mock_periodic:
+             patch("aicmo.tools.seo_audit._fetch_core_web_vitals", new_callable=AsyncMock, return_value={"performance": 0.8, "lcp": 2200, "cls": 0.02, "tbt": 150}), \
+             patch("aicmo.tools.seo_audit._check_robots_and_sitemap", new_callable=AsyncMock, return_value={"has_robots": True, "has_sitemap": True}), \
+             patch("aicmo.tools.serp_tracker.track_project_keywords", new_callable=AsyncMock), \
+             patch("aicmo.tools.ai_crawler_check._ai_crawler_impl", new_callable=AsyncMock, return_value={"blocked_count": 0, "total_crawlers": 14, "has_llms_txt": True, "crawler_results": []}), \
+             patch("aicmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", []), \
+             patch("aicmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
+             patch("aicmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
+             patch("aicmo.tools.community._scan_community_impl", new_callable=AsyncMock, return_value='{"hits": []}'), \
+             patch("aicmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
+             patch("aicmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]), \
+             patch("aicmo.reports.generate_periodic_report_bundle", new_callable=AsyncMock) as mock_periodic:
             await run_scheduled_scan(pid, "full", triggered_by="cron")
 
         mock_periodic.assert_awaited_once_with(pid, source_run_id=None)
@@ -192,10 +192,10 @@ async def test_run_scheduled_scan_skips_missing_keyword_suggester_without_error_
         crawler.arun.return_value = crawl_result
 
         with patch("crawl4ai.AsyncWebCrawler", return_value=crawler), \
-             patch("opencmo.tools.seo_audit._fetch_core_web_vitals", new_callable=AsyncMock, return_value={"performance": 0.8, "lcp": 2200, "cls": 0.02, "tbt": 150}), \
-             patch("opencmo.tools.seo_audit._check_robots_and_sitemap", new_callable=AsyncMock, return_value={"has_robots": True, "has_sitemap": True}), \
-             patch("opencmo.tools.serp_tracker.track_project_keywords", new_callable=AsyncMock), \
-             patch("opencmo.tools.ai_crawler_check._ai_crawler_impl", new_callable=AsyncMock, return_value={"blocked_count": 0, "total_crawlers": 14, "has_llms_txt": True, "crawler_results": []}), \
+             patch("aicmo.tools.seo_audit._fetch_core_web_vitals", new_callable=AsyncMock, return_value={"performance": 0.8, "lcp": 2200, "cls": 0.02, "tbt": 150}), \
+             patch("aicmo.tools.seo_audit._check_robots_and_sitemap", new_callable=AsyncMock, return_value={"has_robots": True, "has_sitemap": True}), \
+             patch("aicmo.tools.serp_tracker.track_project_keywords", new_callable=AsyncMock), \
+             patch("aicmo.tools.ai_crawler_check._ai_crawler_impl", new_callable=AsyncMock, return_value={"blocked_count": 0, "total_crawlers": 14, "has_llms_txt": True, "crawler_results": []}), \
              patch.object(scheduler_module.logger, "exception") as mock_exception:
             await run_scheduled_scan(pid, "seo")
 
@@ -222,12 +222,12 @@ async def test_run_scheduled_scan_geo_uses_real_sentiment_analysis(tmp_path):
             )),
         )
 
-        with patch("opencmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", [fake_provider]), \
-             patch("opencmo.tools.text_signals.analyze_geo_sentiment", new_callable=AsyncMock, return_value=SimpleNamespace(score=21, label="positive", reasoning="Real snippet-based sentiment")), \
-             patch("opencmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
-             patch("opencmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
-             patch("opencmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
-             patch("opencmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
+        with patch("aicmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", [fake_provider]), \
+             patch("aicmo.tools.text_signals.analyze_geo_sentiment", new_callable=AsyncMock, return_value=SimpleNamespace(score=21, label="positive", reasoning="Real snippet-based sentiment")), \
+             patch("aicmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
+             patch("aicmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
+             patch("aicmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
+             patch("aicmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
             await run_scheduled_scan(pid, "geo")
 
         history = await storage.get_geo_history(pid, limit=1)
@@ -256,12 +256,12 @@ async def test_run_scheduled_scan_geo_leaves_sentiment_empty_when_unavailable(tm
             )),
         )
 
-        with patch("opencmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", [fake_provider]), \
-             patch("opencmo.tools.text_signals.analyze_geo_sentiment", new_callable=AsyncMock, return_value=SimpleNamespace(score=None, label="unavailable", reasoning="sentiment service offline")), \
-             patch("opencmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
-             patch("opencmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
-             patch("opencmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
-             patch("opencmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
+        with patch("aicmo.tools.geo_providers.GEO_PROVIDER_REGISTRY", [fake_provider]), \
+             patch("aicmo.tools.text_signals.analyze_geo_sentiment", new_callable=AsyncMock, return_value=SimpleNamespace(score=None, label="unavailable", reasoning="sentiment service offline")), \
+             patch("aicmo.tools.citability._citability_impl", new_callable=AsyncMock, return_value={"avg_score": 80, "top_blocks": [], "bottom_blocks": [], "grade_distribution": {}, "error": False}), \
+             patch("aicmo.tools.brand_presence._brand_presence_impl", new_callable=AsyncMock, return_value={"footprint_score": 60, "platforms": []}), \
+             patch("aicmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
+             patch("aicmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
             await run_scheduled_scan(pid, "geo")
 
         history = await storage.get_geo_history(pid, limit=1)
@@ -278,7 +278,7 @@ async def test_run_scheduled_scan_community_skips_external_search_snapshots(tmp_
         pid = await storage.ensure_project("Community", "https://community.test", "saas")
 
         with patch(
-            "opencmo.tools.community._scan_community_impl",
+            "aicmo.tools.community._scan_community_impl",
             new_callable=AsyncMock,
             return_value=json.dumps(
                 {
@@ -297,8 +297,8 @@ async def test_run_scheduled_scan_community_skips_external_search_snapshots(tmp_
                 }
             ),
         ), \
-             patch("opencmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
-             patch("opencmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
+             patch("aicmo.insights.detect_insights", new_callable=AsyncMock, return_value=[]), \
+             patch("aicmo.autopilot.execute_autopilot", new_callable=AsyncMock, return_value=[]):
             await run_scheduled_scan(pid, "community")
 
         discussions = await storage.get_tracked_discussions(pid)

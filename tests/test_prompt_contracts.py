@@ -2,7 +2,7 @@
 
 
 def test_build_prompt_includes_truth_contract_before_brand_overlay():
-    from opencmo.agents.prompt_contracts import build_prompt
+    from aicmo.agents.prompt_contracts import build_prompt
 
     prompt = build_prompt(
         base_instructions="You are a test strategist.",
@@ -18,7 +18,7 @@ def test_build_prompt_includes_truth_contract_before_brand_overlay():
 
 
 def test_channel_contract_adds_native_rules_without_dropping_shared_guardrails():
-    from opencmo.agents.prompt_contracts import build_prompt
+    from aicmo.agents.prompt_contracts import build_prompt
 
     prompt = build_prompt(
         base_instructions="You are a Reddit specialist.",
@@ -37,7 +37,7 @@ def test_channel_contract_adds_native_rules_without_dropping_shared_guardrails()
 
 
 def test_brand_overlay_is_structured_and_low_priority_relative_to_truth_rules():
-    from opencmo.storage.brand_kit import _render_brand_overlay
+    from aicmo.storage.brand_kit import _render_brand_overlay
 
     overlay = _render_brand_overlay(
         {
@@ -58,7 +58,7 @@ def test_brand_overlay_is_structured_and_low_priority_relative_to_truth_rules():
 
 
 def test_brand_overlay_keeps_channel_native_constraints_intact():
-    from opencmo.agents.prompt_contracts import build_prompt
+    from aicmo.agents.prompt_contracts import build_prompt
 
     prompt = build_prompt(
         base_instructions="You are a Zhihu specialist.",
@@ -73,7 +73,7 @@ def test_brand_overlay_keeps_channel_native_constraints_intact():
 
 
 def test_review_prompt_operates_as_light_editor_not_second_writer():
-    from opencmo.marketing_review import _REVIEW_SYSTEM
+    from aicmo.marketing_review import _REVIEW_SYSTEM
 
     assert "light-touch" in _REVIEW_SYSTEM
     assert "Do not materially restructure" in _REVIEW_SYSTEM

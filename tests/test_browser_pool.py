@@ -6,17 +6,17 @@ import pytest
 
 
 def test_get_browser_concurrency_defaults_to_one(monkeypatch):
-    from opencmo.tools.browser_pool import get_browser_concurrency
+    from aicmo.tools.browser_pool import get_browser_concurrency
 
-    monkeypatch.delenv("OPENCMO_BROWSER_CONCURRENCY", raising=False)
+    monkeypatch.delenv("AICMO_BROWSER_CONCURRENCY", raising=False)
     assert get_browser_concurrency() == 1
 
 
 @pytest.mark.asyncio
 async def test_browser_slot_respects_configured_limit(monkeypatch):
-    from opencmo.tools.browser_pool import browser_slot
+    from aicmo.tools.browser_pool import browser_slot
 
-    monkeypatch.setenv("OPENCMO_BROWSER_CONCURRENCY", "1")
+    monkeypatch.setenv("AICMO_BROWSER_CONCURRENCY", "1")
 
     current = 0
     peak = 0

@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from opencmo import storage
+from aicmo import storage
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ async def run_github_enrich_executor(ctx) -> None:
     source = payload.get("source", "both")
     max_hops = payload.get("max_hops", 1)
 
-    from opencmo.tools.github_api import (
+    from aicmo.tools.github_api import (
         enrich_user,
         fetch_followers,
         fetch_following,
@@ -156,11 +156,11 @@ async def run_github_enrich_executor(ctx) -> None:
         summary="Computing product-aware outreach scores...",
     )
 
-    from opencmo.services.github_service import compute_outreach_score, has_contact_info
+    from aicmo.services.github_service import compute_outreach_score, has_contact_info
 
     project = await storage.get_project(project_id)
     category = project.get("category", "") if project else ""
-    from opencmo.storage.serp import list_tracked_keywords
+    from aicmo.storage.serp import list_tracked_keywords
     kw_rows = await list_tracked_keywords(project_id)
     keywords = [r["keyword"] for r in kw_rows] if kw_rows else []
 

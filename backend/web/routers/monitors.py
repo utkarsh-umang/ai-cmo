@@ -30,7 +30,7 @@ async def _enqueue_scan_task(
     analyze_url: str | None = None,
     locale: str = "en",
 ) -> dict:
-    from opencmo.background import service as bg_service
+    from aicmo.background import service as bg_service
 
     payload = {
         "monitor_id": monitor_id,
@@ -71,7 +71,7 @@ def _pending_scan_response(task: dict) -> dict:
 
 @router.get("/monitors")
 async def api_v1_monitors():
-    from opencmo import service
+    from aicmo import service
     return JSONResponse(await service.list_monitors())
 
 
@@ -79,7 +79,7 @@ async def api_v1_monitors():
 async def api_v1_create_monitor(request: Request):
     from urllib.parse import urlparse
 
-    from opencmo import service
+    from aicmo import service
 
     body = await request.json()
     url = body.get("url", "").strip()
@@ -116,7 +116,7 @@ async def api_v1_create_monitor(request: Request):
 
 @router.delete("/monitors/{monitor_id}")
 async def api_v1_delete_monitor(monitor_id: int):
-    from opencmo import service
+    from aicmo import service
     ok = await service.remove_monitor(monitor_id)
     if not ok:
         return JSONResponse({"error": "Not found"}, status_code=404)
@@ -125,7 +125,7 @@ async def api_v1_delete_monitor(monitor_id: int):
 
 @router.patch("/monitors/{monitor_id}")
 async def api_v1_update_monitor(monitor_id: int, request: Request):
-    from opencmo import service
+    from aicmo import service
 
     body = await request.json()
     cron_expr = body.get("cron_expr")
@@ -140,8 +140,8 @@ async def api_v1_update_monitor(monitor_id: int, request: Request):
 
 @router.post("/monitors/{monitor_id}/run")
 async def api_v1_run_monitor(monitor_id: int, request: Request):
-    from opencmo import service
-    from opencmo.background import service as bg_service
+    from aicmo import service
+    from aicmo.background import service as bg_service
 
     job = await service.get_monitor(monitor_id)
     if not job:

@@ -1,7 +1,7 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
 
 sspai_expert = Agent(
     name="Sspai Expert",
@@ -15,7 +15,7 @@ sspai_expert = Agent(
 
 ### 少数派文章 (sspai Article)
 - **标题**: 突出工具价值和使用场景
-  - 好的例子："用 AI 重塑营销工作流：开源工具 OpenCMO 上手体验"
+  - 好的例子："用 AI 重塑营销工作流：开源工具 AI-CMO 上手体验"
   - 好的例子："独立开发者的营销自动化方案：我如何把零散动作收成一条工作流"
 - **正文** (2000-4000字):
   1. **引言**：使用场景和痛点

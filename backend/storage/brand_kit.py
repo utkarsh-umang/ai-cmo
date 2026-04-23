@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 
 async def get_brand_kit(project_id: int) -> dict | None:

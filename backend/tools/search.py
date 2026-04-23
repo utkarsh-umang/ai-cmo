@@ -4,7 +4,7 @@ import logging
 
 from agents import function_tool
 
-from opencmo.tools.browser_pool import browser_slot
+from aicmo.tools.browser_pool import browser_slot
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ async def web_search(query: str) -> str:
     Args:
         query: The search query string.
     """
-    from opencmo import llm
+    from aicmo import llm
     if llm.get_key("TAVILY_API_KEY"):
         try:
             from tavily import AsyncTavilyClient
@@ -38,7 +38,7 @@ async def web_search(query: str) -> str:
             logger.debug("Tavily search failed, trying fallback: %s", exc)
 
     # 2. Fallback: OpenAI built-in web search (native provider only)
-    from opencmo.config import is_custom_provider
+    from aicmo.config import is_custom_provider
 
     if not is_custom_provider():
         try:
@@ -60,7 +60,7 @@ async def web_search(query: str) -> str:
     try:
         from crawl4ai import AsyncWebCrawler
 
-        from opencmo.tools.crawl import _extract_markdown
+        from aicmo.tools.crawl import _extract_markdown
 
         url = f"https://www.google.com/search?q={query.replace(' ', '+')}&num=5"
         async with browser_slot():

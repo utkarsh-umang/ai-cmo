@@ -7,12 +7,12 @@ import re
 
 from agents import function_tool
 
-from opencmo.tools.community_providers import (
+from aicmo.tools.community_providers import (
     PROVIDER_REGISTRY,
     DiscussionHit,
     ProviderError,
 )
-from opencmo.tools.community_scoring import rescore_hits
+from aicmo.tools.community_scoring import rescore_hits
 
 # ---------------------------------------------------------------------------
 # Query expansion
@@ -61,7 +61,7 @@ async def _research_trend_impl(
     mode: str = "summary",
 ) -> str:
     """Core trend research logic."""
-    from opencmo.scrape_config import get_scrape_profile
+    from aicmo.scrape_config import get_scrape_profile
 
     profile = get_scrape_profile()
     halflife = getattr(profile, "scoring_recency_halflife_days", 23.0)

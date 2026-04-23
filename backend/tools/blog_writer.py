@@ -30,7 +30,7 @@ async def _research_topic_impl(topic: str, keywords: str) -> str:
     search_urls = []
     tavily_titles: dict[str, str] = {}  # url -> title from Tavily
     try:
-        from opencmo.tools.tavily_helper import tavily_search
+        from aicmo.tools.tavily_helper import tavily_search
 
         tavily_results = await tavily_search(query, max_results=10)
         if tavily_results:
@@ -80,7 +80,7 @@ async def _research_topic_impl(topic: str, keywords: str) -> str:
         tavily_title = tavily_titles.get(url, "")
 
         try:
-            from opencmo.tools.crawl import fetch_url_content
+            from aicmo.tools.crawl import fetch_url_content
 
             text, _source = await fetch_url_content(
                 url,

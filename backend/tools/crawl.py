@@ -5,7 +5,7 @@ import re
 from agents import function_tool
 from crawl4ai import AsyncWebCrawler
 
-from opencmo.tools.browser_pool import browser_slot
+from aicmo.tools.browser_pool import browser_slot
 
 
 def _extract_markdown(result) -> str:
@@ -60,7 +60,7 @@ async def fetch_url_content(
     tavily_extract_depth: str = "advanced",
 ) -> tuple[str, str]:
     """Fetch page content with Tavily-first fallback to crawl4ai."""
-    from opencmo.tools.tavily_helper import tavily_extract
+    from aicmo.tools.tavily_helper import tavily_extract
 
     content = await tavily_extract(
         url,

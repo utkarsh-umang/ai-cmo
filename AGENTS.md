@@ -21,13 +21,13 @@ Frontend (React 19 + Vite)  ←→  FastAPI /api/v1/  ←→  SQLite (WAL)
 
 | Path | Role |
 |------|------|
-| `src/opencmo/agents/` | 25+ specialist agents (CMO orchestrator + platform experts). Names must be ASCII — no Chinese. |
-| `src/opencmo/tools/` | Crawl, search, SEO audit, GEO detection, community providers, SERP tracking |
-| `src/opencmo/services/` | Domain services: intelligence (AI debate), approval, monitoring |
-| `src/opencmo/background/` | Worker + executor registry (scan, report, graph expansion) |
-| `src/opencmo/storage/` | Async SQLite, 30+ tables, no ORM |
-| `src/opencmo/web/` | FastAPI app, routers, SSE chat, BYOK middleware |
-| `src/opencmo/llm.py` | Centralized LLM client: ContextVar isolation, retry + backoff, model resolution |
+| `backend/agents/` | 25+ specialist agents (CMO orchestrator + platform experts). Names must be ASCII — no Chinese. |
+| `backend/tools/` | Crawl, search, SEO audit, GEO detection, community providers, SERP tracking |
+| `backend/services/` | Domain services: intelligence (AI debate), approval, monitoring |
+| `backend/background/` | Worker + executor registry (scan, report, graph expansion) |
+| `backend/storage/` | Async SQLite, 30+ tables, no ORM |
+| `backend/web/` | FastAPI app, routers, SSE chat, BYOK middleware |
+| `backend/llm.py` | Centralized LLM client: ContextVar isolation, retry + backoff, model resolution |
 | `frontend/src/` | React SPA: pages/, components/, hooks/ (TanStack Query), api/, i18n/ (EN/ZH/JA/KO/ES) |
 
 ## Critical Patterns
@@ -38,9 +38,9 @@ Frontend (React 19 + Vite)  ←→  FastAPI /api/v1/  ←→  SQLite (WAL)
 - **Community search**: Tavily → crawl4ai Google scrape fallback. Skip category queries when category is placeholder `"auto"`.
 - **BYOK**: Per-request API keys via `X-User-Keys` header → ContextVar. Background tasks capture and restore keys.
 - **SPA routing**: No `AnimatePresence key={pathname}` in AppShell — causes full remount and breaks query cache.
-- **Production topology**: Primary production is `newyork` (`192.3.16.77`). OpenCMO runs behind nginx on `80/443`, proxied to local `127.0.0.1:8081`.
-- **Port allocation**: Do not assume production app port is `8080`. `8080` is occupied by `sub2api` on `newyork`; OpenCMO uses `8081`.
-- **BWG role**: `BWG` is no longer the primary OpenCMO host. Treat it as a lightweight box, temporary reverse proxy, or fallback node unless explicitly re-promoted.
+- **Production topology**: Primary production is `newyork` (`192.3.16.77`). AI-CMO runs behind nginx on `80/443`, proxied to local `127.0.0.1:8081`.
+- **Port allocation**: Do not assume production app port is `8080`. `8080` is occupied by `sub2api` on `newyork`; AI-CMO uses `8081`.
+- **BWG role**: `BWG` is no longer the primary AI-CMO host. Treat it as a lightweight box, temporary reverse proxy, or fallback node unless explicitly re-promoted.
 - **Browser-backed scans**: SEO/context fallback paths use `crawl4ai`/Playwright. Fresh servers need browser binaries installed, or scans will fail with `BrowserType.launch` executable errors.
 
 ## Commands
@@ -48,9 +48,9 @@ Frontend (React 19 + Vite)  ←→  FastAPI /api/v1/  ←→  SQLite (WAL)
 ```bash
 # Backend
 pip install -e ".[all]"        # Install
-opencmo-web                    # Run locally (port 8080 by default)
+aicmo-web                    # Run locally (port 8080 by default)
 pytest tests/                  # Test
-ruff check src/ tests/         # Lint
+ruff check backend/ tests/         # Lint
 
 # Frontend
 cd frontend && npm install
@@ -59,7 +59,7 @@ npm run build                  # Prod build
 
 # Deploy frontend assets to New York
 cd frontend && npm run build   # Build locally (avoid server-side frontend builds)
-rsync -avz --delete frontend/dist/ root@192.3.16.77:/opt/OpenCMO/frontend/dist/
+rsync -avz --delete frontend/dist/ root@192.3.16.77:/opt/AI-CMO/frontend/dist/
 
 # Deploy backend code to New York
 rsync -avz --delete \
@@ -67,16 +67,16 @@ rsync -avz --delete \
   --exclude 'frontend/node_modules' \
   --exclude 'frontend/dist' \
   --exclude '.venv' \
-  ./ root@192.3.16.77:/opt/OpenCMO/
-ssh newyork "cd /opt/OpenCMO && source .venv/bin/activate && pip install -e . -q && systemctl restart opencmo"
+  ./ root@192.3.16.77:/opt/AI-CMO/
+ssh newyork "cd /opt/AI-CMO && source .venv/bin/activate && pip install -e . -q && systemctl restart aicmo"
 
 # New York service / runtime checks
-ssh newyork "systemctl status opencmo --no-pager"
-ssh newyork "journalctl -u opencmo -n 200 --no-pager"
+ssh newyork "systemctl status aicmo --no-pager"
+ssh newyork "journalctl -u aicmo -n 200 --no-pager"
 ssh newyork "ss -ltnp | grep -E ':80|:443|:8081'"
 
 # Install Playwright browsers on New York when scan workers need them
-ssh newyork "cd /opt/OpenCMO && .venv/bin/playwright install chromium"
+ssh newyork "cd /opt/AI-CMO && .venv/bin/playwright install chromium"
 
 # BWG is optional fallback / proxy only
 ssh bwg "systemctl status nginx --no-pager"

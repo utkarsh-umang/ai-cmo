@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from opencmo import storage
+from aicmo import storage
 
 
 async def _sync_runtime_job(job_id: int) -> None:
-    from opencmo import scheduler
+    from aicmo import scheduler
 
     job = await storage.get_scheduled_job(job_id)
     if job:
@@ -41,7 +41,7 @@ async def remove_monitor(job_id: int) -> bool:
     """Remove a scheduled job. Returns True if deleted."""
     ok = await storage.remove_scheduled_job(job_id)
     if ok:
-        from opencmo import scheduler
+        from aicmo import scheduler
 
         scheduler.unschedule_job(job_id)
     return ok
@@ -86,7 +86,7 @@ async def run_monitor(job_id: int) -> dict:
     if not job:
         return {"ok": False, "error": f"Monitor #{job_id} not found."}
 
-    from opencmo.scheduler import run_scheduled_scan
+    from aicmo.scheduler import run_scheduled_scan
 
     await run_scheduled_scan(
         job["project_id"], job["job_type"], job_id, triggered_by="manual"
@@ -141,7 +141,7 @@ async def manage_keywords(
 
 async def send_project_report(project_id: int) -> dict:
     """Send email report for a project."""
-    from opencmo.tools.email_report import send_report_impl
+    from aicmo.tools.email_report import send_report_impl
 
     return await send_report_impl(project_id)
 
@@ -154,7 +154,7 @@ async def regenerate_project_report(
     if not project:
         raise ValueError(f"Project {project_id} not found.")
 
-    from opencmo import reports
+    from aicmo import reports
 
     if kind == "strategic":
         return await reports.generate_strategic_report_bundle(

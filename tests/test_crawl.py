@@ -8,7 +8,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_fetch_url_content_prefers_tavily_extract():
     """Shared content fetch should use Tavily extraction before crawl fallback."""
-    from opencmo.tools import crawl as crawl_module
+    from aicmo.tools import crawl as crawl_module
 
     if not hasattr(crawl_module, "fetch_url_content"):
         pytest.fail("fetch_url_content helper is missing")
@@ -19,8 +19,8 @@ async def test_fetch_url_content_prefers_tavily_extract():
     mock_crawler.__aexit__ = AsyncMock(return_value=False)
     mock_crawler.arun = AsyncMock(side_effect=AssertionError("crawl fallback should not run"))
 
-    with patch("opencmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
-         patch("opencmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
+    with patch("aicmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
+         patch("aicmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
         content, source = await crawl_module.fetch_url_content("https://example.com")
 
     assert content == "# Tavily content"
@@ -36,7 +36,7 @@ async def test_fetch_url_content_prefers_tavily_extract():
 @pytest.mark.asyncio
 async def test_fetch_url_content_falls_back_to_crawl():
     """Shared content fetch should preserve crawl fallback when Tavily returns no content."""
-    from opencmo.tools import crawl as crawl_module
+    from aicmo.tools import crawl as crawl_module
 
     if not hasattr(crawl_module, "fetch_url_content"):
         pytest.fail("fetch_url_content helper is missing")
@@ -49,8 +49,8 @@ async def test_fetch_url_content_falls_back_to_crawl():
     mock_crawler.__aexit__ = AsyncMock(return_value=False)
     mock_crawler.arun = AsyncMock(return_value=mock_result)
 
-    with patch("opencmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
-         patch("opencmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
+    with patch("aicmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
+         patch("aicmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
         content, source = await crawl_module.fetch_url_content("https://example.com")
 
     assert content == "# Crawl content"
@@ -62,7 +62,7 @@ async def test_fetch_url_content_falls_back_to_crawl():
 @pytest.mark.asyncio
 async def test_fetch_url_content_falls_back_to_html_metadata_when_markdown_is_empty():
     """Shared content fetch should recover page metadata for JS-heavy pages."""
-    from opencmo.tools import crawl as crawl_module
+    from aicmo.tools import crawl as crawl_module
 
     mock_extract = AsyncMock(return_value=None)
     mock_result = MagicMock()
@@ -81,8 +81,8 @@ async def test_fetch_url_content_falls_back_to_html_metadata_when_markdown_is_em
     mock_crawler.__aexit__ = AsyncMock(return_value=False)
     mock_crawler.arun = AsyncMock(return_value=mock_result)
 
-    with patch("opencmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
-         patch("opencmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
+    with patch("aicmo.tools.tavily_helper.tavily_extract", mock_extract, create=True), \
+         patch("aicmo.tools.crawl.AsyncWebCrawler", return_value=mock_crawler):
         content, source = await crawl_module.fetch_url_content("https://example.com")
 
     assert source == "html_meta"

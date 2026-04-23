@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 
-from opencmo import service
+from aicmo import service
 
 
 def _is_usable_report(record: dict | None) -> bool:
@@ -30,7 +30,7 @@ async def run_report_executor(ctx) -> None:
     event_tasks: list[asyncio.Task] = []
 
     # Restore BYOK keys saved at enqueue time so the worker can call the LLM.
-    from opencmo import llm
+    from aicmo import llm
     user_keys: dict = payload.get("__user_keys") or {}
     llm_token = llm.set_request_keys(user_keys) if user_keys else None
 

@@ -11,7 +11,7 @@ import math
 import re
 import string
 
-from opencmo.tools.community_providers import DiscussionHit
+from aicmo.tools.community_providers import DiscussionHit
 
 # ---------------------------------------------------------------------------
 # Constants

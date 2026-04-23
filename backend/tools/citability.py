@@ -260,7 +260,7 @@ def _split_markdown_blocks(markdown: str) -> list[tuple[str | None, str]]:
 
 async def _citability_impl(url: str) -> dict:
     """Core implementation — returns structured dict."""
-    from opencmo.tools.crawl import fetch_url_content
+    from aicmo.tools.crawl import fetch_url_content
 
     try:
         content, _source = await fetch_url_content(url, max_chars=50000)

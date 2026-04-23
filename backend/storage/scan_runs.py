@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from opencmo.storage._db import get_db
+from aicmo.storage._db import get_db
 
 
 async def create_scan_run(task_id: str, monitor_id: int | None, project_id: int, job_type: str) -> int:

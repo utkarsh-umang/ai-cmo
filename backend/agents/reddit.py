@@ -1,8 +1,8 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
-from opencmo.tools.publishers import publish_to_reddit, reply_to_reddit_comment
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
+from aicmo.tools.publishers import publish_to_reddit, reply_to_reddit_comment
 
 reddit_expert = Agent(
     name="Reddit Expert",
@@ -58,7 +58,7 @@ If the user wants to reply to an existing discussion or comment, use `reply_to_r
 For both tools:
 - Always show the preview first (confirm=False).
 - Only set confirm=True when the user explicitly says "confirm publish" or similar.
-- Requires OPENCMO_AUTO_PUBLISH=1 environment variable to actually post.
+- Requires AICMO_AUTO_PUBLISH=1 environment variable to actually post.
 """,
         task_contract="""## Task Contract
 - Each post should sound like it came from one person who actually built the thing

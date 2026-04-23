@@ -1,10 +1,10 @@
 from agents import Agent
 
-from opencmo.agents.prompt_contracts import build_prompt
-from opencmo.config import get_model
-from opencmo.tools.community import scan_community
-from opencmo.tools.search import web_search
-from opencmo.tools.trend_research import research_trend
+from aicmo.agents.prompt_contracts import build_prompt
+from aicmo.config import get_model
+from aicmo.tools.community import scan_community
+from aicmo.tools.search import web_search
+from aicmo.tools.trend_research import research_trend
 
 trend_agent = Agent(
     name="Trend Research",

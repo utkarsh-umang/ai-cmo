@@ -3,19 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { AppShell } from "./components/layout/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProjectPage } from "./pages/ProjectPage";
-import { SeoPage } from "./pages/SeoPage";
-import { GeoPage } from "./pages/GeoPage";
-import { SerpPage } from "./pages/SerpPage";
-import { CommunityPage } from "./pages/CommunityPage";
 import { ApprovalsPage } from "./pages/ApprovalsPage";
 import { BrandKitPage } from "./pages/BrandKitPage";
-import { ProjectMonitorsPage } from "./pages/ProjectMonitorsPage";
-import { GitHubLeadsPage } from "./pages/GitHubLeadsPage";
 
-// Heavy pages lazy-loaded: Three.js graph, react-markdown reports/chat, recharts performance
-const GraphPage = lazy(() =>
-  import("./pages/GraphPage").then((m) => ({ default: m.GraphPage }))
-);
+
+
 const ReportsPage = lazy(() =>
   import("./pages/ReportsPage").then((m) => ({ default: m.ReportsPage }))
 );
@@ -59,13 +51,7 @@ function AppRoutes() {
                   path="/projects/:id/performance"
                   element={<PerformancePage />}
                 />
-                <Route path="/projects/:id/seo" element={<SeoPage />} />
-                <Route path="/projects/:id/geo" element={<GeoPage />} />
-                <Route path="/projects/:id/serp" element={<SerpPage />} />
-                <Route path="/projects/:id/community" element={<CommunityPage />} />
-                <Route path="/projects/:id/graph" element={<GraphPage />} />
-                <Route path="/projects/:id/monitors" element={<ProjectMonitorsPage />} />
-                <Route path="/projects/:id/github-leads" element={<GitHubLeadsPage />} />
+
                 <Route path="/chat" element={<ChatPage />} />
                 
                 {/* Fallback for any other unknown routes inside the app shell */}

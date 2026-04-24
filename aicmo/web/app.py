@@ -991,7 +991,6 @@ async def _startup_runtime_services():
     """Start optional runtime services after DB bootstrap."""
     from aicmo import scheduler
     from aicmo.background.executors import (
-        run_github_enrich_executor,
         run_graph_expansion_executor,
         run_report_executor,
         run_scan_executor,
@@ -1002,7 +1001,7 @@ async def _startup_runtime_services():
     worker.register_executor("scan", run_scan_executor)
     worker.register_executor("report", run_report_executor)
     worker.register_executor("graph_expansion", run_graph_expansion_executor)
-    worker.register_executor("github_enrich", run_github_enrich_executor)
+
     await worker.start()
 
     if not scheduler.is_scheduler_enabled():
@@ -1114,7 +1113,7 @@ from aicmo.web.routers.brand_kit import router as brand_kit_router
 from aicmo.web.routers.campaigns import router as campaigns_router
 from aicmo.web.routers.chat import router as chat_router
 from aicmo.web.routers.events import router as events_router
-from aicmo.web.routers.github import router as github_router
+
 from aicmo.web.routers.graph import router as graph_router
 from aicmo.web.routers.insights import router as insights_router
 from aicmo.web.routers.keywords import router as keywords_router
@@ -1143,7 +1142,7 @@ app.include_router(events_router)
 app.include_router(brand_kit_router)
 app.include_router(performance_router)
 app.include_router(quick_actions_router)
-app.include_router(github_router)
+
 
 
 # ---------------------------------------------------------------------------

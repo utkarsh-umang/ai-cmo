@@ -282,74 +282,9 @@ _PLATFORM_SPECS = (
         "exclude_markers": ("monitor", "scan", "discussion", "comment", "reply", "社区", "监控", "评论", "回复", "讨论"),
     },
     {
-        "agent_attr": "producthunt_expert",
-        "platform_markers": ("product hunt", "producthunt"),
-        "content_markers": ("launch", "tagline", "maker comment", "gallery", "发布", "上线", "slogan"),
-    },
-    {
-        "agent_attr": "zhihu_expert",
-        "platform_markers": ("知乎", "zhihu"),
-        "content_markers": ("文章", "回答", "问答", "专栏", "标题", "正文"),
-    },
-    {
-        "agent_attr": "xiaohongshu_expert",
-        "platform_markers": ("小红书", "xiaohongshu", "red note", "rednote", "xiaohongshu / red"),
-        "content_markers": ("笔记", "封面", "正文", "标题", "tags", "标签"),
-    },
-    {
         "agent_attr": "hackernews_expert",
         "platform_markers": ("hacker news", "hackernews", "show hn"),
         "content_markers": ("show hn", "title", "body", "帖子", "标题", "正文"),
-    },
-    {
-        "agent_attr": "v2ex_expert",
-        "platform_markers": ("v2ex",),
-        "content_markers": ("帖子", "标题", "正文", "文案"),
-    },
-    {
-        "agent_attr": "juejin_expert",
-        "platform_markers": ("掘金", "juejin"),
-        "content_markers": ("文章", "标题", "正文", "教程"),
-    },
-    {
-        "agent_attr": "jike_expert",
-        "platform_markers": ("即刻", "jike"),
-        "content_markers": ("动态", "帖子", "文案", "内容"),
-    },
-    {
-        "agent_attr": "wechat_expert",
-        "platform_markers": ("微信公众号", "微信公众", "wechat"),
-        "content_markers": ("文章", "标题", "正文", "推文"),
-    },
-    {
-        "agent_attr": "oschina_expert",
-        "platform_markers": ("oschina", "开源中国"),
-        "content_markers": ("文章", "项目介绍", "帖子", "标题", "正文"),
-    },
-    {
-        "agent_attr": "gitcode_expert",
-        "platform_markers": ("gitcode", "csdn"),
-        "content_markers": ("文章", "项目介绍", "仓库介绍", "标题", "正文"),
-    },
-    {
-        "agent_attr": "sspai_expert",
-        "platform_markers": ("少数派", "sspai"),
-        "content_markers": ("文章", "标题", "正文", "评测"),
-    },
-    {
-        "agent_attr": "infoq_expert",
-        "platform_markers": ("infoq",),
-        "content_markers": ("文章", "标题", "正文", "投稿"),
-    },
-    {
-        "agent_attr": "devto_expert",
-        "platform_markers": ("dev.to", "devto"),
-        "content_markers": ("article", "post", "title", "body", "文章", "标题", "正文"),
-    },
-    {
-        "agent_attr": "ruanyifeng_expert",
-        "platform_markers": ("阮一峰", "周刊投稿", "ruanyifeng"),
-        "content_markers": ("投稿", "title", "body", "标题", "正文"),
     },
 )
 
@@ -394,43 +329,30 @@ def _resolve_direct_platform_agent(message: str):
         return None
 
     from aicmo.agents import (
-        devto_expert,
-        gitcode_expert,
         hackernews_expert,
-        infoq_expert,
-        jike_expert,
-        juejin_expert,
         linkedin_expert,
-        oschina_expert,
-        producthunt_expert,
         reddit_expert,
-        ruanyifeng_expert,
-        sspai_expert,
         twitter_expert,
-        v2ex_expert,
-        wechat_expert,
-        xiaohongshu_expert,
-        zhihu_expert,
     )
 
     agent_map = {
         "twitter_expert": twitter_expert,
         "linkedin_expert": linkedin_expert,
         "reddit_expert": reddit_expert,
-        "producthunt_expert": producthunt_expert,
-        "zhihu_expert": zhihu_expert,
-        "xiaohongshu_expert": xiaohongshu_expert,
+        "producthunt_expert":
+        "zhihu_expert":
+        "xiaohongshu_expert":
         "hackernews_expert": hackernews_expert,
-        "v2ex_expert": v2ex_expert,
-        "juejin_expert": juejin_expert,
-        "jike_expert": jike_expert,
-        "wechat_expert": wechat_expert,
-        "oschina_expert": oschina_expert,
-        "gitcode_expert": gitcode_expert,
-        "sspai_expert": sspai_expert,
-        "infoq_expert": infoq_expert,
-        "devto_expert": devto_expert,
-        "ruanyifeng_expert": ruanyifeng_expert,
+        "v2ex_expert":
+        "juejin_expert":
+        "jike_expert":
+        "wechat_expert":
+        "oschina_expert":
+        "gitcode_expert":
+        "sspai_expert":
+        "infoq_expert":
+        "devto_expert":
+        "ruanyifeng_expert":
     }
     return agent_map[spec["agent_attr"]]
 

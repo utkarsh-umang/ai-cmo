@@ -12,20 +12,7 @@ const TAB_GROUPS: Array<{
   activeBg: string;     // active tab pill
   tabs: Array<{ path: string; labelKey: TranslationKey }>;
 }> = [
-  {
-    titleKey: "project.tabGroupObserve",
-    step: 1,
-    accent: "border-blue-200 text-blue-600",
-    accentBg: "bg-blue-50/60",
-    activeBg: "bg-blue-600 text-white shadow-sm shadow-blue-200",
-    tabs: [
-      { path: "/seo", labelKey: "project.seo" },
-      { path: "/geo", labelKey: "project.geo" },
-      { path: "/serp", labelKey: "project.serp" },
-      { path: "/community", labelKey: "project.community" },
-      { path: "/graph", labelKey: "project.graph" },
-    ],
-  },
+
   {
     titleKey: "project.tabGroupDecide",
     step: 2,
@@ -45,8 +32,6 @@ const TAB_GROUPS: Array<{
     activeBg: "bg-emerald-600 text-white shadow-sm shadow-emerald-200",
     tabs: [
       { path: "/brand-kit", labelKey: "project.brandKit" },
-      { path: "/github-leads", labelKey: "project.githubLeads" },
-      { path: "/monitors", labelKey: "project.monitors" },
     ],
   },
 ];

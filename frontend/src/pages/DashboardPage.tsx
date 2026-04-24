@@ -11,6 +11,7 @@ import { useI18n } from "../i18n";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { GlobalOverview } from "../components/dashboard/GlobalOverview";
 import { InsightBanner } from "../components/dashboard/InsightBanner";
+import { ProjectCarousel } from "../components/dashboard/ProjectCarousel";
 
 export function DashboardPage() {
   const { data: projects, isLoading, error } = useProjects();
@@ -63,18 +64,30 @@ export function DashboardPage() {
         <InsightBanner />
 
 
-        <div id="project-grid" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p, i) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <ProjectCard project={p} />
-            </motion.div>
-          ))}
-        </div>
+        {projects.length <= 4 ? (
+          <div
+            id="project-grid"
+            className={`grid gap-6 ${
+              projects.length === 1 ? "grid-cols-1" :
+              projects.length === 2 ? "grid-cols-1 md:grid-cols-2" :
+              projects.length === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" :
+              "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+            }`}
+          >
+            {projects.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <ProjectCard project={p} />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <ProjectCarousel projects={projects} />
+        )}
 
         {selectedTaskId && dialogOpen && (
           <AnalysisDialog

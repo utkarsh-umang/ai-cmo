@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { AlertTriangle, ExternalLink, Settings } from "lucide-react";
-import { ApprovalCard } from "../components/approval/ApprovalCard";
+import { ApprovalGridItem } from "../components/approval/ApprovalGridItem";
+import { ApprovalDetailModal } from "../components/approval/ApprovalDetailModal";
 import { ErrorAlert } from "../components/common/ErrorAlert";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { useApproveApproval, useApprovals, useRejectApproval } from "../hooks/useApprovals";
 import { ApiError } from "../api/client";
 import { useNavigate } from "react-router";
 import { useI18n } from "../i18n";
+import type { ApprovalRecord } from "../types";
+import { EmptyState } from "../components/common/EmptyState";
+import { motion } from "framer-motion";
 
 export function ApprovalsPage() {
-  const approvalsQuery = useApprovals("pending", 20);
+  const [selectedApproval, setSelectedApproval] = useState<ApprovalRecord | null>(null);
+  const approvalsQuery = useApprovals("pending", 100); // Increased limit for grid
   const approveMutation = useApproveApproval();
   const rejectMutation = useRejectApproval();
   const navigate = useNavigate();
@@ -20,7 +25,6 @@ export function ApprovalsPage() {
     errorCode?: string;
   } | null>(null);
 
-  const currentApproval = approvalsQuery.data?.[0] ?? null;
   const pendingCount = approvalsQuery.data?.length ?? 0;
   const busy = approveMutation.isPending || rejectMutation.isPending;
   const queryError = approvalsQuery.error instanceof Error ? approvalsQuery.error.message : "";
@@ -72,52 +76,82 @@ export function ApprovalsPage() {
         <div className="mb-6"><ErrorAlert message={actionError.message} /></div>
       ) : null}
 
-      <div className="flex-1 flex flex-col items-center justify-center pb-20">
+      <div className="flex-1 pb-20">
         {approvalsQuery.isLoading ? (
-          <LoadingSpinner className="min-h-[420px]" />
-        ) : (
-          <ApprovalCard
-            approval={currentApproval}
-            pendingCount={pendingCount}
-            busy={busy}
-            onApprove={() => {
-              if (currentApproval) {
-                setActionError(null);
-                approveMutation.mutate(
-                  { id: currentApproval.id },
-                  {
-                    onError: (err) => {
-                      if (err instanceof ApiError) {
-                        setActionError({
-                          message: err.message,
-                          errorCode: err.errorCode,
-                        });
-                      } else {
-                        setActionError({ message: String(err) });
-                      }
-                    },
-                  },
-                );
-              }
-            }}
-            onReject={() => {
-              if (currentApproval) {
-                setActionError(null);
-                rejectMutation.mutate(
-                  { id: currentApproval.id },
-                  {
-                    onError: (err) => {
-                      setActionError({
-                        message: err instanceof Error ? err.message : String(err),
-                      });
-                    },
-                  },
-                );
-              }
-            }}
+          <div className="flex h-[420px] items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : pendingCount === 0 ? (
+          <EmptyState
+            title={t("approvals.empty")}
+            description={t("approvals.emptyDesc")}
           />
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+            {approvalsQuery.data?.map((approval, i) => (
+              <motion.div
+                key={approval.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <ApprovalGridItem
+                  approval={approval}
+                  onClick={() => setSelectedApproval(approval)}
+                />
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
+
+      <ApprovalDetailModal
+        isOpen={!!selectedApproval}
+        approval={selectedApproval}
+        onClose={() => setSelectedApproval(null)}
+        busy={busy}
+        onApprove={() => {
+          if (selectedApproval) {
+            setActionError(null);
+            approveMutation.mutate(
+              { id: selectedApproval.id },
+              {
+                onSuccess: () => {
+                  setSelectedApproval(null);
+                },
+                onError: (err) => {
+                  if (err instanceof ApiError) {
+                    setActionError({
+                      message: err.message,
+                      errorCode: err.errorCode,
+                    });
+                  } else {
+                    setActionError({ message: String(err) });
+                  }
+                },
+              },
+            );
+          }
+        }}
+        onReject={() => {
+          if (selectedApproval) {
+            setActionError(null);
+            rejectMutation.mutate(
+              { id: selectedApproval.id },
+              {
+                onSuccess: () => {
+                  setSelectedApproval(null);
+                },
+                onError: (err) => {
+                  setActionError({
+                    message: err instanceof Error ? err.message : String(err),
+                  });
+                },
+              },
+            );
+          }
+        }}
+      />
     </div>
   );
 }

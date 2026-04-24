@@ -61,6 +61,57 @@ const PRIORITY_STYLE: Record<string, string> = {
   low: "bg-slate-50 text-slate-600 ring-slate-200",
 };
 
+function PipelineStepper({ currentStage, progressPercent }: { currentStage: string; progressPercent: number }) {
+  const { t } = useI18n();
+  const stages = Object.keys(STAGE_CONFIG);
+  const currentIndex = stages.indexOf(currentStage);
+
+  return (
+    <div className="px-6 py-6 border-b border-brand-50 bg-bg-cream/30">
+      <div className="relative">
+        {/* Background Track */}
+        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-brand-100 -translate-y-1/2" />
+        {/* Active Track */}
+        <div 
+          className="absolute top-1/2 left-0 h-0.5 bg-brand-500 -translate-y-1/2 transition-all duration-1000" 
+          style={{ width: `${progressPercent}%` }}
+        />
+        
+        <div className="relative flex justify-between">
+          {stages.map((stage, idx) => {
+            const config = STAGE_CONFIG[stage]!;
+            const Icon = config.icon;
+            const isCompleted = idx < currentIndex || progressPercent === 100;
+            const isActive = idx === currentIndex && progressPercent < 100;
+
+            return (
+              <div key={stage} className="flex flex-col items-center gap-3">
+                <div 
+                  className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-2xl border-2 transition-all duration-500 ${
+                    isCompleted ? "bg-brand-500 border-brand-500 text-white shadow-lg shadow-brand-500/20" :
+                    isActive ? "bg-white border-brand-500 text-brand-600 scale-110 shadow-xl" :
+                    "bg-white border-brand-100 text-brand-200"
+                  }`}
+                >
+                  {isCompleted ? <CheckCircle size={18} /> : <Icon size={18} />}
+                  {isActive && (
+                    <div className="absolute inset-0 rounded-2xl border-2 border-brand-500 animate-ping opacity-20" />
+                  )}
+                </div>
+                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-500 ${
+                  isCompleted || isActive ? "text-brand-600" : "text-brand-200"
+                }`}>
+                  {t(config.labelKey).split(" ")[0]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function getAnalystEvents(progress: AnalysisProgress[]) {
   return progress.filter((item) => item.stage === "domain_review" && item.agent);
 }
@@ -482,11 +533,18 @@ export function AnalysisDialog({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-xl p-2 text-accent-dark/40 hover:bg-brand-50 hover:text-brand-600 transition-all"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
+
+        {!isDone && (
+          <PipelineStepper 
+            currentStage={currentStageCard?.stage ?? "context_build"} 
+            progressPercent={progressPercent} 
+          />
+        )}
 
         <div id="analysis-scroll" className="flex-1 space-y-6 overflow-y-auto px-6 py-4">
           {!isDone && !isStale && (
@@ -509,16 +567,33 @@ export function AnalysisDialog({
                     <span className="text-sm font-semibold text-slate-600">{progressPercent}%</span>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white/80 p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                      {t("analysis.currentFocus")}
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-slate-950">
-                      {currentStageCard ? t(STAGE_CONFIG[currentStageCard.stage]?.labelKey ?? "analysis.stageContextBuild") : t("analysis.initializing")}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {latestProgressSummary || t("analysis.focusPending")}
-                    </p>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-2xl border border-brand-100 bg-brand-50/30 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand-500 text-white">
+                          <Bot size={14} />
+                        </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-600">
+                          {currentStageCard ? t(STAGE_CONFIG[currentStageCard.stage]?.labelKey ?? "analysis.stageContextBuild") : t("analysis.initializing")}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {latestProgressSummary || t("analysis.focusPending")}
+                      </p>
+                    </div>
+
+                    {/* Mini Log Feed */}
+                    <div className="space-y-2">
+                      {progress.slice(-3).reverse().map((item, idx) => (
+                        <div key={idx} className="flex gap-3 px-1 opacity-60">
+                          <div className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-300" />
+                          <p className="text-[11px] leading-tight text-accent-dark">
+                            <span className="font-bold text-brand-500">{item.agent || "System"}: </span>
+                            {item.summary || item.detail || item.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

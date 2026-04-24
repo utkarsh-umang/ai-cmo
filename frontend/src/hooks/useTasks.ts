@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getTask, getTaskArtifacts, getTaskFindings, getTaskRecommendations } from "../api/tasks";
-import type { Finding, Recommendation, TaskArtifacts } from "../types";
+import { getTask, getTaskArtifacts, getTaskFindings, getTaskRecommendations, listTasks } from "../api/tasks";
+import type { Finding, Recommendation, TaskArtifacts, TaskRecord } from "../types";
 
 const STALE_TASK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes (matches backend stale threshold)
 
@@ -61,5 +61,16 @@ export function useTaskArtifacts(taskId: string | null, enabled = true, live = f
     queryFn: () => getTaskArtifacts(taskId!),
     enabled: !!taskId && enabled,
     refetchInterval: live ? 2000 : false,
+  });
+}
+
+export function useAllTasks() {
+  return useQuery<TaskRecord[]>({
+    queryKey: ["tasks"],
+    queryFn: listTasks,
+    refetchInterval: (query) => {
+      const hasRunning = query.state.data?.some(t => t.status === "running" || t.status === "pending");
+      return hasRunning ? 3000 : 10000;
+    }
   });
 }

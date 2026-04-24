@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { GlobalTaskMonitor } from "./TaskMonitor";
 import { useProjects } from "../../hooks/useProjects";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -69,6 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </main>
       </div>
+      <GlobalTaskMonitor />
     </div>
   );
 }

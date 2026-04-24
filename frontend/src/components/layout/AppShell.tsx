@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sidebar } from "./Sidebar";
-import { SiteFooter } from "./SiteFooter";
 import { TopBar } from "./TopBar";
 import { useProjects } from "../../hooks/useProjects";
 
@@ -59,12 +58,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       
       <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         {hasProjects && <TopBar onMenuClick={() => setSidebarOpen(true)} />}
-        <main className={`flex-1 overflow-y-auto ${hasProjects ? "px-4 pb-12 lg:px-12" : ""}`}>
+        <main className={`flex-1 overflow-y-auto ${hasProjects ? "px-4 lg:px-12 pb-24" : ""}`}>
           <div className={`mx-auto flex min-h-full w-full flex-col ${hasProjects ? "max-w-7xl pt-8" : ""}`}>
             <div className="flex-1">
               {children}
             </div>
-            {hasProjects && <SiteFooter />}
           </div>
         </main>
       </div>

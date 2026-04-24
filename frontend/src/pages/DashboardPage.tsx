@@ -12,7 +12,6 @@ import { useI18n } from "../i18n";
 import { ArrowRight, Loader2, Users } from "lucide-react";
 import { GlobalOverview } from "../components/dashboard/GlobalOverview";
 import { InsightBanner } from "../components/dashboard/InsightBanner";
-import { ChatInput } from "../components/chat/ChatInput";
 
 export function DashboardPage() {
   const { data: projects, isLoading, error } = useProjects();
@@ -52,9 +51,6 @@ export function DashboardPage() {
     }
   };
 
-  const handleChatStart = (message: string) => {
-    navigate(`/chat?q=${encodeURIComponent(message)}`);
-  };
 
   // If there are projects, show the dashboard
   if (projects && projects.length > 0) {
@@ -68,12 +64,6 @@ export function DashboardPage() {
         <GlobalOverview />
         <InsightBanner />
 
-        <div className="mb-12 max-w-3xl">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent-dark mb-4 ml-1">
-            Command Center
-          </h2>
-          <ChatInput onSend={handleChatStart} disabled={false} />
-        </div>
 
         <div id="project-grid" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p, i) => (

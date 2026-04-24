@@ -47,23 +47,23 @@ function SummaryCard({
   actionTo: string;
 }) {
   return (
-    <article className="rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+    <article className="rounded-3xl border border-brand-100 bg-white/60 p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white/80">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-dark/40">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+      <p className="mt-4 text-4xl font-bold tracking-tight text-foreground">{value}</p>
+      <p className="mt-3 text-[14px] leading-relaxed text-accent-dark/70 font-bold">{body}</p>
       {actionTo.startsWith("#") ? (
         <a
           href={actionTo}
-          className="mt-4 inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800"
+          className="mt-6 inline-flex items-center rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-bold text-white transition-all hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/20"
         >
           {actionLabel}
         </a>
       ) : (
         <Link
           to={actionTo}
-          className="mt-4 inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800"
+          className="mt-6 inline-flex items-center rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-bold text-white transition-all hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/20"
         >
           {actionLabel}
         </Link>
@@ -82,13 +82,13 @@ function MetricCard({
   value: string | number | null;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm">
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-        <Icon size={18} />
+    <div className="flex items-center gap-4 rounded-[2rem] border border-brand-100 bg-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:bg-white/80">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+        <Icon size={20} />
       </div>
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</p>
-        <p className="mt-1 text-lg font-semibold text-slate-950">{value ?? "—"}</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-dark/30">{label}</p>
+        <p className="mt-1 text-lg font-bold text-foreground">{value ?? "—"}</p>
       </div>
     </div>
   );
@@ -101,23 +101,23 @@ export function GlobalOverview() {
   if (!data || data.project_count === 0) return null;
 
   return (
-    <section className="mb-8 space-y-5">
-      <div className="rounded-3xl border border-slate-200/80 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.08),_transparent_40%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white">
-            <Bot size={18} />
+    <section className="mb-10 space-y-6">
+      <div className="rounded-[3rem] border border-brand-100 bg-[radial-gradient(circle_at_top_right,_rgba(201,106,90,0.08),_transparent_45%),linear-gradient(180deg,#ffffff_0%,#f4efeb_100%)] p-8 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-accent-dark text-white shadow-xl shadow-accent-dark/20">
+            <Bot size={24} />
           </div>
           <div className="max-w-3xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-500">
               {t("dashboard.summaryTitle")}
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-foreground">
               {t("dashboard.summarySubtitle")}
             </h2>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 lg:grid-cols-3">
           <SummaryCard
             label={t("command.changedToday")}
             value={data.projects_updated_today}
@@ -148,7 +148,7 @@ export function GlobalOverview() {
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard
           icon={Search}
           label={t("overview.avgSeo")}

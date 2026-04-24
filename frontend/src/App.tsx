@@ -1,13 +1,8 @@
-import { lazy, Suspense, type ReactNode } from "react";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { AppShell } from "./components/layout/AppShell";
-import { PublicLocaleSync } from "./components/marketing/PublicLocaleSync";
-import { LandingPage } from "./pages/LandingPage";
-import { BlogPage } from "./pages/BlogPage";
-import { BlogArticlePage } from "./pages/BlogArticlePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProjectPage } from "./pages/ProjectPage";
-import { SampleAuditPage } from "./pages/SampleAuditPage";
 import { SeoPage } from "./pages/SeoPage";
 import { GeoPage } from "./pages/GeoPage";
 import { SerpPage } from "./pages/SerpPage";
@@ -41,35 +36,14 @@ function LazyFallback() {
   );
 }
 
-function LocalizedPublicPage({
-  locale,
-  children,
-}: {
-  locale: "en" | "zh";
-  children: ReactNode;
-}) {
-  return (
-    <PublicLocaleSync locale={locale}>
-      {children}
-    </PublicLocaleSync>
-  );
-}
-
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/en" element={<LocalizedPublicPage locale="en"><LandingPage /></LocalizedPublicPage>} />
-      <Route path="/zh" element={<LocalizedPublicPage locale="zh"><LandingPage /></LocalizedPublicPage>} />
-      <Route path="/sample-audit" element={<SampleAuditPage />} />
-      <Route path="/en/sample-audit" element={<LocalizedPublicPage locale="en"><SampleAuditPage /></LocalizedPublicPage>} />
-      <Route path="/zh/sample-audit" element={<LocalizedPublicPage locale="zh"><SampleAuditPage /></LocalizedPublicPage>} />
-      <Route path="/blog" element={<BlogPage />} />
-      <Route path="/en/blog" element={<LocalizedPublicPage locale="en"><BlogPage /></LocalizedPublicPage>} />
-      <Route path="/zh/blog" element={<LocalizedPublicPage locale="zh"><BlogPage /></LocalizedPublicPage>} />
-      <Route path="/blog/:slug" element={<BlogArticlePage />} />
-      <Route path="/en/blog/:slug" element={<LocalizedPublicPage locale="en"><BlogArticlePage /></LocalizedPublicPage>} />
-      <Route path="/zh/blog/:slug" element={<LocalizedPublicPage locale="zh"><BlogArticlePage /></LocalizedPublicPage>} />
+      <Route path="/" element={<Navigate to="/workspace" replace />} />
+      {/* Fallback for legacy localized marketing routes */}
+      <Route path="/en" element={<Navigate to="/workspace" replace />} />
+      <Route path="/zh" element={<Navigate to="/workspace" replace />} />
+      
       <Route
         path="*"
         element={(
@@ -93,6 +67,9 @@ function AppRoutes() {
                 <Route path="/projects/:id/monitors" element={<ProjectMonitorsPage />} />
                 <Route path="/projects/:id/github-leads" element={<GitHubLeadsPage />} />
                 <Route path="/chat" element={<ChatPage />} />
+                
+                {/* Fallback for any other unknown routes inside the app shell */}
+                <Route path="*" element={<Navigate to="/workspace" replace />} />
               </Routes>
             </Suspense>
           </AppShell>
@@ -109,3 +86,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

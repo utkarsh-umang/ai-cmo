@@ -78,7 +78,7 @@ export function WelcomeHero({
           <div className="relative">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white">
               <Sparkles size={16} />
-              {t("landing.heroEyebrow")}
+              {t("welcome.heroEyebrow")}
             </div>
 
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">

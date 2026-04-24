@@ -26,7 +26,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white text-slate-800 transition-colors duration-500 font-sans">
+    <div className="flex h-screen overflow-hidden bg-[#fafafa] text-slate-800 transition-colors duration-500 font-sans">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-50/50 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[120px]" />
+      </div>
+
       {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -42,10 +47,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden lg:pl-0 pl-0 relative">
+      <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto px-4 pb-8 lg:px-8">
-          <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col">
+        <main className="flex-1 overflow-y-auto px-4 pb-12 lg:px-12">
+          <div className="mx-auto flex min-h-full w-full max-w-6xl flex-col pt-6">
             <div className="flex-1">
               {children}
             </div>
@@ -54,5 +59,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
+
   );
 }

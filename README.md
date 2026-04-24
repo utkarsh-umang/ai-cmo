@@ -20,88 +20,125 @@
   <img src="https://img.shields.io/badge/react-SPA-61DAFB.svg?style=for-the-badge&logo=react" alt="React SPA">
 </p>
 
-<div align="center">
-  <h3>
-    <a href="https://www.aidcmo.com/">Live Demo</a> · <a href="https://www.aidcmo.com/static/demo.mp4">Watch Video</a>
-  </h3>
-</div>
-
-<div align="center">
-  <a href="https://www.aidcmo.com/">
-    <img src="assets/screenshots/demo-cover.png" alt="AI-CMO in action" width="850" />
-  </a>
-  <p><i>Turn visibility signals into growth decisions from one open-source workspace.</i></p>
-</div>
 
 ---
 
-## Showcase: Real-World Example
+## 📖 Documentation
 
-See AI-CMO in action with a **real scan of [Cursor.com](https://cursor.com)** — 176 community discussions discovered across Reddit, Hacker News, Bilibili, Dev.to, and V2EX, with a 177-node knowledge graph.
-
-**[View the Cursor showcase with full data](docs/showcase/cursor/)**
+- **[Agent Orchestration Guide](AGENT_ORCHESTRATION.md)** — Learn how the 6-stage pipeline works and meet our specialist agents.
 
 ---
 
-## What Makes AI-CMO Different
+## 🏗️ System Design
 
-- **It treats growth as a system, not a checklist**: SEO, GEO, SERP, community discussion, competitors, reports, and approvals live in one loop.
-- **It is built for open-source reality**: before you have a marketing team, you still need discovery, discussion, and credibility.
-- **It helps you act on signals**: not just dashboards, but next actions, briefs, drafts, and human-in-the-loop approvals grounded in project context.
+AI-CMO is built as a modular monolithic application designed for rapid iteration and high observability.
 
-## What AI-CMO Helps You Do
+### Current Architecture
 
-- **See where your project is visible**: monitor search rankings, AI-search presence, community mentions, and crawler accessibility.
-- **Understand who you are competing with**: map competitors, keyword overlap, and community context in the knowledge graph.
-- **Prioritize what to do next**: identify the discussions to join, the keywords to push, and the content gaps worth closing.
-- **Keep execution grounded**: generate reports, agent briefs, and approval-ready drafts from the same project context.
+```mermaid
+graph TD
+    subgraph Frontend
+        React["React 19 SPA"]
+        Query["TanStack Query"]
+    end
 
-## The Growth Loop
+    subgraph Backend
+        FastAPI["FastAPI Web Server"]
+        Router["API v1 Routes"]
+        Worker["In-Process Worker"]
+        LLM["Unified LLM Client"]
+    end
 
-1. **Enter your URL** on the homepage — AI scans your brand, category, keywords, and competitive context.
-2. **Monitor SEO, GEO, SERP, and community signals** on a Daily / Weekly / Monthly schedule.
-3. **Turn raw signals into context** with reports, graph exploration, and AI chat grounded in project data.
-4. **Move to execution** with drafts, approvals, and prioritized next actions.
+    subgraph Storage
+        SQLite["SQLite + WAL"]
+        FS["Local Filesystem"]
+    end
 
-## What Happens When You Hit "Start Monitoring"
+    React <--> Router
+    Router <--> SQLite
+    Worker <--> SQLite
+    Worker --> LLM
+    Worker --> FS
+    LLM --> Providers["OpenAI / DeepSeek / Anthropic"]
+```
 
-One URL triggers a 6-stage AI pipeline that builds a complete growth picture:
+#### Core Components
+- **FastAPI Core**: Handles RESTful API requests, SSE (Server-Sent Events) for real-time progress, and BYOK (Bring Your Own Key) middleware.
+- **In-Process Worker**: A task execution engine that polls the `background_tasks` table. It manages concurrency using `asyncio.Semaphore` and handles task recovery on startup.
+- **6-Stage Monitoring Pipeline**:
+    1. **Context Build**: Multi-agent debate (Product, SEO, Community) to extract brand DNA.
+    2. **Signal Collect**: Parallel scanning of SEO, GEO (AI Search), Community (Reddit/HN), and SERP.
+    3. **Normalize**: Deduplication and standardization of cross-platform signals.
+    4. **Domain Review**: Independent AI analysis for each marketing vertical.
+    5. **Strategy Synthesis**: Strategic Director agent synthesizes findings into actions.
+    6. **Persist & Publish**: Final results saved to DB and reports generated.
+- **Unified LLM Client**: Centralized client in `llm.py` providing automatic retries, exponential backoff, and strict ContextVar isolation for API keys.
 
-| Stage | Name | What it does |
-|:-----:|------|-------------|
-| 1/6 | **Context Build** | Crawl your URL. Three AI specialists (Product Analyst, SEO Strategist, Community Strategist) run a 3-round debate to extract brand name, category, keywords, and competitors. |
-| 2/6 | **Signal Collect** | Run SEO audit, GEO visibility check, community search (Reddit, HN, Dev.to, ...), SERP keyword tracking, and **GitHub potential-user discovery** — all in parallel. |
-| 3/6 | **Signal Normalize** | Clean and standardize raw data: deduplicate discussions, normalize scores, align keyword and competitor records. |
-| 4/6 | **Domain Review** | Four AI analysts independently review the signals: SEO Analyst, GEO Analyst, Community Analyst, Competitor Analyst. |
-| 5/6 | **Strategy Synthesis** | An AI Strategy Director synthesizes all reviews into prioritized findings and actionable recommendations. |
-| 6/6 | **Persist & Publish** | Save results to DB, generate strategic report, surface insights on the dashboard. |
+---
 
-> After the initial scan, schedule **daily / weekly / monthly** re-scans to track changes over time.
+## 🚀 Scaling to 100k DAU
 
-## Core Capabilities
+The current design is optimized for single-node deployment and low-to-medium usage. To handle **100,000 Daily Active Users**, we must address several architectural bottlenecks.
 
-- **SEO Audit**: Core Web Vitals, `llms.txt`, AI crawler detection, and technical site health.
-- **GEO Visibility**: monitor how your brand appears in AI-native search surfaces such as ChatGPT, Claude, Gemini, Perplexity, and You.com.
-- **SERP Tracking**: track keyword rankings over time with crawl-based or provider-based checks.
-- **Community Monitoring**: watch Reddit, Hacker News, Dev.to, YouTube, Bluesky, Twitter/X, plus Chinese platforms such as V2EX, Weibo, Bilibili, and XueQiu.
-- **Knowledge Graph**: explore competitors, keywords, and community connections in one visual map.
-- **Reports**: generate versioned strategic and weekly reports, with human readouts, agent briefs, PDF export, and email delivery.
-- **Potential Users**: automatically discover contactable GitHub developers from your product's keywords, competitors, and related repositories. Score leads by tech-stack match and reachability, then generate personalized outreach (email, Twitter DM, GitHub Issue) through the approval queue.
-- **Approvals and AI Chat**: keep humans in the loop while using project-aware AI agents to reason, summarize, and draft.
+### 🔍 Current Gaps & Bottlenecks
+1. **SQLite Contention**: While WAL mode helps, SQLite's single-writer model will cause significant latency under high concurrent writes from thousands of users and workers.
+2. **In-Process Workers**: Background tasks (especially crawls) share CPU and Memory with the web server. A spike in scans can crash the entire API service.
+3. **Headless Browser Overhead**: Running Playwright/Crawl4AI locally is resource-intensive. Scaling this linearly on one machine is impossible.
+4. **State Isolation**: The current system lacks a distributed cache (like Redis). State is tied to local memory or a local file, making horizontal scaling difficult.
+5. **Artifact Persistence**: Reports and lead data are stored on the local disk, which is not suitable for multi-instance cloud deployments.
 
-## Deep Reports
+### 🛠️ Proposed High-Scale Architecture
 
-AI-CMO includes a report system inside each project workspace. Open the **Reports** tab or visit `/projects/<id>/reports`.
+To reach 100k DAU, AI-CMO would move to a **Distributed Micro-Worker Architecture**.
 
-- **Strategic reports**: full-scan analysis with positioning, competitor context, risks, and recommendations.
-- **Weekly reports**: 7-day monitoring summaries with trend changes, risks, wins, and next actions.
-- **Dual outputs**: every report is stored as both a **Human Readout** and an **Agent Brief**.
-- **Multi-agent pipeline**: human-facing reports use a 6-phase pipeline instead of a single prompt.
-- **Graceful fallback**: if the deep pipeline fails, AI-CMO falls back to simpler generation paths so reports stay available.
+```mermaid
+graph TD
+    LB["Load Balancer"] --> WebCluster["API Web Cluster"]
+    
+    subgraph Compute
+        WebCluster
+        WorkerCluster["Distributed Worker Cluster"]
+    end
 
-## Quick Start
+    subgraph Queue_Cache ["Queue & Cache"]
+        Redis["Redis Cache / Broker"]
+        Temporal["Temporal / Celery"]
+    end
 
-AI-CMO works with OpenAI-compatible APIs, including OpenAI, DeepSeek, NVIDIA NIM, Kimi-compatible gateways, and Ollama.
+    subgraph Persistent_Storage ["Persistent Storage"]
+        Postgres["PostgreSQL Managed"]
+        S3["Object Storage / S3"]
+    end
+
+    subgraph Specialized_Services ["Specialized Services"]
+        Browserless["Browserless.io / Headless Grid"]
+        LLMProxy["LLM Proxy / Rate Limiter"]
+    end
+
+    WebCluster <--> Redis
+    WebCluster <--> Postgres
+    Temporal <--> Postgres
+    WorkerCluster <--> Temporal
+    WorkerCluster --> Browserless
+    WorkerCluster --> S3
+    WorkerCluster --> LLMProxy
+```
+
+#### Key Changes for Scale:
+1. **Database Migration**: Move from SQLite to a managed **PostgreSQL** instance (e.g., RDS, Supabase) to handle high-concurrency connections and complex relational queries.
+2. **Distributed Task Queue**: Replace the internal polling worker with **Temporal** or **Celery + Redis**. This allows workers to run on dedicated, auto-scaling nodes.
+3. **Headless Browser Fleet**: Offload all crawling work to a dedicated fleet like **Browserless.io** or a Playwright Grid running in Kubernetes.
+4. **Global Caching**: Use **Redis** for session management, rate limiting, and caching hot signals (e.g., SERP results) to reduce LLM and Database load.
+5. **Stateless Artifacts**: Store all generated reports, PDFs, and lead data in **S3-compatible object storage**.
+6. **LLM Gateway**: Implement an internal LLM proxy to handle global rate limits, token budget management, and semantic caching for common marketing queries.
+7. **Observability**: Move from local logs to a centralized stack (**Prometheus/Grafana** for metrics, **ELK/Loki** for logs, and **OpenTelemetry** for tracing multi-agent pipelines).
+8. **Enhanced Security**: Transition from `.env` files to a secure secrets manager (e.g., **AWS Secrets Manager** or **HashiCorp Vault**) and implement **OAuth2/OpenID Connect** for enterprise-grade user authentication.
+
+---
+
+## 🛠️ Getting Started (Local Development)
+
+AI-CMO works with OpenAI-compatible APIs, including OpenAI, DeepSeek, NVIDIA NIM, and Ollama.
 
 ```bash
 git clone https://github.com/study8677/AI-CMO.git
@@ -114,10 +151,6 @@ aicmo-web
 ```
 
 Then open `http://localhost:8080`.
-
-Enter your project URL on the homepage to run the first scan. If no LLM API key is configured yet, a red dot on the Settings icon will guide you to the setup panel.
-
-> Tip: you can also configure API keys from the web dashboard's **Settings** panel without touching `.env`.
 
 <details>
 <summary>Frontend development (optional)</summary>
@@ -133,60 +166,21 @@ The dev app runs at `http://localhost:5173` and proxies API traffic to `:8080`.
 
 </details>
 
-## Integrations
+---
 
-| Capability | Platforms | Auth |
-| :--- | :--- | :--- |
-| Monitoring | SEO, GEO, SERP, Community | Optional provider keys |
-| Community sources (EN) | Reddit, HN, Dev.to, Bluesky, YouTube, Twitter/X | Optional |
-| Community sources (CN) | V2EX, Weibo, Bilibili, XueQiu | Free (XueQiu needs cookie) |
-| Community sources (stub) | XiaoHongShu, WeChat, Douyin | Pending (MCP/Docker) |
-| Publishing | Reddit, Twitter/X | Required |
-| Reports | Web + Email + PDF | SMTP for email |
-| LLM providers | OpenAI-compatible APIs | Required |
-
-## Roadmap
+## 🤝 Roadmap & Community
 
 - [x] AI CMO strategic scan
-- [x] SEO / GEO / SERP / community monitoring
-- [x] Versioned strategic and weekly reports
 - [x] Multi-agent deep report pipeline (6-phase)
-- [x] PDF export with branded header/footer
-- [x] 3D knowledge graph
-- [x] Approval queue and controlled publishing
-- [x] Chinese platform community monitoring (V2EX, Weibo, Bilibili, XueQiu)
-- [x] Full i18n (English, Chinese, Japanese, Korean, Spanish)
-- [x] Locale-aware AI responses (LLM follows UI language setting)
-- [x] LLM retry with exponential backoff for unreliable providers
-- [x] Simplified onboarding: enter URL on homepage, no configuration required to start
-- [ ] More publishing targets
+- [x] 3D knowledge graph & Approval queue
+- [x] Full i18n support (EN/ZH/JA/KO/ES)
+- [ ] Distributed worker support (Celery/Temporal)
+- [ ] Enterprise SEO deeper crawls
 - [ ] Brand voice controls
-- [ ] Deeper enterprise SEO crawls
 
-## Contributors
+For the full list of contributors and more details, see [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
-- [study8677](https://github.com/study8677) - Creator and maintainer
-- [Lling0000](https://github.com/Lling0000) - Lead contributor
-- [ParakhJaggi](https://github.com/ParakhJaggi) - Tavily integration ([#2](https://github.com/study8677/AI-CMO/pull/2), [#3](https://github.com/study8677/AI-CMO/pull/3))
-- [BBear0115](https://github.com/BBear0115) - Bug fixes for BYOK key isolation, base_url normalization, and reports ([#9](https://github.com/study8677/AI-CMO/pull/9))
-- See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full contributor list
+---
 
-## Acknowledgments
-
-- [geo-seo-claude](https://github.com/zubair-trabzada/geo-seo-claude) by [@zubair-trabzada](https://github.com/zubair-trabzada)
-- [last30days-skill](https://github.com/mvanhorn/last30days-skill) by [@mvanhorn](https://github.com/mvanhorn)
-- [Agent-Reach](https://github.com/Panniantong/Agent-Reach) by [@Panniantong](https://github.com/Panniantong) — Chinese platform integration inspiration
-
-## Star History
-
-<a href="https://star-history.com/#study8677/AI-CMO&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=study8677/AI-CMO&type=Date" width="100%" />
- </picture>
-</a>
-
-## Links
-
-- [LINUX DO](https://linux.do/) — Where enthusiasts gather
+## 📜 License
+Apache 2.0 License. See [LICENSE](LICENSE) for details.

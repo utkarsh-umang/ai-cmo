@@ -1,13 +1,15 @@
 import { useState, useRef } from "react";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 import { useI18n } from "../../i18n";
 
 export function ChatInput({
   onSend,
   disabled,
+  onOpenTools,
 }: {
   onSend: (content: string) => void;
   disabled: boolean;
+  onOpenTools?: () => void;
 }) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,7 +37,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="mt-4 flex items-end relative bg-slate-50 rounded-[1.5rem] ring-1 ring-slate-200/60 p-1 transition-shadow focus-within:ring-slate-300 focus-within:shadow-sm">
+    <div className="group relative flex flex-col bg-white rounded-[2rem] border border-brand-100 shadow-sm transition-all focus-within:shadow-xl focus-within:shadow-brand-500/5 focus-within:border-brand-300 p-2">
       <textarea
         ref={textareaRef}
         value={value}
@@ -44,16 +46,30 @@ export function ChatInput({
         onInput={handleInput}
         disabled={disabled}
         placeholder={t("chat.placeholder")}
-        rows={1}
-        className="max-h-48 flex-1 resize-none bg-transparent px-4 py-3 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none disabled:opacity-50"
+        rows={3}
+        className="min-h-[120px] w-full resize-none bg-transparent px-6 py-4 text-[16px] text-foreground placeholder:text-accent-dark/30 focus:outline-none disabled:opacity-50 font-sans leading-relaxed"
       />
-      <button
-        onClick={handleSubmit}
-        disabled={disabled || !value.trim()}
-        className="mb-1 mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm transition-transform hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
-      >
-        <Send size={16} className="-ml-0.5" />
-      </button>
+      <div className="flex items-center justify-between px-2 pb-2 pt-2 border-t border-brand-50">
+        <div className="flex items-center gap-2">
+          {onOpenTools && (
+            <button
+              type="button"
+              onClick={onOpenTools}
+              className="flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-bold text-accent-dark/60 hover:bg-brand-50 hover:text-brand-600 transition-all active:scale-95"
+            >
+              <Sparkles size={16} />
+              <span>{t("agentGrid.title")}</span>
+            </button>
+          )}
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={disabled || !value.trim()}
+          className="flex h-11 w-11 items-center justify-center rounded-2xl bg-foreground text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-20 disabled:hover:scale-100"
+        >
+          <Send size={18} />
+        </button>
+      </div>
     </div>
   );
 }

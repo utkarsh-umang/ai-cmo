@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { History, Plus } from "lucide-react";
 import { useChat } from "../hooks/useChat";
 import { useChatContext } from "../hooks/useChatContext";
 import { useProjects } from "../hooks/useProjects";
 import { ChatContainer } from "../components/chat/ChatContainer";
-import { ChatSidebar } from "../components/chat/ChatSidebar";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { useI18n } from "../i18n";
+import { ChevronDown, Sparkles } from "lucide-react";
 
 function parseProjectId(value: string | null): number | null {
   if (!value) return null;
@@ -20,11 +19,11 @@ export function ChatPage() {
   const [initialProjectId] = useState<number | null>(() =>
     parseProjectId(searchParams.get("project_id")),
   );
-  const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const chat = useChat(initialProjectId);
   const { data: projects } = useProjects();
   const { data: chatContext } = useChatContext(chat.projectId);
   const { t } = useI18n();
+
   const activeProject =
     projects?.find((project) => project.id === chat.projectId) ?? null;
   const currentProjectLabel =
@@ -59,72 +58,34 @@ export function ChatPage() {
   if (!chat.sessionReady) return <LoadingSpinner />;
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] gap-4 overflow-hidden">
-      <ChatSidebar
-        sessions={chat.sessions}
-        activeSessionId={chat.sessionId}
-        onSelect={chat.loadSession}
-        onDelete={chat.removeSession}
-        onNewChat={() => {
-          void chat.resetChat();
-        }}
-        mobileOpen={mobileHistoryOpen}
-        onCloseMobile={() => setMobileHistoryOpen(false)}
-      />
-      <div className="flex flex-1 flex-col min-w-0">
-        <div className="mb-3 flex items-center gap-2 lg:hidden">
-          <button
-            type="button"
-            onClick={() => setMobileHistoryOpen(true)}
-            className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
-          >
-            <History size={16} />
-            {t("chat.history")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              void chat.resetChat();
-            }}
-            className="flex h-10 items-center gap-2 rounded-xl bg-slate-900 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
-          >
-            <Plus size={16} />
-            {t("chat.newChat")}
-          </button>
-        </div>
-        <div className="mb-4 shrink-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-500">
-                {t("chat.currentProject")}
-              </p>
-              <h1 className="mt-1 text-lg font-semibold text-slate-900">
-                {currentProjectLabel}
-              </h1>
-              <p className="mt-1 text-sm text-slate-500">
-                {t("chat.projectHint")}
-              </p>
+    <div className="flex flex-1 flex-col items-center font-sans">
+      <div className="w-full max-w-4xl flex-1 flex flex-col min-h-0">
+        {/* Minimal project switcher */}
+        <div className="mb-6 flex justify-center">
+          <div className="relative group">
+            <select
+              value={chat.projectId ?? ""}
+              onChange={(event) => {
+                void chat.selectProject(parseProjectId(event.target.value));
+              }}
+              className="appearance-none rounded-2xl border border-brand-100 bg-white pl-10 pr-12 py-3 text-sm font-bold text-foreground shadow-sm transition-all hover:border-brand-300 focus:ring-4 focus:ring-brand-500/10 outline-none"
+            >
+              <option value="">{t("chat.allProjects")}</option>
+              {(projects ?? []).map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.brand_name}
+                </option>
+              ))}
+            </select>
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500 pointer-events-none">
+              <Sparkles size={16} />
             </div>
-
-            <label className="flex w-full max-w-sm flex-col gap-1 text-sm text-slate-500">
-              <span>{t("chat.selectProject")}</span>
-              <select
-                value={chat.projectId ?? ""}
-                onChange={(event) => {
-                  void chat.selectProject(parseProjectId(event.target.value));
-                }}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              >
-                <option value="">{t("chat.allProjects")}</option>
-                {(projects ?? []).map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.brand_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-dark/30 pointer-events-none group-hover:text-accent-dark/60 transition-colors">
+              <ChevronDown size={16} />
+            </div>
           </div>
         </div>
+
         <ChatContainer
           messages={chat.messages}
           isStreaming={chat.isStreaming}

@@ -1,12 +1,8 @@
 import { createContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { en, type TranslationKey } from "./locales/en";
 import {
-  getDocumentLanguage,
-  normalizeLocale,
   type Locale,
 } from "./locale";
-
-const dictionaries: Record<Locale, Partial<Record<TranslationKey, string>>> = { en };
 
 function getInitialLocale(): Locale {
   return "en";
@@ -23,7 +19,7 @@ export const I18nContext = createContext<I18nContextValue | null>(null);
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
 
-  const setLocale = useCallback((l: Locale) => {
+  const setLocale = useCallback((_l: Locale) => {
     setLocaleState("en");
   }, []);
 
@@ -34,7 +30,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: TranslationKey, params?: Record<string, string | number>) => {
-      let text = en[key] || key;
+      let text: any = en[key] || key;
       if (params) {
         for (const [k, v] of Object.entries(params)) {
           text = text.replaceAll(`{{${k}}}`, String(v));

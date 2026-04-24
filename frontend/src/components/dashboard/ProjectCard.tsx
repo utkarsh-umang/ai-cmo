@@ -1,8 +1,9 @@
 import { Link } from "react-router";
-import { Activity } from "lucide-react";
+import { Activity, Trash2 } from "lucide-react";
 import type { Project } from "../../types";
 import { useI18n } from "../../i18n";
 import { utcDate } from "../../utils/time";
+import { useDeleteProject } from "../../hooks/useProjects";
 
 function getLatestActivity(project: Project) {
   const timestamps = [
@@ -30,6 +31,7 @@ function hasReadyReport(project: Project) {
 export function ProjectCard({ project }: { project: Project }) {
   const { latest } = project;
   const { t, locale } = useI18n();
+  const deleteProject = useDeleteProject();
 
   const seoScore = latest?.seo?.score ?? null;
   const dotColor =
@@ -62,11 +64,27 @@ export function ProjectCard({ project }: { project: Project }) {
           ? t("projectCard.reportSummary")
           : t("projectCard.noScans");
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm(t("dashboard.deleteConfirm"))) {
+      await deleteProject.mutateAsync(project.id);
+    }
+  };
+
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="group block overflow-hidden rounded-[2rem] bg-white p-6 border border-brand-100/50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/5 hover:border-brand-300"
+      className="group relative block overflow-hidden rounded-[2rem] bg-white p-6 border border-brand-100/50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/5 hover:border-brand-300"
     >
+      <button
+        onClick={handleDelete}
+        disabled={deleteProject.isPending}
+        className="absolute top-6 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-400 opacity-0 transition-all duration-300 hover:bg-rose-500 hover:text-white group-hover:opacity-100"
+      >
+        <Trash2 size={16} />
+      </button>
+
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-4">

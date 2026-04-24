@@ -113,7 +113,7 @@ async def _detect_community_buzz(project_id: int) -> list[Insight]:
     discussions = await storage.get_tracked_discussions(project_id)
     for d in discussions:
         score = d.get("engagement_score") or 0
-        if score > 50:
+        if score > 30:
             title_short = d["title"][:60]
             insights.append(Insight(
                 project_id=project_id,

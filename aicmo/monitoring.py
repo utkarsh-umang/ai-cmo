@@ -1098,6 +1098,27 @@ async def run_monitoring_workflow(
             agent="Monitoring Orchestrator",
         ))
 
+        # Detect insights (rule-based, zero LLM cost)
+        try:
+            from aicmo.insights import detect_insights
+            await detect_insights(project_id)
+        except Exception:
+            logger.exception("Insight detection failed for project %d", project_id)
+
+        # Autopilot: turn insights into content → approval queue
+        try:
+            from aicmo.autopilot import execute_autopilot
+            auto_results = await execute_autopilot(project_id)
+            if auto_results:
+                await _emit(run_id, on_progress, _event(
+                    "autopilot",
+                    "completed",
+                    f"Autopilot generated {len(auto_results)} content items for review.",
+                    agent="Autopilot Engine",
+                ))
+        except Exception:
+            logger.exception("Autopilot execution failed for project %d", project_id)
+
         if job_type == "full":
             try:
                 from aicmo.background import service as _bg_service

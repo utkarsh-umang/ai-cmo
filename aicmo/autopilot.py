@@ -34,6 +34,17 @@ INSIGHT_TO_ACTIONS: dict[str, list[dict]] = {
                 "and optimize for search engines. Return the full blog post."
             ),
         },
+        {
+            "channel": "twitter",
+            "agent": "twitter_expert",
+            "approval_type": "tweet",
+            "prompt": (
+                "Write a sharp, insightful Twitter/X thread for {brand} (category: {category}). "
+                "Context: {summary}. "
+                "Focus on the keyword '{keyword}' and provide a contrarian or deep perspective "
+                "that would resonate with technical founders and builders."
+            ),
+        },
     ],
     "geo_decline": [
         {
@@ -46,6 +57,16 @@ INSIGHT_TO_ACTIONS: dict[str, list[dict]] = {
                 "Include clear product positioning, feature comparisons with alternatives, "
                 "and structured data-friendly formatting. "
                 "Make it highly citable by AI systems like ChatGPT, Perplexity, and Claude."
+            ),
+        },
+        {
+            "channel": "twitter",
+            "agent": "twitter_expert",
+            "approval_type": "tweet",
+            "prompt": (
+                "Write a Twitter/X thread explaining the core value proposition of {brand} "
+                "(category: {category}) in a way that AI models would find authoritative. "
+                "Context: {summary}. Focus on being mentioned as a top choice in its category."
             ),
         },
     ],
@@ -62,6 +83,16 @@ INSIGHT_TO_ACTIONS: dict[str, list[dict]] = {
                 "Be conversational and add real value."
             ),
         },
+        {
+            "channel": "twitter",
+            "agent": "twitter_expert",
+            "approval_type": "tweet",
+            "prompt": (
+                "Draft a Twitter/X thread inspired by a high-engagement community discussion. "
+                "Context: {summary}. Share a perspective for {brand} (category: {category}) "
+                "that adds to the conversation without being spammy."
+            ),
+        },
     ],
     "competitor_gap": [
         {
@@ -75,6 +106,16 @@ INSIGHT_TO_ACTIONS: dict[str, list[dict]] = {
                 "Include honest comparisons and highlight {brand}'s unique strengths."
             ),
         },
+        {
+            "channel": "twitter",
+            "agent": "twitter_expert",
+            "approval_type": "tweet",
+            "prompt": (
+                "Write a contrarian Twitter/X thread about the {category} market. "
+                "Context: {summary}. Highlight how {brand} fills a gap that others miss. "
+                "Be sharp and opinionated."
+            ),
+        },
     ],
     "seo_regress": [
         {
@@ -86,6 +127,30 @@ INSIGHT_TO_ACTIONS: dict[str, list[dict]] = {
                 "focusing on SEO best practices and performance optimization. "
                 "Context: {summary}. "
                 "Include practical tips that demonstrate expertise in this domain."
+            ),
+        },
+    ],
+    "citability_regression": [
+        {
+            "channel": "blog",
+            "agent": "blog_expert",
+            "approval_type": "blog_post",
+            "prompt": (
+                "Write an authoritative explainer for {brand} (category: {category}) "
+                "to improve AI citability. Context: {summary}. "
+                "Use structured lists, clear definitions, and data-backed claims."
+            ),
+        },
+    ],
+    "ai_crawlers_blocked": [
+        {
+            "channel": "blog",
+            "agent": "blog_expert",
+            "approval_type": "blog_post",
+            "prompt": (
+                "Write a guide about AI-friendly robots.txt and sitemaps for {brand}. "
+                "Context: {summary}. Explain why being accessible to AI crawlers "
+                "is critical for modern brand visibility."
             ),
         },
     ],
@@ -119,11 +184,13 @@ async def _build_generation_agent(agent_name: str, project_id: int | None = None
 
     from aicmo.agents.blog import blog_expert
     from aicmo.agents.reddit import reddit_expert
+    from aicmo.agents.twitter import twitter_expert
     from aicmo.storage.brand_kit import build_brand_kit_prompt
 
     templates = {
         "blog_expert": blog_expert,
         "reddit_expert": reddit_expert,
+        "twitter_expert": twitter_expert,
     }
     template = templates.get(agent_name)
     if template is None:
@@ -271,8 +338,9 @@ async def execute_autopilot(project_id: int) -> list[dict]:
                 project_id, insight["title"], action["channel"],
             )
 
-            # Only generate for the first action per insight in MVP
-            break
+            # Only generate for the first N actions per insight in MVP
+            # We allow more than one if they are for different channels
+            pass
 
     if created_approvals:
         logger.info(

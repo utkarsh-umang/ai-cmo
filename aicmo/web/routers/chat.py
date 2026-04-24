@@ -339,20 +339,7 @@ def _resolve_direct_platform_agent(message: str):
         "twitter_expert": twitter_expert,
         "linkedin_expert": linkedin_expert,
         "reddit_expert": reddit_expert,
-        "producthunt_expert":
-        "zhihu_expert":
-        "xiaohongshu_expert":
         "hackernews_expert": hackernews_expert,
-        "v2ex_expert":
-        "juejin_expert":
-        "jike_expert":
-        "wechat_expert":
-        "oschina_expert":
-        "gitcode_expert":
-        "sspai_expert":
-        "infoq_expert":
-        "devto_expert":
-        "ruanyifeng_expert":
     }
     return agent_map[spec["agent_attr"]]
 

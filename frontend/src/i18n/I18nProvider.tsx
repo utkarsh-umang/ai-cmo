@@ -1,21 +1,15 @@
 import { createContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { en, type TranslationKey } from "./locales/en";
-import { zh } from "./locales/zh";
-import { ja } from "./locales/ja";
-import { ko } from "./locales/ko";
-import { es } from "./locales/es";
 import {
   getDocumentLanguage,
   normalizeLocale,
   type Locale,
 } from "./locale";
 
-const dictionaries: Record<Locale, Partial<Record<TranslationKey, string>>> = { en, zh, ja, ko, es };
+const dictionaries: Record<Locale, Partial<Record<TranslationKey, string>>> = { en };
 
 function getInitialLocale(): Locale {
-  const stored = localStorage.getItem("aicmo_lang");
-  if (stored) return normalizeLocale(stored);
-  return normalizeLocale(navigator.language);
+  return "en";
 }
 
 export interface I18nContextValue {
@@ -30,19 +24,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
 
   const setLocale = useCallback((l: Locale) => {
-    const nextLocale = normalizeLocale(l);
-    setLocaleState(nextLocale);
-    localStorage.setItem("aicmo_lang", nextLocale);
+    setLocaleState("en");
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = getDocumentLanguage(locale);
-    document.documentElement.dataset.locale = locale;
-  }, [locale]);
+    document.documentElement.lang = "en";
+    document.documentElement.dataset.locale = "en";
+  }, []);
 
   const t = useCallback(
     (key: TranslationKey, params?: Record<string, string | number>) => {
-      let text = dictionaries[locale][key] ?? en[key];
+      let text = en[key] || key;
       if (params) {
         for (const [k, v] of Object.entries(params)) {
           text = text.replaceAll(`{{${k}}}`, String(v));
@@ -50,7 +42,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       }
       return text;
     },
-    [locale],
+    [],
   );
 
   return (

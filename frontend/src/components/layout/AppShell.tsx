@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </AnimatePresence>
 
       {hasProjects && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
-      
+
       <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         {hasProjects && <TopBar onMenuClick={() => setSidebarOpen(true)} />}
         <main className={`flex-1 overflow-y-auto ${hasProjects ? "px-4 lg:px-12 pb-24" : ""}`}>

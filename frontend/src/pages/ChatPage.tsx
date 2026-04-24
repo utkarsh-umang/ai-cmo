@@ -24,15 +24,10 @@ export function ChatPage() {
   const { data: chatContext } = useChatContext(chat.projectId);
   const { t } = useI18n();
 
-  const activeProject =
-    projects?.find((project) => project.id === chat.projectId) ?? null;
-  const currentProjectLabel =
-    activeProject?.brand_name ??
-    (chat.projectId != null ? `#${chat.projectId}` : t("chat.noProjectSelected"));
 
   useEffect(() => {
     if (!chat.sessionReady) return;
-    
+
     // Handle initial query from dashboard
     const initialQuery = searchParams.get("q");
     if (initialQuery) {
@@ -92,7 +87,6 @@ export function ChatPage() {
           currentAgent={chat.currentAgent}
           sendMessage={chat.sendMessage}
           hasMessages={chat.messages.length > 0}
-          projectId={chat.projectId}
           projectContext={chatContext ?? null}
         />
       </div>

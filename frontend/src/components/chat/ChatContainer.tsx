@@ -56,7 +56,6 @@ export function ChatContainer({
   currentAgent,
   sendMessage,
   hasMessages,
-  projectId,
   projectContext,
 }: {
   messages: ChatMessage[];
@@ -64,7 +63,6 @@ export function ChatContainer({
   currentAgent: string;
   sendMessage: (content: string) => void;
   hasMessages: boolean;
-  projectId: number | null;
   projectContext?: ChatProjectContext | null;
 }) {
   const { t } = useI18n();

@@ -52,11 +52,10 @@ function SessionGroups({
           {group.items.map((s) => (
             <div
               key={s.id}
-              className={`group flex items-center rounded-xl px-2.5 py-2 text-sm transition-all ${
-                s.id === activeSessionId
+              className={`group flex items-center rounded-xl px-2.5 py-2 text-sm transition-all ${s.id === activeSessionId
                   ? "bg-indigo-50 font-medium text-indigo-700"
                   : "text-slate-600 hover:bg-slate-50"
-              }`}
+                }`}
             >
               <button
                 onClick={() => onSelect(s.id)}

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router";
 import { useProjects } from "../hooks/useProjects";
 import { useCreateMonitor } from "../hooks/useMonitors";
 import { ErrorAlert } from "../components/common/ErrorAlert";
@@ -9,14 +8,13 @@ import { SkeletonCard } from "../components/common/SkeletonCard";
 import { ProjectCard } from "../components/dashboard/ProjectCard";
 import { AnalysisDialog } from "../components/monitors/AnalysisDialog";
 import { useI18n } from "../i18n";
-import { ArrowRight, Loader2, Users } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { GlobalOverview } from "../components/dashboard/GlobalOverview";
 import { InsightBanner } from "../components/dashboard/InsightBanner";
 
 export function DashboardPage() {
   const { data: projects, isLoading, error } = useProjects();
   const createMonitor = useCreateMonitor();
-  const navigate = useNavigate();
   const { t, locale } = useI18n();
   const [url, setUrl] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);

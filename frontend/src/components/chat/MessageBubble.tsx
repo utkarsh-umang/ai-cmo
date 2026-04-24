@@ -32,11 +32,10 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
             {message.tools.map((tool, i) => (
               <span
                 key={i}
-                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-medium ${
-                  tool.done
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-amber-50 text-amber-700"
-                }`}
+                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-medium ${tool.done
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-amber-50 text-amber-700"
+                  }`}
               >
                 {tool.done ? (
                   <CheckCircle size={10} />

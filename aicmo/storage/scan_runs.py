@@ -227,7 +227,7 @@ async def get_task_findings_by_project(project_id: int, limit: int = 6) -> list[
     db = await get_db()
     try:
         cursor = await db.execute(
-            """SELECT f.domain, f.severity, f.title, f.summary, f.metadata_json
+            """SELECT f.id, f.domain, f.severity, f.title, f.summary, f.metadata_json
                FROM scan_findings f
                JOIN scan_runs r ON r.id = f.run_id
                WHERE r.project_id = ?
@@ -244,11 +244,12 @@ async def get_task_findings_by_project(project_id: int, limit: int = 6) -> list[
         rows = await cursor.fetchall()
         return [
             {
-                "domain": row[0],
-                "severity": row[1],
-                "title": row[2],
-                "summary": row[3],
-                "metadata": json.loads(row[4] or "{}"),
+                "id": row[0],
+                "domain": row[1],
+                "severity": row[2],
+                "title": row[3],
+                "summary": row[4],
+                "metadata": json.loads(row[5] or "{}"),
             }
             for row in rows
         ]

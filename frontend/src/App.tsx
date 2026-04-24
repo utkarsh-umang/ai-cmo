@@ -51,6 +51,11 @@ function AppRoutes() {
                   path="/projects/:id/performance"
                   element={<PerformancePage />}
                 />
+                <Route path="/projects/:id/seo" element={<ProjectPage />} />
+                <Route path="/projects/:id/geo" element={<ProjectPage />} />
+                <Route path="/projects/:id/community" element={<ProjectPage />} />
+                <Route path="/projects/:id/serp" element={<ProjectPage />} />
+                <Route path="/projects/:id/graph" element={<ProjectPage />} />
 
                 <Route path="/chat" element={<ChatPage />} />
                 

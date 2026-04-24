@@ -4,6 +4,7 @@ import {
   AlertTriangle, Info, AlertCircle, CheckCircle,
   Zap, FileCheck, Search, Sparkles,
 } from "lucide-react";
+import { ActionDetailModal } from "./ActionDetailModal";
 import { apiJson } from "../../api/client";
 import { useI18n } from "../../i18n";
 import type { TranslationKey } from "../../i18n";
@@ -39,6 +40,7 @@ export function ActionFeed({ projectId }: { projectId: number }) {
   const [items, setItems] = useState<ActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [quickLoading, setQuickLoading] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ActionItem | null>(null);
   const { t } = useI18n();
 
   useEffect(() => {
@@ -53,8 +55,17 @@ export function ActionFeed({ projectId }: { projectId: number }) {
       navigate("/approvals");
       return;
     }
-    if (item.cta === "view_data" && item.action_route) {
-      navigate(item.action_route);
+    if (item.cta === "view_data") {
+      const route = item.action_route || `/projects/${projectId}`;
+      if (window.location.pathname === route) {
+        setSelectedItem(item);
+      } else {
+        navigate(route);
+        // If it's a sub-route of the current project, also show details
+        if (route.startsWith(`/projects/${projectId}/`)) {
+          setSelectedItem(item);
+        }
+      }
       return;
     }
     if (item.cta === "generate_content" && item.insight_id) {
@@ -155,6 +166,16 @@ export function ActionFeed({ projectId }: { projectId: number }) {
           </div>
         );
       })}
+
+      <ActionDetailModal
+        item={selectedItem}
+        isOpen={Boolean(selectedItem)}
+        onClose={() => setSelectedItem(null)}
+        onDiscuss={() => {
+          setSelectedItem(null);
+          navigate(`/chat?project_id=${projectId}`);
+        }}
+      />
     </div>
   );
 }

@@ -66,7 +66,17 @@ async def api_v1_action_feed(project_id: int):
         findings = await storage.get_task_findings_by_project(project_id, limit=3)
     except Exception:
         findings = []
+    
+    domain_to_route = {
+        "seo": "seo",
+        "geo": "geo",
+        "community": "community",
+        "competitor": "graph",
+    }
+    
     for f in findings:
+        domain = f.get("domain", "seo")
+        sub_route = domain_to_route.get(domain, "seo")
         feed.append({
             "type": "finding",
             "id": f.get("id", 0),
@@ -74,6 +84,7 @@ async def api_v1_action_feed(project_id: int):
             "title": f.get("title", ""),
             "summary": f.get("summary", ""),
             "cta": "view_data",
+            "action_route": f"/projects/{project_id}/{sub_route}",
             "created_at": f.get("created_at", ""),
         })
 

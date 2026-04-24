@@ -33,6 +33,17 @@ export function ChatPage() {
 
   useEffect(() => {
     if (!chat.sessionReady) return;
+    
+    // Handle initial query from dashboard
+    const initialQuery = searchParams.get("q");
+    if (initialQuery) {
+      void chat.sendMessage(initialQuery);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("q");
+      setSearchParams(nextParams, { replace: true });
+      return;
+    }
+
     const currentProjectId = parseProjectId(searchParams.get("project_id"));
     if (currentProjectId === chat.projectId) return;
 
@@ -43,7 +54,7 @@ export function ChatPage() {
       nextParams.delete("project_id");
     }
     setSearchParams(nextParams, { replace: true });
-  }, [chat.projectId, chat.sessionReady, searchParams, setSearchParams]);
+  }, [chat.projectId, chat.sessionReady, searchParams, setSearchParams, chat.sendMessage]);
 
   if (!chat.sessionReady) return <LoadingSpinner />;
 

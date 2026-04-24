@@ -6,8 +6,63 @@ This document describes exactly what happens in the AI-CMO system from the momen
 
 When a project is created or a manual scan is triggered, the **Monitoring Orchestrator** executes a multi-stage pipeline.
 
+```mermaid
+graph TD
+    A[URL Dropped / Manual Scan] --> B[Stage 1: Context Build]
+    subgraph "Stage 1: Context Build (AI Debate)"
+        B1[Product Analyst]
+        B2[SEO Specialist]
+        B3[Community Strategist]
+        B4[Strategy Director]
+        B1 & B2 & B3 --> B4
+    end
+    B4 --> C[Stage 2: Signal Collection]
+    subgraph "Stage 2: Signal Collection"
+        C1[SEO Crawler]
+        C2[SERP Tracker]
+        C3[GEO Sweep]
+        C4[Community Discovery]
+        C5[Developer Discovery]
+    end
+    C1 & C2 & C3 & C4 & C5 --> D[Stage 3: Domain Review]
+    subgraph "Stage 3: Domain Review (Technical Analysis)"
+        D1[SEO Analyst]
+        D2[GEO Analyst]
+        D3[Community Analyst]
+        D4[Competitor Analyst]
+    end
+    D1 & D2 & D3 & D4 --> E[Stage 4: Verification & Synthesis]
+    E --> F[Stage 5: Autopilot & Reporting]
+    subgraph "Stage 5: Outputs"
+        F1[Insight Engine]
+        F2[Autopilot Content]
+        F3[Strategic Report]
+        F4[Graph Expansion]
+    end
+```
+
+
 ### Stage 1: Context Build (3-Role AI Debate)
 The system doesn't just "read" the page; it interprets it through a competitive debate between three specialist roles:
+
+```mermaid
+sequenceDiagram
+    participant O as Monitoring Orchestrator
+    participant PA as Product Analyst
+    participant SS as SEO Specialist
+    participant CS as Community Strategist
+    participant SD as Strategy Director
+
+    O->>PA: Provide Crawled Content
+    O->>SS: Provide Crawled Content
+    O->>CS: Provide Crawled Content
+    PA-->>SD: Brand Identity & Positioning
+    SS-->>SD: Keyword Strategy
+    CS-->>SD: Platform & Signal Strategy
+    SD->>SD: Synthesize & Validate
+    SD-->>O: Monitoring Strategy (JSON)
+```
+
 - **Product Analyst**: Identifies brand identity, value proposition, target persona, and category fit.
   - *How*: Uses LLM analysis on filtered `crawl4ai` text to extract strategic positioning.
 - **SEO Specialist**: Extracts brand, category, problem-led, and competitor-specific keywords.
@@ -63,6 +118,20 @@ Four specialist AI analysts review the normalized signals:
 
 When you interact with the system via chat, the **CMO Agent** orchestrates several specialist experts.
 
+```mermaid
+graph LR
+    CMO((CMO Orchestrator)) --- SEO[SEO Audit Expert]
+    CMO --- GEO[GEO Expert]
+    CMO --- Blog[Blog/SEO Expert]
+    CMO --- Comm[Community Monitor]
+    CMO --- Reddit[Reddit Expert]
+    CMO --- HN[Hacker News Expert]
+    CMO --- Soc[Social Experts: X/LinkedIn]
+    
+    style CMO fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
 | Agent | Expertise | Primary Tools / Method |
 |-------|-----------|------------------------|
 | **CMO Orchestrator** | Strategy leader, routes requests, coordinates multi-channel campaigns. | Uses `Agent` handoff logic and `generate_research_brief` tool for orchestration. |
@@ -82,6 +151,24 @@ When you interact with the system via chat, the **CMO Agent** orchestrates sever
 
 ### Multi-Channel Orchestration
 When you ask for a "full marketing plan," the CMO:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CMO as CMO Orchestrator
+    participant RB as Research Brief
+    participant Specialists as Specialist Agents
+    participant Synthesis as Strategic Synthesizer
+
+    User->>CMO: "Create full marketing plan"
+    CMO->>RB: generate_research_brief()
+    RB-->>CMO: Unified Context
+    CMO->>Specialists: Research Brief + Request
+    Specialists-->>CMO: Channel-Specific Strategies
+    CMO->>Synthesis: Aggregate Outputs
+    Synthesis-->>User: Cohesive Campaign Report
+```
+
 1.  Runs `generate_research_brief` to create a unified context document (Brand, Audience, Pain, Promise, Proof).
 2.  Passes this brief to multiple specialists simultaneously.
 3.  Synthesizes their individual outputs into a cohesive campaign report.

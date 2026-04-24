@@ -1118,7 +1118,6 @@ from aicmo.web.routers.github import router as github_router
 from aicmo.web.routers.graph import router as graph_router
 from aicmo.web.routers.insights import router as insights_router
 from aicmo.web.routers.keywords import router as keywords_router
-from aicmo.web.routers.legacy import router as legacy_router
 from aicmo.web.routers.monitors import router as monitors_router
 from aicmo.web.routers.performance import router as performance_router
 from aicmo.web.routers.projects import router as projects_router
@@ -1128,7 +1127,6 @@ from aicmo.web.routers.settings import router as settings_router
 from aicmo.web.routers.site import router as site_router
 from aicmo.web.routers.tasks import router as tasks_router
 
-app.include_router(legacy_router, prefix="/legacy")
 app.include_router(projects_router)
 app.include_router(graph_router)
 app.include_router(insights_router)

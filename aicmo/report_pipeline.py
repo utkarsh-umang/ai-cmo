@@ -60,6 +60,18 @@ def _truncate_list(data: list | None, max_items: int, sort_key: str | None = Non
     return items[:max_items]
 
 
+def _get_language(locale: str) -> str:
+    """Map locale to human-readable language name."""
+    mapping = {
+        "en": "English",
+        "zh": "Chinese",
+        "ja": "Japanese",
+        "ko": "Korean",
+        "es": "Spanish",
+    }
+    return mapping.get(locale[:2].lower(), "English")
+
+
 # ---------------------------------------------------------------------------
 # LLM call helpers (import the shared infra from reports.py at call time)
 # ---------------------------------------------------------------------------
@@ -83,35 +95,35 @@ async def _llm_json_call(system: str, user: str) -> dict | list:
 _DIMENSIONS = [
     {
         "id": "seo_tech",
-        "name": "SEO & 技术健康度",
+        "name": "SEO & Technical Health",
         "keys": ["seo_latest", "ai_crawler_history"],
-        "description": "网站 SEO 审计数据和 AI 爬虫可达性数据",
+        "description": "Website SEO audit data and AI crawler accessibility data",
     },
     {
         "id": "search_visibility",
-        "name": "搜索可见性 & 排名",
+        "name": "Search Visibility & Rankings",
         "keys": ["serp_snapshots", "keywords"],
-        "description": "SERP 关键词排名和搜索可见性数据",
+        "description": "SERP keyword rankings and search visibility data",
         "truncate": {"keywords": 30, "serp_snapshots": 25},
     },
     {
         "id": "ai_visibility",
-        "name": "AI 可见性 & 品牌引用",
+        "name": "AI Visibility & Brand Citations",
         "keys": ["geo_latest", "citability_history", "brand_presence_history"],
-        "description": "GEO 评分、AI 平台引文可信度和品牌存在感",
+        "description": "GEO score, AI platform citability, and brand presence",
     },
     {
         "id": "community_market",
-        "name": "社区 & 市场信号",
+        "name": "Community & Market Signals",
         "keys": ["community_latest", "discussions", "insights_history"],
-        "description": "社区讨论、市场趋势和 AI 洞察告警",
+        "description": "Community discussions, market trends, and AI insight alerts",
         "truncate": {"discussions": 15, "insights_history": 10},
     },
     {
         "id": "competitive",
-        "name": "竞品 & 生态定位",
+        "name": "Competitive & Ecosystem Positioning",
         "keys": ["competitors", "graph_data", "approvals"],
-        "description": "竞品信息、知识图谱关系和内容审批队列",
+        "description": "Competitor info, knowledge graph relationships, and content approval queue",
         "truncate": {"competitors": 20},
     },
 ]
@@ -139,63 +151,66 @@ def _slice_dimension(facts: dict, dimension: dict) -> dict:
 # ===================================================================
 
 _REFLECT_DIM_SYSTEM = """\
-你是一位专注于 {dim_name} 维度的数据质检专家。
+You are a data quality audit expert focused on the {{dim_name}} dimension.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-请审计以下 {dim_name} 维度的数据：
+Please audit the following {{dim_name}} dimension data:
 
-1. **数据完整性**：数据是否完整？有无缺失字段或空值？样本量是否足够？
-2. **数据质量**：数据是否有异常值？是否前后一致？
-3. **可用性**：这些数据能否支撑高质量的分析？有哪些局限？
+1. **Data Completeness**: Is the data complete? Are there missing fields or null values? Is the sample size sufficient?
+2. **Data Quality**: Are there outliers? Is the data consistent?
+3. **Usability**: Can this data support high-quality analysis? What are the limitations?
 
-返回 JSON：
+Return JSON:
 {{
   "dimension": "{dim_id}",
-  "quality_score": 0到100的整数,
-  "issues": ["问题描述"],
-  "anomalies": ["异常描述"],
-  "summary": "一句话总结本维度数据质量",
+  "quality_score": Integer from 0 to 100,
+  "issues": ["Issue description"],
+  "anomalies": ["Anomaly description"],
+  "summary": "One-sentence summary of the data quality for this dimension",
   "data_available": true/false
 }}
 
-必须返回合法 JSON，不要加 markdown 代码块。"""
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
 _REFLECT_AGG_SYSTEM = """\
-你是数据质量审计的总负责人。以下是 5 个维度质检专家各自的审计结果。
+You are the head of data quality audit. Below are the audit results from 5 dimension quality experts.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-请汇总各维度的审计结论，完成交叉验证：
+Please summarize the audit conclusions for each dimension and complete cross-validation:
 
-1. **交叉验证**：
-   - SEO 审计结果与 SERP 排名数据是否一致？
-   - GEO 评分趋势与 Brand Presence 数据是否矛盾？
-   - Community 舆情与 Insights 告警是否存在信号冲突？
-   - AI Crawler 放行状态与 Citability 评分是否协调？
+1. **Cross-Validation**:
+   - Is the SEO audit result consistent with SERP ranking data?
+   - Is the GEO score trend contradictory to Brand Presence data?
+   - Is there a signal conflict between Community sentiment and Insights alerts?
+   - Is the AI Crawler accessibility status coordinated with the Citability score?
 
-2. **综合判断**：数据整体是否充足到能生成高质量报告？
+2. **Overall Judgment**: Is the overall data sufficient to generate a high-quality report?
 
-返回 JSON：
-{
-  "data_quality_score": 加权平均后的0到100整数,
-  "issues": ["汇总后的关键问题"],
-  "anomalies": ["跨维度异常"],
-  "cross_validation_notes": ["交叉验证发现"],
-  "validated_summary": "一段话总结整体数据质量",
+Return JSON:
+{{
+  "data_quality_score": Weighted average integer from 0 to 100,
+  "issues": ["Summarized key issues"],
+  "anomalies": ["Cross-dimensional anomalies"],
+  "cross_validation_notes": ["Cross-validation findings"],
+  "validated_summary": "One paragraph summarizing the overall data quality",
   "confidence_level": "high/medium/low",
-  "dimension_scores": {"seo_tech": 80, "search_visibility": 60, ...}
-}
+  "dimension_scores": {{"seo_tech": 80, "search_visibility": 60, ...}}
+}}
 
-必须返回合法 JSON，不要加 markdown 代码块。"""
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
-async def _reflect_one_dimension(facts: dict, dim: dict, meta: dict) -> dict:
+async def _reflect_one_dimension(facts: dict, dim: dict, meta: dict, locale: str = "en") -> dict:
     """Run one dimension-specific quality auditor."""
     dim_data = _slice_dimension(facts, dim)
     project = facts.get("project", {})
-    system = _REFLECT_DIM_SYSTEM.format(dim_name=dim["name"], dim_id=dim["id"])
+    language = _get_language(locale)
+    system = _REFLECT_DIM_SYSTEM.format(language=language).format(dim_name=dim["name"], dim_id=dim["id"])
     user = (
-        f"项目：{project.get('brand_name', '?')} ({project.get('category', '?')})\n"
-        f"维度：{dim['name']} — {dim['description']}\n\n"
-        f"=== {dim['name']} 维度数据 ===\n{_json_dump(dim_data)}"
+        f"Project: {project.get('brand_name', '?')} ({project.get('category', '?')})\n"
+        f"Dimension: {dim['name']} — {dim['description']}\n\n"
+        f"=== {dim['name']} Dimension Data ===\n{_json_dump(dim_data)}"
     )
     try:
         result = await _llm_json_call(system, user)
@@ -216,22 +231,23 @@ async def _reflect_one_dimension(facts: dict, dim: dict, meta: dict) -> dict:
             "quality_score": None,
             "issues": [str(exc)],
             "anomalies": [],
-            "summary": "审计失败",
+            "summary": "Audit failed",
             "data_available": False,
             "error": str(exc),
         }
 
 
-async def _phase_reflect(facts: dict, meta: dict) -> dict:
+async def _phase_reflect(facts: dict, meta: dict, locale: str = "en") -> dict:
     """Phase 1: Run per-dimension auditors in parallel, then aggregate."""
     logger.info("[Pipeline Phase 1] Reflection — %d dimension auditors in parallel", len(_DIMENSIONS))
+    language = _get_language(locale)
 
     # Run all dimension auditors in parallel with concurrency limit
     semaphore = asyncio.Semaphore(_MAX_CONCURRENT_LLM_CALLS)
 
     async def _bounded_reflect(dim):
         async with semaphore:
-            return await _reflect_one_dimension(facts, dim, meta)
+            return await _reflect_one_dimension(facts, dim, meta, locale=locale)
 
     dim_results = await asyncio.gather(
         *[_bounded_reflect(dim) for dim in _DIMENSIONS],
@@ -248,7 +264,7 @@ async def _phase_reflect(facts: dict, meta: dict) -> dict:
                 "quality_score": None,
                 "issues": [str(result)],
                 "anomalies": [],
-                "summary": "审计异常",
+                "summary": "Audit anomaly",
                 "data_available": False,
             })
         else:
@@ -259,12 +275,12 @@ async def _phase_reflect(facts: dict, meta: dict) -> dict:
     logger.info("[Pipeline Phase 1] Aggregating %d dimension audits", len(dim_reports))
     project = facts.get("project", {})
     user = (
-        f"项目：{project.get('brand_name', '?')} ({project.get('category', '?')})\n"
-        f"数据覆盖度：{meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} 个数据源有数据\n\n"
-        f"=== 各维度审计结果 ===\n{_json_dump(dim_reports)}"
+        f"Project: {project.get('brand_name', '?')} ({project.get('category', '?')})\n"
+        f"Data Coverage: {meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} sources have data\n\n"
+        f"=== Per-Dimension Audit Results ===\n{_json_dump(dim_reports)}"
     )
     try:
-        aggregated = await _llm_json_call(_REFLECT_AGG_SYSTEM, user)
+        aggregated = await _llm_json_call(_REFLECT_AGG_SYSTEM.format(language=language), user)
         if not isinstance(aggregated, dict):
             raise ValueError("aggregator did not return a JSON object")
         numeric_scores = {
@@ -292,7 +308,7 @@ async def _phase_reflect(facts: dict, meta: dict) -> dict:
             "data_quality_score": avg,
             "issues": [iss for r in dim_reports for iss in r.get("issues", [])],
             "anomalies": [iss for r in dim_reports for iss in r.get("anomalies", [])],
-            "validated_summary": f"各维度平均质量 {avg}/100（聚合失败，使用简单平均）",
+            "validated_summary": f"Average quality across dimensions {avg}/100 (aggregation failed, using simple average)",
             "confidence_level": "low",
             "dimension_scores": numeric_scores,
         }
@@ -303,72 +319,75 @@ async def _phase_reflect(facts: dict, meta: dict) -> dict:
 # ===================================================================
 
 _DISTILL_DIM_SYSTEM = """\
-你是一位专注于 {dim_name} 的数字营销分析师。
+You are a digital marketing analyst focused on {{dim_name}}.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-基于以下 {dim_name} 维度的数据，提炼分析性发现（insights）。
+Based on the following {{dim_name}} dimension data, distill analytical findings (insights).
 
-规则：
-1. **解读数据**：不要罗列数据，要回答"so what?"
-2. **趋势判断**：如有历史数据，判断上升/下降/稳定 + 变化幅度
-3. **量化表达**：用具体数字，避免模糊表述
-4. **优先级排序**：按业务影响力排序
+Rules:
+1. **Interpret Data**: Do not just list data; answer "so what?"
+2. **Trend Judgment**: If historical data is available, judge whether it's up/down/stable and the magnitude of change.
+3. **Quantitative Expression**: Use specific numbers; avoid vague expressions.
+4. **Prioritization**: Sort by business impact.
 
-输出 JSON：
+Output JSON:
 {{
   "dimension": "{dim_id}",
   "insights": [
     {{
       "id": "{dim_id}-INS-001",
-      "title": "简短标题",
-      "finding": "详细发现描述，包含具体数字...",
-      "evidence": ["{dim_name}"],
+      "title": "Short Title",
+      "finding": "Detailed finding description, including specific numbers...",
+      "evidence": ["{{dim_name}}"],
       "impact_level": "critical/high/medium/low",
-      "recommended_section": "建议放入报告的章节主题"
+      "recommended_section": "Suggested report section theme"
     }}
   ]
 }}
 
-要求：产出 2-4 条高质量 insights。
-必须返回合法 JSON，不要加 markdown 代码块。"""
+Requirement: Produce 2-4 high-quality insights.
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
 _DISTILL_CROSS_SYSTEM = """\
-你是一位资深的跨维度商业分析师。以下是 5 个维度分析师各自提炼的 insights。
+You are a senior cross-dimensional business analyst. Below are the insights distilled by 5 dimension analysts.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-你的任务：
+Your task:
 
-1. **发现跨维度关联**：
-   - 例：SEO 分数高但 SERP 排名低 → 内容质量问题
-   - 例：GEO 评分上升但 Brand Presence 无变化 → AI 引文为一次性
-   - 例：社区热度高但 SERP 不变 → 社交信号未转化为搜索权重
+1. **Find Cross-Dimensional Correlations**:
+   - E.g., High SEO score but low SERP ranking → Content quality issue.
+   - E.g., GEO score rising but Brand Presence unchanged → AI citation is one-off.
+   - E.g., High community heat but SERP unchanged → Social signals not converted to search weight.
 
-2. **提炼贯穿主题**：识别 2-3 个跨多维度的战略主题
+2. **Distill Overarching Themes**: Identify 2-3 strategic themes that cut across multiple dimensions.
 
-3. **生成执行摘要要点**：基于所有 insights 提炼 3-5 个一句话核心发现
+3. **Generate Executive Summary Points**: Distill 3-5 one-sentence core findings based on all insights.
 
-4. **重新编号**：将所有 insights 统一编号为 INS-001, INS-002, ...
+4. **Re-number**: Uniformly number all insights as INS-001, INS-002, ...
 
-输出 JSON：
-{
-  "insights": [合并后的所有 insights，统一编号 INS-001...],
-  "cross_cutting_themes": ["主题1", "主题2"],
-  "executive_summary_points": ["核心发现1", "核心发现2"]
-}
+Output JSON:
+{{
+  "insights": [All merged insights, uniformly numbered INS-001...],
+  "cross_cutting_themes": ["Theme 1", "Theme 2"],
+  "executive_summary_points": ["Core Finding 1", "Core Finding 2"]
+}}
 
-必须返回合法 JSON，不要加 markdown 代码块。"""
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
-async def _distill_one_dimension(facts: dict, dim: dict, reflection: dict) -> dict:
+async def _distill_one_dimension(facts: dict, dim: dict, reflection: dict, locale: str = "en") -> dict:
     """Run one dimension-specific insight analyst."""
     dim_data = _slice_dimension(facts, dim)
     project = facts.get("project", {})
     dim_score = reflection.get("dimension_scores", {}).get(dim["id"], "?")
+    language = _get_language(locale)
 
-    system = _DISTILL_DIM_SYSTEM.format(dim_name=dim["name"], dim_id=dim["id"])
+    system = _DISTILL_DIM_SYSTEM.format(language=language).format(dim_name=dim["name"], dim_id=dim["id"])
     user = (
-        f"项目：{project.get('brand_name', '?')} ({project.get('category', '?')})\n"
-        f"本维度质量评分：{dim_score}/100\n\n"
-        f"=== {dim['name']} 维度数据 ===\n{_json_dump(dim_data)}"
+        f"Project: {project.get('brand_name', '?')} ({project.get('category', '?')})\n"
+        f"Dimension Quality Score: {dim_score}/100\n\n"
+        f"=== {dim['name']} Dimension Data ===\n{_json_dump(dim_data)}"
     )
     try:
         result = await _llm_json_call(system, user)
@@ -382,16 +401,17 @@ async def _distill_one_dimension(facts: dict, dim: dict, reflection: dict) -> di
         return {"dimension": dim["id"], "insights": []}
 
 
-async def _phase_distill(facts: dict, meta: dict, reflection: dict) -> dict:
+async def _phase_distill(facts: dict, meta: dict, reflection: dict, locale: str = "en") -> dict:
     """Phase 2: Run per-dimension insight analysts in parallel, then cross-cut."""
     logger.info("[Pipeline Phase 2] Insight Distiller — %d dimension analysts in parallel", len(_DIMENSIONS))
+    language = _get_language(locale)
 
     # Run all dimension analysts in parallel with concurrency limit
     semaphore = asyncio.Semaphore(_MAX_CONCURRENT_LLM_CALLS)
 
     async def _bounded_distill(dim):
         async with semaphore:
-            return await _distill_one_dimension(facts, dim, reflection)
+            return await _distill_one_dimension(facts, dim, reflection, locale=locale)
 
     dim_results = await asyncio.gather(
         *[_bounded_distill(dim) for dim in _DIMENSIONS],
@@ -416,12 +436,12 @@ async def _phase_distill(facts: dict, meta: dict, reflection: dict) -> dict:
     logger.info("[Pipeline Phase 2] Cross-cutting synthesis")
     project = facts.get("project", {})
     user = (
-        f"项目：{project.get('brand_name', '?')} ({project.get('category', '?')})\n"
-        f"数据整体质量：{reflection.get('data_quality_score', '?')}/100\n\n"
-        f"=== 各维度分析师的 Insights ===\n{_json_dump(all_dim_insights)}"
+        f"Project: {project.get('brand_name', '?')} ({project.get('category', '?')})\n"
+        f"Overall Data Quality: {reflection.get('data_quality_score', '?')}/100\n\n"
+        f"=== Per-Dimension Analyst Insights ===\n{_json_dump(all_dim_insights)}"
     )
     try:
-        result = await _llm_json_call(_DISTILL_CROSS_SYSTEM, user)
+        result = await _llm_json_call(_DISTILL_CROSS_SYSTEM.format(language=language), user)
         if not isinstance(result, dict):
             raise ValueError("Cross-cutter did not return a dict")
         insights = result.get("insights", [])
@@ -450,54 +470,56 @@ async def _phase_distill(facts: dict, meta: dict, reflection: dict) -> dict:
 # ===================================================================
 
 _PLAN_SYSTEM = """\
-你是一位资深的商业报告主编。基于以下分析发现，请规划一份深度商业分析报告的大纲。
+You are a senior business report editor-in-chief. Based on the following analysis findings, please plan the outline for a deep business analysis report.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-要求：
-1. 报告总字数目标：3000-5000字
-2. 每个章节必须有明确的**核心论点**（不是描述性标题）
-3. 每个章节必须指定使用哪些 insights (用 id 引用) 作为论据
-4. 章节数量：4-6 个主体章节
-5. 引言和战略建议章节标记为 is_final_section: true（它们最后写）
+Requirements:
+1. Total report word count target: 3000-5000 words.
+2. Each section must have a clear **Core Thesis** (not a descriptive title).
+3. Each section must specify which insights (reference by ID) are used as evidence.
+4. Number of sections: 4-6 main sections.
+5. Introduction and Strategic Recommendations sections marked as is_final_section: true (they are written last).
 
-输出 JSON 格式：
-{
-  "report_title": "报告标题",
-  "executive_summary_thesis": "一句话概括报告核心发现",
+Output JSON format:
+{{
+  "report_title": "Report Title",
+  "executive_summary_thesis": "One-sentence summary of the report's core finding",
   "sections": [
-    {
+    {{
       "id": "sec-1",
-      "title": "论点驱动的章节标题",
-      "thesis": "本节核心论点：...",
+      "title": "Thesis-driven section title",
+      "thesis": "Core thesis of this section: ...",
       "insight_ids": ["INS-001", "INS-003"],
       "word_budget": 600,
       "is_final_section": false,
-      "writing_guidance": "以数据趋势开头，用竞品对比佐证..."
-    }
+      "writing_guidance": "Start with data trends, support with competitor comparisons..."
+    }}
   ],
-  "narrative_arc": "报告的叙事线索：从问题诊断 → 根因分析 → 机会识别 → 行动路线图"
-}
+  "narrative_arc": "Report narrative arc: From problem diagnosis → Root cause analysis → Opportunity identification → Action roadmap"
+}}
 
-注意：主体章节 is_final_section 设为 false，引言和战略建议设为 true。
-必须返回合法 JSON，不要加 markdown 代码块。"""
+Note: Set is_final_section to false for main sections and true for introduction and strategic recommendations.
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
 async def _phase_plan_outline(
-    facts: dict, distilled: dict, reflection: dict
+    facts: dict, distilled: dict, reflection: dict, locale: str = "en"
 ) -> dict:
     """Phase 3: Plan the report outline with per-section briefs."""
     logger.info("[Pipeline Phase 3] Outline Planner — designing narrative")
     project = facts["project"]
+    language = _get_language(locale)
     user = (
-        f"品牌/业务上下文：\n"
-        f"  品牌名：{project['brand_name']}\n"
-        f"  类别：{project['category']}\n"
-        f"  网址：{project['url']}\n"
-        f"  数据质量：{reflection.get('data_quality_score', '?')}/100\n\n"
-        f"分析发现（共 {len(distilled.get('insights', []))} 条）：\n"
+        f"Brand/Business Context:\n"
+        f"  Brand Name: {project['brand_name']}\n"
+        f"  Category: {project['category']}\n"
+        f"  URL: {project['url']}\n"
+        f"  Data Quality: {reflection.get('data_quality_score', '?')}/100\n\n"
+        f"Analysis Findings ({len(distilled.get('insights', []))} total):\n"
         f"{_json_dump(distilled)}"
     )
     try:
-        result = await _llm_json_call(_PLAN_SYSTEM, user)
+        result = await _llm_json_call(_PLAN_SYSTEM.format(language=language), user)
         if not isinstance(result, dict):
             raise ValueError("Planner did not return a dict")
         sections = result.get("sections", [])
@@ -517,27 +539,28 @@ async def _phase_plan_outline(
 # ===================================================================
 
 _WRITE_SECTION_SYSTEM = """\
-你是一位资深的商业分析撰稿人。请为报告的一个章节撰写深度内容。
+You are a senior business analysis writer. Please write deep content for one section of the report.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-写作要求：
-1. 以核心论点为纲，用数据和洞察论证
-2. 不要罗列数据，要**解读**数据——回答"so what?"
-3. 每个关键论断都要有数据支撑，引用数据来源用 [来源：Agent名称] 标注
-4. 使用具体数字，避免模糊表述（不要用"较大""不错"这类词）
-5. 段落之间要有逻辑递进，不是平铺
-6. 每段 3-5 句话
-7. 结尾要自然过渡到下一节的主题
-8. 语气：专业但不晦涩，像 McKinsey 的行业报告
-9. 必须包含至少一个"反直觉发现"或"深层洞察"
+Writing Requirements:
+1. Use the core thesis as the framework, supported by data and insights.
+2. Do not just list data; **interpret** it—answer "so what?"
+3. Every key claim must have data support, using [Source: Agent Name] for attribution.
+4. Use specific numbers; avoid vague terms (don't use "large", "good", etc.).
+5. Maintain logical progression between paragraphs, not just flat listing.
+6. 3-5 sentences per paragraph.
+7. Naturally transition to the theme of the next section at the end.
+8. Tone: Professional but not obscure, like a McKinsey industry report.
+9. Must include at least one "counter-intuitive finding" or "deep insight".
 
-**新增要求（优化版）：**
-10. 如果涉及竞品数据，必须添加对比表格或明确的数字对比
-11. 对于问题诊断，必须进行根因分析（回答"为什么会这样"），列出2-3个可能原因
-12. 如果有历史趋势数据，说明趋势方向和变化速度（如"过去3个月下降30%"）
-13. 每个问题都要关联到商业影响（流量、收入、市场份额等）
+**Additional Requirements (Optimized version):**
+10. If competitor data is involved, you must add comparison tables or clear numerical comparisons.
+11. For problem diagnosis, perform root cause analysis (answer "why it's like this"), listing 2-3 possible causes.
+12. If historical trend data is available, specify the trend direction and rate of change (e.g., "30% decrease over the past 3 months").
+13. Every problem must be linked to business impact (traffic, revenue, market share, etc.).
 
-输出纯 Markdown 文本（不要 JSON，不要代码块包裹）。
-以 ## 开头写章节标题，然后是正文段落。"""
+Output pure Markdown text (no JSON, no code block wrapping).
+Start with ## for the section title, followed by body paragraphs."""
 
 
 async def _phase_write_section(
@@ -545,10 +568,12 @@ async def _phase_write_section(
     section: dict,
     insights_map: dict[str, dict],
     completed_summaries: list[str] | None = None,
+    locale: str = "en",
 ) -> str:
     """Phase 4: Write one report section."""
     section_id = section.get("id", "?")
     logger.info("[Pipeline Phase 4] Writing section: %s", section.get("title", section_id))
+    language = _get_language(locale)
 
     relevant_insights = [
         insights_map[iid]
@@ -557,23 +582,23 @@ async def _phase_write_section(
     ]
 
     user = (
-        f"报告主题：{outline.get('report_title', '深度分析报告')}\n"
-        f"报告叙事线索：{outline.get('narrative_arc', '无')}\n\n"
-        f"== 本节任务 ==\n"
-        f"标题：{section['title']}\n"
-        f"核心论点：{section.get('thesis', '无')}\n"
-        f"字数预算：{section.get('word_budget', 600)} 字\n"
-        f"写作指导：{section.get('writing_guidance', '按论点展开论证')}\n\n"
-        f"== 本节可用洞察（共 {len(relevant_insights)} 条）==\n"
+        f"Report Title: {outline.get('report_title', 'Deep Strategic Analysis Report')}\n"
+        f"Report Narrative Arc: {outline.get('narrative_arc', 'None')}\n\n"
+        f"== Current Task ==\n"
+        f"Title: {section['title']}\n"
+        f"Core Thesis: {section.get('thesis', 'None')}\n"
+        f"Word Budget: {section.get('word_budget', 600)} words\n"
+        f"Writing Guidance: {section.get('writing_guidance', 'Expand on the thesis with arguments')}\n\n"
+        f"== Available Insights (Total {len(relevant_insights)}) ==\n"
         f"{_json_dump(relevant_insights)}\n"
     )
     if completed_summaries:
         user += (
-            "\n== 已完成的其他章节摘要 ==\n"
+            "\n== Summaries of Other Completed Sections ==\n"
             + "\n".join(f"- {s}" for s in completed_summaries)
         )
 
-    return await _llm_text_call(_WRITE_SECTION_SYSTEM, user)
+    return await _llm_text_call(_WRITE_SECTION_SYSTEM.format(language=language), user)
 
 
 # ===================================================================
@@ -581,41 +606,43 @@ async def _phase_write_section(
 # ===================================================================
 
 _GRADE_SECTION_SYSTEM = """\
-你是一位严格的商业报告审稿人。请评审以下报告章节。
+You are a strict business report reviewer. Please review the following report section.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-按以下维度评分（1-5分）：
-1. **论点清晰度 (clarity)**：核心论点是否明确？论证是否围绕论点展开？
-2. **数据深度 (depth)**：是否充分使用了可用数据？有"so what"分析而非简单罗列？
-3. **洞察独特性 (originality)**：有超越表面的深层分析？有反直觉的发现？
-4. **逻辑连贯性 (coherence)**：段落之间逻辑递进？论证链条完整？
-5. **可操作性 (actionability)**：分析是否指向具体的行动建议？
+Grade based on the following dimensions (1-5 points):
+1. **Thesis Clarity**: Is the core thesis clear? Is the argument centered around the thesis?
+2. **Data Depth**: Is the available data fully utilized? Is there "so what" analysis rather than just listing?
+3. **Insight Uniqueness**: Is there deep analysis beyond the surface? Are there counter-intuitive findings?
+4. **Logical Coherence**: Is there logical progression between paragraphs? Is the argument chain complete?
+5. **Actionability**: Does the analysis point to specific action recommendations?
 
-返回 JSON：
-{
-  "scores": {"clarity": 4, "depth": 3, "originality": 3, "coherence": 4, "actionability": 4},
+Return JSON:
+{{
+  "scores": {{"clarity": 4, "depth": 3, "originality": 3, "coherence": 4, "actionability": 4}},
   "average_score": 3.6,
   "pass": false,
-  "revision_instructions": "需要改进的具体说明...",
-  "specific_fixes": ["具体修改建议1", "具体修改建议2"]
-}
+  "revision_instructions": "Specific instructions for improvement...",
+  "specific_fixes": ["Specific fix suggestion 1", "Specific fix suggestion 2"]
+}}
 
-average_score >= 3.8 则 pass 设为 true。
-必须返回合法 JSON，不要加 markdown 代码块。"""
+Set pass to true if average_score >= 3.8.
+You must return valid JSON. Do not wrap it in markdown code blocks."""
 
 
-async def _phase_grade_section(section: dict, content: str) -> dict:
+async def _phase_grade_section(section: dict, content: str, locale: str = "en") -> dict:
     """Phase 5: Grade a written section. Returns scores + pass/fail."""
     section_id = section.get("id", "?")
     logger.info("[Pipeline Phase 5] Grading section: %s", section.get("title", section_id))
+    language = _get_language(locale)
     user = (
-        f"== 章节要求 ==\n"
-        f"核心论点：{section.get('thesis', '无')}\n"
-        f"字数预算：{section.get('word_budget', 600)}\n"
-        f"可用洞察 IDs：{section.get('insight_ids', [])}\n\n"
-        f"== 章节内容 ==\n{content}"
+        f"== Section Requirements ==\n"
+        f"Core Thesis: {section.get('thesis', 'None')}\n"
+        f"Word Budget: {section.get('word_budget', 600)}\n"
+        f"Available Insight IDs: {section.get('insight_ids', [])}\n\n"
+        f"== Section Content ==\n{content}"
     )
     try:
-        result = await _llm_json_call(_GRADE_SECTION_SYSTEM, user)
+        result = await _llm_json_call(_GRADE_SECTION_SYSTEM.format(language=language), user)
         if not isinstance(result, dict):
             raise ValueError("grader did not return a JSON object")
         avg = result.get("average_score")
@@ -640,31 +667,33 @@ async def _phase_grade_section(section: dict, content: str) -> dict:
 
 
 _REVISE_SECTION_SYSTEM = """\
-你是一位资深的商业分析撰稿人。审稿人对你的章节给出了修改意见，请据此修订内容。
+You are a senior business analysis writer. The reviewer has provided feedback on your section; please revise the content accordingly.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-修改要求：
-1. 保持原有论点和结构不变
-2. 按审稿人的具体修改建议逐一改进
-3. 加强数据深度和洞察独特性
-4. 确保每个论断都有数据支撑
+Revision Requirements:
+1. Keep the original thesis and structure unchanged.
+2. Improve point-by-point based on the reviewer's specific fix suggestions.
+3. Strengthen data depth and insight uniqueness.
+4. Ensure every claim has data support.
 
-输出修订后的纯 Markdown 文本（不要 JSON，不要代码块包裹）。"""
+Output the revised pure Markdown text (no JSON, no code block wrapping)."""
 
 
 async def _phase_revise_section(
-    section: dict, original_content: str, grade: dict
+    section: dict, original_content: str, grade: dict, locale: str = "en"
 ) -> str:
     """Revise a section based on grader feedback."""
     logger.info("[Pipeline Phase 5] Revising section: %s", section.get("title", "?"))
+    language = _get_language(locale)
     user = (
-        f"== 原始章节 ==\n{original_content}\n\n"
-        f"== 审稿人评分 ==\n{_json_dump(grade.get('scores', {}))}\n"
-        f"总分：{grade.get('average_score', '?')}\n\n"
-        f"== 修改指令 ==\n{grade.get('revision_instructions', '提升深度')}\n\n"
-        f"== 具体修改建议 ==\n"
+        f"== Original Section ==\n{original_content}\n\n"
+        f"== Reviewer Scores ==\n{_json_dump(grade.get('scores', {}))}\n"
+        f"Total Score: {grade.get('average_score', '?')}\n\n"
+        f"== Revision Instructions ==\n{grade.get('revision_instructions', 'Improve depth')}\n\n"
+        f"== Specific Fix Suggestions ==\n"
         + "\n".join(f"- {fix}" for fix in grade.get("specific_fixes", []))
     )
-    return await _llm_text_call(_REVISE_SECTION_SYSTEM, user)
+    return await _llm_text_call(_REVISE_SECTION_SYSTEM.format(language=language), user)
 
 
 # ===================================================================
@@ -672,71 +701,76 @@ async def _phase_revise_section(
 # ===================================================================
 
 _SUMMARIZE_SECTION_SYSTEM = """\
-你是一位报告编辑助手。请为以下报告章节生成一段精炼摘要。
+You are a report editing assistant. Please generate a concise summary for the following report section.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-要求：
-1. 3-5 句话概括章节核心内容
-2. 保留最关键的数据点
-3. 提炼主要结论
+Requirements:
+1. Summarize the core content in 3-5 sentences.
+2. Retain the most critical data points.
+3. Distill the main conclusions.
 
-输出纯文本摘要（不要 JSON，不要 Markdown 标题）。"""
+Output pure text summary (no JSON, no Markdown titles)."""
 
 _WRITE_EXEC_SUMMARY_SYSTEM = """\
-你是一位面向高管的报告编辑。基于以下各章节摘要和核心发现，撰写执行摘要。
+You are a report editor for executives. Based on the following section summaries and core findings, write an executive summary.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-要求：
-1. 250-350 字
-2. 第一句必须点明最关键的业务影响（如：获客效率、品牌可见性、市场竞争压力）
-3. 只有当输入中已经出现明确数字时才允许量化；如果缺少可靠数字，必须改用定性判断并说明数据缺口
-4. 明确指出 1-3 个最高优先级行动和建议时间窗口，但不要编造 ROI、流量损失或竞品增速
-5. 添加紧迫性提示，但只能基于输入中已经给出的事实和趋势
-6. 面向CMO决策者，30秒内让人理解"为什么现在必须行动"
+Requirements:
+1. 250-350 words.
+2. The first sentence must point out the most critical business impact (e.g., acquisition efficiency, brand visibility, market competitive pressure).
+3. Quantification is allowed only if explicit numbers have already appeared in the input; if reliable numbers are missing, use qualitative judgment and explain the data gap.
+4. Clearly point out 1-3 highest priority actions and suggested time windows, but do not fabricate ROI, traffic loss, or competitor growth rates.
+5. Add urgency prompts, but only based on facts and trends already given in the input.
+6. Oriented toward CMO decision-makers, making them understand "why action must be taken now" within 30 seconds.
 
-输出纯 Markdown（以 ## 执行摘要 开头）。"""
+Output pure Markdown (starting with ## Executive Summary)."""
 
 _WRITE_INTRO_SYSTEM = """\
-你是一位战略报告编辑。基于以下上下文信息，撰写报告引言。
+You are a strategic report editor. Based on the following context information, write the report introduction.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-要求：
-1. 200-300 字
-2. 不要用"本报告旨在"这类废话
-3. 快速建立上下文：品牌定位、面对什么市场环境、为什么现在需要关注
-4. 语调专业且有紧迫感
+Requirements:
+1. 200-300 words.
+2. Do not use nonsense like "This report aims to...".
+3. Quickly establish context: brand positioning, market environment, why attention is needed now.
+4. Tone should be professional and urgent.
 
-输出纯 Markdown（以 ## 引言 开头）。"""
+Output pure Markdown (starting with ## Introduction)."""
 
 _WRITE_STRATEGY_SYSTEM = """\
-你是一位 CMO 级战略顾问。基于以下各章节分析摘要，提出战略建议与行动路线图。
+You are a CMO-level strategic consultant. Based on the following section analysis summaries, propose strategic recommendations and an action roadmap.
+You MUST respond in {language}. All your analysis and output should be in {language}.
 
-要求：
-1. 500-800 字，分为三个部分
+Requirements:
+1. 500-800 words, divided into three parts.
 
-**第一部分：优先级排序**
-- 列出3-5个关键行动项
-- 按 P0/P1/P2 排序，并说明排序依据
-- 说明依赖关系（如：先修复基础问题，再评估放大动作）
+**Part 1: Prioritization**
+- List 3-5 key action items.
+- Sort by P0/P1/P2 and explain the basis for sorting.
+- Explain dependencies (e.g., fix foundation issues first, then evaluate expansion actions).
 
-**第二部分：30天行动路线图**
-- Week 1-4 的任务分解
-- 每周标注：负责角色、前置条件、验收标准
-- 标明哪些可由 Agent 自动执行 vs 需要人工决策
+**Part 2: 30-Day Action Roadmap**
+- Task breakdown for Weeks 1-4.
+- For each week, specify: responsible role, preconditions, acceptance criteria.
+- Mark which can be automatically executed by Agents vs. requiring human decision-making.
 
-**第三部分：风险与机会**
-- 指出如果不行动会面临什么风险
-- 指出当前最值得把握的机会窗口
-- 只有当输入中已有明确数字时才允许量化；不要编造 ICE 分数、ROI 或未来指标变化
+**Part 3: Risks & Opportunities**
+- Point out what risks will be faced if no action is taken.
+- Point out the most worthwhile opportunity window to seize currently.
+- Quantification is allowed only if explicit numbers already exist in the input; do not fabricate ICE scores, ROI, or future metric changes.
 
-输出纯 Markdown（以 ## 战略建议与行动路线图 开头）。"""
+Output pure Markdown (starting with ## Strategic Recommendations & Action Roadmap)."""
 
 
-async def _summarize_one_section(section: dict, content: str) -> str:
+async def _summarize_one_section(section: dict, content: str, locale: str = "en") -> str:
     """Summarize one section into 3-5 sentences."""
+    language = _get_language(locale)
     user = (
-        f"章节标题：{section.get('title', '?')}\n"
-        f"核心论点：{section.get('thesis', '?')}\n\n"
-        f"== 章节内容 ==\n{content}"
+        f"Section Title: {section.get('title', '?')}\n"
+        f"Core Thesis: {section.get('thesis', '?')}\n\n"
+        f"== Section Content ==\n{content}"
     )
-    return await _llm_text_call(_SUMMARIZE_SECTION_SYSTEM, user)
+    return await _llm_text_call(_SUMMARIZE_SECTION_SYSTEM.format(language=language), user)
 
 
 async def _phase_synthesize(
@@ -744,11 +778,13 @@ async def _phase_synthesize(
     section_contents: list[tuple[dict, str]],
     distilled: dict,
     facts: dict,
+    locale: str = "en",
 ) -> str:
     """Phase 6: Multi-agent synthesis — parallel summarizers, then 3 specialist writers."""
     logger.info("[Pipeline Phase 6] Report Synthesizer — %d sub-agents", len(section_contents) + 3)
 
     project = facts["project"]
+    language = _get_language(locale)
 
     # Step 1: Parallel per-section summarizers with concurrency limit
     logger.info("[Pipeline Phase 6.1] Summarizing %d sections in parallel", len(section_contents))
@@ -756,7 +792,7 @@ async def _phase_synthesize(
 
     async def _bounded_summarize(sec, content):
         async with semaphore:
-            return await _summarize_one_section(sec, content)
+            return await _summarize_one_section(sec, content, locale=locale)
 
     summary_tasks = [_bounded_summarize(sec, content) for sec, content in section_contents]
     summaries = await asyncio.gather(*summary_tasks, return_exceptions=True)
@@ -774,14 +810,14 @@ async def _phase_synthesize(
 
     # Context for all synthesis writers (small — just summaries, not full content)
     synthesis_context = (
-        f"品牌：{project['brand_name']} ({project['category']})\n"
-        f"网址：{project['url']}\n"
-        f"报告标题：{outline.get('report_title', '深度分析报告')}\n"
-        f"叙事线索：{outline.get('narrative_arc', '无')}\n\n"
-        f"核心发现要点：\n"
+        f"Brand: {project['brand_name']} ({project['category']})\n"
+        f"URL: {project['url']}\n"
+        f"Report Title: {outline.get('report_title', 'Deep Analysis Report')}\n"
+        f"Narrative Arc: {outline.get('narrative_arc', 'None')}\n\n"
+        f"Key Finding Points:\n"
         + "\n".join(f"- {p}" for p in distilled.get("executive_summary_points", []))
-        + f"\n\n贯穿主题：{', '.join(distilled.get('cross_cutting_themes', []))}\n\n"
-        f"=== 各章节摘要 ===\n{summaries_text}"
+        + f"\n\nCross-Cutting Themes: {', '.join(distilled.get('cross_cutting_themes', []))}\n\n"
+        f"=== Section Summaries ===\n{summaries_text}"
     )
 
     # Step 2: Run exec summary + intro + strategy writers in parallel with concurrency limit
@@ -791,9 +827,9 @@ async def _phase_synthesize(
         async with semaphore:
             return await coro
 
-    exec_task = _bounded_synthesis(_llm_text_call(_WRITE_EXEC_SUMMARY_SYSTEM, synthesis_context))
-    intro_task = _bounded_synthesis(_llm_text_call(_WRITE_INTRO_SYSTEM, synthesis_context))
-    strategy_task = _bounded_synthesis(_llm_text_call(_WRITE_STRATEGY_SYSTEM, synthesis_context))
+    exec_task = _bounded_synthesis(_llm_text_call(_WRITE_EXEC_SUMMARY_SYSTEM.format(language=language), synthesis_context))
+    intro_task = _bounded_synthesis(_llm_text_call(_WRITE_INTRO_SYSTEM.format(language=language), synthesis_context))
+    strategy_task = _bounded_synthesis(_llm_text_call(_WRITE_STRATEGY_SYSTEM.format(language=language), synthesis_context))
 
     exec_summary, intro, strategy = await asyncio.gather(
         exec_task, intro_task, strategy_task,
@@ -809,7 +845,7 @@ async def _phase_synthesize(
 
     # Step 3: Assemble final report (no LLM needed — just concatenation)
     logger.info("[Pipeline Phase 6.3] Assembling final report")
-    report_title = outline.get("report_title", f"{project['brand_name']} 深度战略分析")
+    report_title = outline.get("report_title", f"{project['brand_name']} Deep Strategic Analysis")
     sections_md = "\n\n".join(content for _, content in section_contents)
 
     final_report = (
@@ -828,14 +864,9 @@ async def _phase_synthesize(
 # ===================================================================
 
 async def run_deep_report_pipeline(
-    facts: dict,
-    meta: dict,
-    previous_exists: bool,
-    *,
-    kind: str = "strategic",
-    on_progress: Any = None,
+    facts: dict, meta: dict, previous_exists: bool, *, kind: str, locale: str = "en", on_progress=None
 ) -> str:
-    """Run the full 6-phase deep report pipeline.
+    """Run the 6-phase multi-agent deep report pipeline.
 
     Args:
         on_progress: Optional callable(dict) for sending progress events.
@@ -843,6 +874,7 @@ async def run_deep_report_pipeline(
     Returns the final Markdown report content.
     Raises on unrecoverable errors (caller should fallback).
     """
+    logger.info("[Deep Report Pipeline] Starting for kind: %s, locale: %s", kind, locale)
     def _emit(phase: str, status: str, summary: str, detail: str = ""):
         if on_progress:
             on_progress({
@@ -859,18 +891,18 @@ async def run_deep_report_pipeline(
 
     # ── Phase 1: Reflection (parallel per-dimension) ──
     _emit("reflection", "running", "Phase 1: Running data quality auditors...")
-    reflection = await _phase_reflect(facts, meta)
+    reflection = await _phase_reflect(facts, meta, locale=locale)
     _emit("reflection", "completed", f"Phase 1 complete: {len(reflection.get('dimensions', {}))} dimensions audited")
 
     # ── Phase 2: Distill insights (parallel per-dimension) ──
     _emit("distillation", "running", "Phase 2: Distilling strategic insights...")
-    distilled = await _phase_distill(facts, meta, reflection)
+    distilled = await _phase_distill(facts, meta, reflection, locale=locale)
     insight_count = len(distilled.get("insights", []))
     _emit("distillation", "completed", f"Phase 2 complete: {insight_count} insights extracted")
 
     # ── Phase 3: Plan outline ──
     _emit("planning", "running", "Phase 3: Planning report structure...")
-    outline = await _phase_plan_outline(facts, distilled, reflection)
+    outline = await _phase_plan_outline(facts, distilled, reflection, locale=locale)
     sections = outline.get("sections", [])
     _emit("planning", "completed", f"Phase 3 complete: {len(sections)} sections planned")
 
@@ -891,10 +923,10 @@ async def run_deep_report_pipeline(
         """Write a section, grade it, revise if needed."""
         section_title = section.get("title", section.get("id", "?"))
         _emit("writing", "running", f"Writing section: {section_title}")
-        content = await _phase_write_section(outline, section, insights_map)
+        content = await _phase_write_section(outline, section, insights_map, locale=locale)
 
         for attempt in range(_MAX_GRADER_RETRIES + 1):
-            grade = await _phase_grade_section(section, content)
+            grade = await _phase_grade_section(section, content, locale=locale)
             if grade.get("grading_unavailable", False):
                 raise RuntimeError(
                     grade.get("revision_instructions", f"Section grading unavailable for {section_title}")
@@ -908,7 +940,7 @@ async def run_deep_report_pipeline(
                     section.get("id", "?"), attempt + 1, _MAX_GRADER_RETRIES,
                 )
                 _emit("grading", "running", f"Revising section: {section_title} (attempt {attempt + 1})")
-                content = await _phase_revise_section(section, content, grade)
+                content = await _phase_revise_section(section, content, grade, locale=locale)
             else:
                 logger.warning(
                     "[Pipeline] Section %s exhausted retries, using last version",
@@ -946,7 +978,7 @@ async def run_deep_report_pipeline(
 
     # ── Phase 6: Synthesize (parallel summarizers + parallel writers) ──
     _emit("synthesis", "running", "Phase 6: Synthesizing final report...")
-    final_report = await _phase_synthesize(outline, completed_sections, distilled, facts)
+    final_report = await _phase_synthesize(outline, completed_sections, distilled, facts, locale=locale)
     _emit("synthesis", "completed", f"Phase 6 complete: {len(final_report)} chars")
 
     logger.info(

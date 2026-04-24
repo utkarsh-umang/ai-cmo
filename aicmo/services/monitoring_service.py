@@ -147,7 +147,7 @@ async def send_project_report(project_id: int) -> dict:
 
 
 async def regenerate_project_report(
-    project_id: int, kind: str, source_run_id: int | None = None, on_progress=None
+    project_id: int, kind: str, source_run_id: int | None = None, locale: str = "en", on_progress=None
 ) -> dict:
     """Generate and persist a strategic or periodic report bundle."""
     project = await storage.get_project(project_id)
@@ -158,11 +158,11 @@ async def regenerate_project_report(
 
     if kind == "strategic":
         return await reports.generate_strategic_report_bundle(
-            project_id, source_run_id=source_run_id, on_progress=on_progress
+            project_id, source_run_id=source_run_id, locale=locale, on_progress=on_progress
         )
     if kind == "periodic":
         return await reports.generate_periodic_report_bundle(
-            project_id, source_run_id=source_run_id, on_progress=on_progress
+            project_id, source_run_id=source_run_id, locale=locale, on_progress=on_progress
         )
     raise ValueError(f"Unsupported report kind: {kind}")
 

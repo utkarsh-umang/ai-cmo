@@ -17,34 +17,40 @@ _REPORT_MODEL_DEFAULT = "gpt-5.4"
 _PERIODIC_WINDOW_DAYS = 7
 _REPORT_LLM_TIMEOUT_SECONDS = 300.0
 _REPORT_SYSTEM_COMMON = (
-    "你是 AI CMO（首席营销官），拥有完整的多智能体营销系统：SEO审计专家、GEO(AI搜索可见性)分析师、"
-    "SERP排名追踪器、社区舆情监控(Reddit/HN/Dev.to/知乎/V2EX/掘金等)、AI引文可信度(Citability)评估引擎、"
-    "AI爬虫检测模块、品牌数字足迹(Brand Presence)扫描器、竞品知识图谱、以及Insights洞察引擎。"
-    "以下事实包(facts)是上述所有智能体在真实运行中采集到的一手数据。\n\n"
-    "【打分与量纲规范（百分制）】\n"
-    "- 系统所有核心健康度指标必须使用严格的 **百分制 (0-100分)** 进行评价和展示：\n"
-    "  - `seo_health_score` (0-100): 综合了技术基础与页面质量的 SEO 评分。\n"
-    "  - `geo_score` (0-100): 综合了提及率与情感倾向的 AI 可见性评分。\n"
-    "  - `engagement_score` (0-100): 经过算法归一化的社区讨论相对潜力和热度。\n"
-    "- 事实包中的 `raw_score` (如 16,525) 代表平台的**绝对物理流量**（播放量/点赞数等），绝对**不能**被用作“评分”，而应解读为具体的“流量表现”与“增长短板”进行交叉对比（例如流量极大但搜索增长极低）。\n\n"
-    "核心原则：\n"
-    "1. 你必须对事实包中的每一类数据进行深入解读，不能遗漏任何智能体的产出。\n"
-    "2. 不要使用含糊的“分数”表述，必须明确说是“SEO百分制健康度”、“社区原始流量表现”等，且不可偏离事实数据。\n"
-    "3. 不是简单罗列数据，而是像真正的 CMO 那样做业务推演——高流量为何不能转化为高排名？对增长有什么影响？应该怎么做？\n"
-    "4. 不要虚构数据；某个维度数据缺失时，明确标注并说明获取方法。\n"
-    "5. 必须使用中文输出，报告要足够深入和详实，像一份面向CEO/投资人级别的商业分析文档。\n"
+    "You are the AI CMO (Chief Marketing Officer), equipped with a comprehensive multi-agent marketing system: "
+    "SEO Audit Expert, GEO (AI Search Visibility) Analyst, SERP Rank Tracker, Community Sentiment Monitor "
+    "(Reddit, HN, Dev.to, Twitter, etc.), AI Citability Assessment Engine, AI Crawler Detection Module, "
+    "Brand Footprint Scanner, Competitive Knowledge Graph, and Insights Engine.\n\n"
+    "The following facts are primary data collected by these agents during real-time operations.\n\n"
+    "[Scoring & Scale Standards (100-point scale)]\n"
+    "- All core health metrics must use a strict **0-100 scale** for evaluation and display:\n"
+    "  - `seo_health_score` (0-100): SEO rating combining technical foundations and page quality.\n"
+    "  - `geo_score` (0-100): AI visibility rating combining mention rate and sentiment.\n"
+    "  - `engagement_score` (0-100): Algorithm-normalized relative potential and heat of community discussions.\n"
+    "- The `raw_score` (e.g., 16,525) in the facts represents the **absolute physical traffic** (views/likes/etc.) and "
+    "must **NOT** be used as a 'score'. Instead, interpret it as specific 'traffic performance' and 'growth bottlenecks' "
+    "in cross-comparison (e.g., high traffic but extremely low search growth).\n\n"
+    "Core Principles:\n"
+    "1. You must deeply interpret every category of data in the facts; do not omit output from any agent.\n"
+    "2. Do not use vague 'score' expressions; specify 'SEO Health Score', 'Community Traffic Performance', etc., "
+    "and do not deviate from factual data.\n"
+    "3. Do not just list data; perform business reasoning like a real CMO—why can't high traffic translate to high rankings? "
+    "What is the impact on growth? What should be done?\n"
+    "4. Do not fabricate data; if data for a dimension is missing, explicitly note it and explain how to obtain it.\n"
+    "5. You must use {language} for the output. The report should be sufficiently deep and detailed, like a "
+    "business analysis document for a CEO/Investor audience.\n"
 )
 _REPORT_EVIDENCE_DISCIPLINE = (
-    "【事实纪律】\n"
-    "- 先写已确认事实，再写推断，最后写建议。\n"
-    "- 你的表达必须区分：事实 / 推断 / 建议。\n"
-    "- 缺失时必须明确标注，不得补造数字、案例、竞品结论或增长结果。\n"
-    "- 当样本稀疏时，降低语气强度，并说明结论的置信度边界。\n"
+    "[Evidence Discipline]\n"
+    "- Write confirmed facts first, then inferences, and finally recommendations.\n"
+    "- Your expression must distinguish between: Fact / Inference / Recommendation.\n"
+    "- Missing data must be explicitly noted; do not fabricate numbers, cases, competitor conclusions, or growth results.\n"
+    "- When samples are sparse, reduce tone intensity and state the confidence boundaries of the conclusion.\n"
 )
 
 
-def _compose_report_system_prompt(*sections: str) -> str:
-    return "".join((_REPORT_SYSTEM_COMMON, _REPORT_EVIDENCE_DISCIPLINE, *sections))
+def _compose_report_system_prompt(language: str, *sections: str) -> str:
+    return "".join((_REPORT_SYSTEM_COMMON.format(language=language), _REPORT_EVIDENCE_DISCIPLINE, *sections))
 
 
 def _json_dump(data: object) -> str:
@@ -83,7 +89,7 @@ def _safe_delta(latest, previous):
 
 def _rank_label(position: int | None) -> str:
     if position is None:
-        return "未排名"
+        return "Not Ranked"
     return f"#{position}"
 
 
@@ -352,71 +358,71 @@ async def _build_strategic_facts(project_id: int) -> tuple[dict, dict]:
 
     strengths: list[str] = []
     if seo_score is not None and seo_score >= 0.8:
-        strengths.append(f"SEO 基础分达到 {round(seo_score * 100)}%，站点健康度较稳。")
+        strengths.append(f"SEO health score reached {round(seo_score * 100)}%, technical foundations are stable.")
     if geo_score is not None and geo_score >= 60:
-        strengths.append(f"GEO 得分 {geo_score}/100，AI 可见性已经形成基础。")
+        strengths.append(f"GEO score is {geo_score}/100, AI visibility foundation has been formed.")
     if community_hits:
-        strengths.append(f"社区侧已发现 {community_hits} 条相关讨论，有可运营的自然信号。")
+        strengths.append(f"Found {community_hits} relevant discussions in communities; organic signals are operational.")
     if serp_latest:
         ranked = [item for item in serp_latest if item.get("position")]
         if ranked:
-            strengths.append(f"已有 {len(ranked)}/{len(serp_latest)} 个关键词进入搜索结果。")
+            strengths.append(f"{len(ranked)}/{len(serp_latest)} tracked keywords have entered search results.")
     if citability_history:
         avg = citability_history[0].get("avg_score")
         if avg and avg >= 0.6:
-            strengths.append(f"AI 引文可信度评分 {round(avg * 100)}%，内容被 AI 引用的潜力较高。")
+            strengths.append(f"AI Citability score is {round(avg * 100)}%, high potential for content to be cited by AI.")
     if brand_presence_history:
         fp = brand_presence_history[0].get("footprint_score")
         if fp and fp >= 60:
-            strengths.append(f"品牌数字足迹分 {fp}/100，线上存在感已初步建立。")
+            strengths.append(f"Brand Digital Footprint score is {fp}/100, online presence is established.")
     if ai_crawler_history:
         blocked = ai_crawler_history[0].get("blocked_count", 0)
         total = ai_crawler_history[0].get("total_crawlers", 14)
         if blocked == 0:
-            strengths.append(f"全部 {total} 个 AI 爬虫均已放行，对 AI 索引完全开放。")
+            strengths.append(f"All {total} AI crawlers are allowed, fully open to AI indexing.")
 
     risks: list[str] = []
     if seo_score is None:
-        risks.append("SEO 基线仍不完整。")
+        risks.append("SEO baseline is still incomplete.")
     elif seo_score < 0.7:
-        risks.append(f"SEO 基础分仅 {round(seo_score * 100)}%，技术面仍拖后腿。")
+        risks.append(f"SEO health score is only {round(seo_score * 100)}%, technical side is lagging.")
     if geo_score is None:
-        risks.append("GEO 数据缺失，AI 渠道认知仍是盲区。")
+        risks.append("GEO data is missing; AI channel awareness is a blind spot.")
     elif geo_score < 45:
-        risks.append(f"GEO 得分 {geo_score}/100，AI 平台认知偏弱。")
+        risks.append(f"GEO score is {geo_score}/100, AI platform recognition is weak.")
     if not competitor_cards:
-        risks.append("竞品画像仍然稀薄。")
+        risks.append("Competitor profiles are still thin.")
     if findings:
-        risks.append(f"最近一次监控仍有 {len(findings)} 条待处理发现。")
+        risks.append(f"The most recent monitoring still has {len(findings)} pending findings.")
     if environment_limitations:
-        risks.append(f"有 {len(environment_limitations)} 条监控限制来自环境或 provider 异常，需谨慎解读。")
+        risks.append(f"There are {len(environment_limitations)} monitoring limitations due to environment or provider issues; interpret with caution.")
     if citability_history:
         avg = citability_history[0].get("avg_score")
         if avg is not None and avg < 0.4:
-            risks.append(f"AI 引文可信度评分仅 {round(avg * 100)}%，内容结构化程度不足以被 AI 引用。")
+            risks.append(f"AI Citability score is only {round(avg * 100)}%; content structure is insufficient for AI citation.")
     if ai_crawler_history:
         blocked = ai_crawler_history[0].get("blocked_count", 0)
         if blocked > 3:
-            risks.append(f"有 {blocked} 个 AI 爬虫被 robots.txt 屏蔽，AI 索引受限。")
+            risks.append(f"{blocked} AI crawlers are blocked by robots.txt, AI indexing is restricted.")
     if brand_presence_history:
         fp = brand_presence_history[0].get("footprint_score")
         if fp is not None and fp < 30:
-            risks.append(f"品牌数字足迹分仅 {fp}/100，线上存在感薄弱。")
+            risks.append(f"Brand Digital Footprint score is only {fp}/100, online presence is weak.")
     # Flag critical/warning insights as risks
     critical_insights = [i for i in insights if i.get("severity") in ("critical", "warning")]
     for ins in critical_insights[:3]:
-        risks.append(f"[{ins['severity'].upper()}] {ins['title']}：{ins['summary']}")
+        risks.append(f"[{ins['severity'].upper()}] {ins['title']}: {ins['summary']}")
 
     change_lines: list[str] = []
     if previous_human:
         if seo_delta is not None:
-            change_lines.append(f"SEO 相比上一版变动 {seo_delta:+.2f}。")
+            change_lines.append(f"SEO changed by {seo_delta:+.2f} compared to the previous version.")
         if geo_delta is not None:
-            change_lines.append(f"GEO 相比上一版变动 {geo_delta:+.0f}。")
+            change_lines.append(f"GEO changed by {geo_delta:+.0f} compared to the previous version.")
         if serp_latest:
             top_keyword = serp_latest[0]
             change_lines.append(
-                f"当前首个跟踪关键词 {top_keyword['keyword']} 排名 {_rank_label(top_keyword.get('position'))}。"
+                f"Current top tracked keyword {top_keyword['keyword']} is ranked {_rank_label(top_keyword.get('position'))}."
             )
 
     facts = {
@@ -457,11 +463,11 @@ async def _build_strategic_facts(project_id: int) -> tuple[dict, dict]:
         "total_data_sources": len(data_sources),
         "low_sample": sample_count < 3,
         "facts_summary": (
-            f"{len(keywords)} 个关键词, {len(competitor_cards)} 个竞品, "
-            f"{len(findings)} 条已验证发现, {len(recommendations)} 条建议, "
-            f"{len(insights)} 条洞察, {len(discussions)} 条社区讨论, "
-            f"{len(citability_history)} 条引文分析, {len(ai_crawler_history)} 条爬虫检测, "
-            f"{len(brand_presence_history)} 条品牌存在感分析"
+            f"{len(keywords)} keywords, {len(competitor_cards)} competitors, "
+            f"{len(findings)} validated findings, {len(recommendations)} recommendations, "
+            f"{len(insights)} insights, {len(discussions)} community discussions, "
+            f"{len(citability_history)} citation analyses, {len(ai_crawler_history)} crawler checks, "
+            f"{len(brand_presence_history)} brand presence analyses"
         ),
         "change_count": len(change_lines),
     }
@@ -542,37 +548,37 @@ async def _build_periodic_facts(
     if seo_history:
         current = seo_history[0].get("score_performance")
         if current is not None:
-            line = f"最新 SEO 分数 {round(current * 100)}%"
+            line = f"Latest SEO Score: {round(current * 100)}%"
             if seo_delta is not None:
-                line += f"，窗口内变动 {seo_delta:+.2f}"
-            top_changes.append(line + "。")
+                line += f", window change: {seo_delta:+.2f}"
+            top_changes.append(line + ".")
     if geo_history:
         current = geo_history[0].get("geo_score")
         if current is not None:
-            line = f"最新 GEO 分数 {current}/100"
+            line = f"Latest GEO Score: {current}/100"
             if geo_delta is not None:
-                line += f"，窗口内变动 {geo_delta:+.0f}"
-            top_changes.append(line + "。")
+                line += f", window change: {geo_delta:+.0f}"
+            top_changes.append(line + ".")
     if community_history:
         current = community_history[0].get("total_hits")
         if current is not None:
-            line = f"最新社区命中 {current} 条"
+            line = f"Latest Community Hits: {current}"
             if community_delta is not None:
-                line += f"，窗口内变动 {community_delta:+.0f}"
-            top_changes.append(line + "。")
+                line += f", window change: {community_delta:+.0f}"
+            top_changes.append(line + ".")
     if serp_latest:
         ranked = [item for item in serp_latest if item.get("position")]
-        top_changes.append(f"当前共有 {len(ranked)}/{len(serp_latest)} 个关键词进入自然搜索结果。")
+        top_changes.append(f"Currently {len(ranked)}/{len(serp_latest)} keywords have entered organic search results.")
     if citability_history:
         avg = citability_history[0].get("avg_score")
         if avg is not None:
-            top_changes.append(f"AI 引文可信度评分 {round(avg * 100)}%。")
+            top_changes.append(f"AI Citability Score: {round(avg * 100)}%.")
     if brand_presence_history:
         fp = brand_presence_history[0].get("footprint_score")
         if fp is not None:
-            top_changes.append(f"品牌数字足迹分 {fp}/100。")
+            top_changes.append(f"Brand Digital Footprint: {fp}/100.")
     if low_sample:
-        top_changes.insert(0, "样本稀疏，以下结论仅供方向判断。")
+        top_changes.insert(0, "Samples are sparse; the following conclusions are for directional judgment only.")
 
     facts = {
         "project": project,
@@ -601,11 +607,11 @@ async def _build_periodic_facts(
         "total_data_sources": len(data_sources),
         "low_sample": low_sample,
         "facts_summary": (
-            f"SEO 样本 {len(seo_history)}, GEO 样本 {len(geo_history)}, "
-            f"Community 样本 {len(community_history)}, SERP 关键词 {len(serp_latest)}, "
-            f"已验证发现 {len(findings)} 条, 环境限制 {len(environment_limitations)} 条, "
-            f"洞察 {len(insights)} 条, 引文分析 {len(citability_history)} 条, "
-            f"爬虫检测 {len(ai_crawler_history)} 条, 品牌存在感 {len(brand_presence_history)} 条"
+            f"SEO samples {len(seo_history)}, GEO samples {len(geo_history)}, "
+            f"Community samples {len(community_history)}, SERP keywords {len(serp_latest)}, "
+            f"validated findings {len(findings)}, environment limitations {len(environment_limitations)}, "
+            f"insights {len(insights)}, citation analyses {len(citability_history)}, "
+            f"crawler checks {len(ai_crawler_history)}, brand presence analyses {len(brand_presence_history)}"
         ),
         "window_days": window_days,
         "window_start": window_start,
@@ -632,121 +638,143 @@ def _failed_report_payload(meta: dict, model: str, *, used_pipeline: bool, llm_e
     }
 
 
-def _prompts(kind: str, audience: str, facts: dict, meta: dict, previous_exists: bool) -> tuple[str, str]:
+def _prompts(kind: str, audience: str, facts: dict, meta: dict, previous_exists: bool, locale: str = "en") -> tuple[str, str]:
     project = facts["project"]
+    language = "English" if locale == "en" else "Chinese"
     if kind == "strategic" and audience == "human":
         system = _compose_report_system_prompt(
-            "你的任务是生成一份极其深入的战略分析报告。输出 Markdown，报告总长度应在 2000-4000 字之间。\n\n"
-            "严格按以下 6 大模块结构生成，每个模块都必须展开详细论述，不能用简短的一两句话敷衍：\n\n"
-            "## 1. 执行摘要与项目定性 (Executive Summary)\n"
-            "  - 一句话定义项目当前所处的增长阶段\n"
-            "  - 从 SEO分数、GEO分数、品牌足迹分、AI引文可信度等多维指标综合评估项目的「数字化健康度」\n"
-            "  - 如果有历史报告，对比版本差异并给出趋势判断\n\n"
-            "## 2. 核心竞争力与优势护城河解析 (Core Competencies)\n"
-            "  - 逐一解读每个优势信号背后的商业含义\n"
-            "  - 分析 AI 引文可信度(Citability)和 AI爬虫放行状态对「被AI推荐」的影响\n"
-            "  - 社区讨论中的正面信号与品牌数字足迹的协同效应\n"
-            "  - SERP排名中已拿下的关键词意味着什么流量机会\n\n"
-            "## 3. 风险扫描与增长短板预警 (Risk Scanning)\n"
-            "  - 逐一深入解读每个风险信号的根因和潜在影响\n"
-            "  - 结合 Insights 洞察系统中的 warning/critical 级别告警做交叉验证\n"
-            "  - 评估哪些风险会直接影响获客转化，哪些是长期隐患\n"
-            "  - 给出风险优先级排序\n\n"
-            "## 4. 竞品全景与流量抢占分析 (Competitive Landscape)\n"
-            "  - 如果有竞品数据和知识图谱数据，做详细的竞品对比分析\n"
-            "  - 关键词重叠与差异化机会\n"
-            "  - SERP中的直接竞争态势\n"
-            "  - 在AI搜索(GEO)中的相对位置\n"
-            "  - 如果竞品数据不完善，指出如何补充\n\n"
-            "## 5. 目标受众与社区舆论洞察 (Audience & Community Sentiment)\n"
-            "  - 分析社区讨论(discussions)的主题和情绪基调\n"
-            "  - 从社区流量来源(Reddit、HN、知乎、V2EX等)推断用户画像\n"
-            "  - 审批队列中的内容产出动势如何\n"
-            "  - 品牌在各个平台上的存在感差异\n\n"
-            "## 6. 下一阶段 CMO 战略规划与具体执行行动 (CMO Strategy & Actions)\n"
-            "  - 基于以上全部分析给出 3-5 个可执行的战略方向\n"
-            "  - 每个方向要具体到：由哪个Agent执行、预期指标变化、实施优先级\n"
-            "  - 给一个清晰的「30天行动路线图」\n"
-            "  - 标明需要人工介入的关键节点\n"
+            language,
+            "Your task is to generate an extremely in-depth strategic analysis report. Output in Markdown. "
+            "The total report length should be between 2000-4000 words.\n\n"
+            "Strictly follow the 6-module structure below. Each module must be discussed in detail; "
+            "do not use short, perfunctory sentences:\n\n"
+            "## 1. Executive Summary & Project Characterization\n"
+            "  - Define the project's current growth stage in one sentence.\n"
+            "  - Comprehensively evaluate the project's 'Digital Health' across metrics like SEO Score, GEO Score, Brand Footprint, AI Citability, etc.\n"
+            "  - If historical reports exist, compare version differences and provide trend judgments.\n\n"
+            "## 2. Core Competencies & Competitive Moat Analysis\n"
+            "  - Interpret the business meaning behind each strength signal.\n"
+            "  - Analyze the impact of AI Citability and AI Crawler status on 'being recommended by AI'.\n"
+            "  - Synergy between positive community signals and brand digital footprint.\n"
+            "  - What traffic opportunities do the keywords already captured in SERP rankings imply?\n\n"
+            "## 3. Risk Scanning & Growth Bottleneck Warning\n"
+            "  - Deeply interpret the root cause and potential impact of each risk signal.\n"
+            "  - Cross-validate with warning/critical alerts in the Insights system.\n"
+            "  - Evaluate which risks directly affect acquisition conversion and which are long-term hidden dangers.\n"
+            "  - Provide a risk priority ranking.\n\n"
+            "## 4. Competitive Landscape & Traffic Hijacking Analysis\n"
+            "  - If competitor and knowledge graph data exist, perform detailed competitive analysis.\n"
+            "  - Keyword overlap and differentiation opportunities.\n"
+            "  - Direct competitive situation in SERP.\n"
+            "  - Relative position in AI Search (GEO).\n"
+            "  - If competitor data is incomplete, specify how to supplement it.\n\n"
+            "## 5. Audience & Community Sentiment Insights\n"
+            "  - Analyze themes and emotional tone of community discussions.\n"
+            "  - Infer user personas from community traffic sources (Reddit, HN, etc.).\n"
+            "  - Assess content output momentum in the approval queue.\n"
+            "  - Differences in brand presence across various platforms.\n\n"
+            "## 6. Next-Phase CMO Strategy & Execution Roadmap\n"
+            "  - Provide 3-5 actionable strategic directions based on all the above analysis.\n"
+            "  - Each direction must specify: Executing Agent, expected metric changes, implementation priority.\n"
+            "  - Provide a clear '30-Day Action Roadmap'.\n"
+            "  - Mark key nodes requiring human intervention.\n"
         )
         user = (
-            f"项目：{project['brand_name']} ({project['category']})\n"
-            f"目标网址：{project['url']}\n"
-            f"版本是否已有历史报告：{previous_exists}\n"
-            f"数据来源覆盖度：{meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} 个数据源有数据\n"
-            f"摘要元数据：{_json_dump(meta)}\n\n"
-            f"=== 完整事实包（来自所有智能体的采集结果）===\n{_json_dump(facts)}"
+            f"Project: {project['brand_name']} ({project['category']})\n"
+            f"Target URL: {project['url']}\n"
+            f"Previous report exists: {previous_exists}\n"
+            f"Data coverage: {meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} data sources active\n"
+            f"Summary Metadata: {_json_dump(meta)}\n\n"
+            f"=== Full Fact Bundle (Collected from all agents) ===\n{_json_dump(facts)}"
         )
         return system, user
 
     if kind == "strategic" and audience == "agent":
         system = _compose_report_system_prompt(
-            "输出 Markdown，这是给 AI Agent 和执行团队的可执行行动简报。结构固定为：\n\n"
-            "## 1. 本周必做（P0）\n"
-            "   - 列出 2-3 个最高优先级任务\n"
-            "   - 每个任务必须写清：动作、负责人（若适用）、完成标准\n"
-            "   - 用自然语言写任务，不要使用占位编号、虚构命令或不存在的系统能力\n\n"
-            "## 2. 本月推进节奏（P1-P2）\n"
-            "   - 按 Week 1-4 给出推进节奏或里程碑\n"
-            "   - 每周写清目标、依赖项、预期产出\n\n"
-            "## 3. 所需配置与依赖\n"
-            "   - 列出需要补齐的配置、数据源或人工决策\n"
-            "   - 如果系统里没有明确可调用的命令或自动化入口，就描述能力需求，不要编造 CLI\n\n"
-            "## 4. 检查点与风险信号\n"
-            "   - 给出 Day 1/7/14 的检查点或观察信号\n"
-            "   - 只有当事实包里已有明确数字时才允许写目标值；否则写成定性检查项\n\n"
-            "## 5. Agent 可自动执行 vs 需人工介入\n"
-            "   - 明确区分哪些动作可由现有 Agent 直接执行，哪些需要人工批准、外部账号或额外工具\n\n"
-            "## 6. 关键数据快照\n"
-            "   - 只引用事实包里已经存在的核心 KPI，不要补造新的量化指标"
+            language,
+            "Output in Markdown. This is an actionable brief for AI Agents and the execution team. "
+            "Structure is fixed as:\n\n"
+            "## 1. Must-Do This Week (P0)\n"
+            "   - List 2-3 highest priority tasks.\n"
+            "   - Each task must clearly state: Action, Owner (if applicable), Completion Criteria.\n"
+            "   - Write tasks in natural language; do not use placeholder numbers, fictional commands, "
+            "or non-existent system capabilities.\n\n"
+            "## 2. Monthly Momentum (P1-P2)\n"
+            "   - Provide momentum or milestones for Weeks 1-4.\n"
+            "   - Each week should state Goal, Dependencies, Expected Output.\n\n"
+            "## 3. Configuration & Dependencies\n"
+            "   - List missing configurations, data sources, or human decisions.\n"
+            "   - If there is no explicit command or automation entry in the system, describe the "
+            "capability requirement; do not fabricate a CLI.\n\n"
+            "## 4. Checkpoints & Risk Signals\n"
+            "   - Provide checkpoints or observation signals for Day 1/7/14.\n"
+            "   - Target values are allowed only if they already exist in the facts; otherwise, write as "
+            "qualitative check items.\n\n"
+            "## 5. Agent Automated vs. Human Intervention\n"
+            "   - Clearly distinguish between actions that existing Agents can perform directly and "
+            "those requiring human approval, external accounts, or additional tools.\n\n"
+            "## 6. Key Data Snapshot\n"
+            "   - Only reference core KPIs that already exist in the facts; do not fabricate new quantitative metrics."
         )
-        user = f"项目战略事实包：\n{_json_dump({'meta': meta, 'facts': facts})}"
+        user = (
+            f"Project: {project['brand_name']} ({project['category']})\n"
+            f"Data coverage: {meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} data sources active\n"
+            f"Summary Metadata: {_json_dump(meta)}\n\n"
+            f"=== Full Fact Bundle (Collected from all agents) ===\n{_json_dump(facts)}"
+        )
         return system, user
 
     if kind == "periodic" and audience == "human":
         system = _compose_report_system_prompt(
-            "你的任务是生成一份深度周报。输出 Markdown，报告总长度应在 1500-3000 字之间。\n\n"
-            "严格按以下结构生成，每个模块都要做深入的业务推导，不能停留在数据罗列层面：\n\n"
-            "## 1. 本周最重要的变化 (Top Changes)\n"
-            "  - 列出 3-5 个最重要的变化，每个变化不仅要说「发生了什么」，还要解释「为什么重要」「对增长意味着什么」\n"
-            "  - 如果有 AI引文可信度、品牌数字足迹的变化也要覆盖\n\n"
-            "## 2. 多维度趋势深度分析 (SEO/GEO/SERP/Community/Citability/Brand Presence)\n"
-            "  - 对每个有数据的维度做趋势诊断（上升/下降/持平），并分析走势背后的原因\n"
-            "  - 做跨维度关联分析：例如 SEO得分下降是否影响了SERP排名？社区讨论增加是否推动了GEO可见性？\n"
-            "  - AI爬虫放行状态有无变化？AI引文可信度的趋势如何？\n\n"
-            "## 3. 本周新增风险与亮点 (Risks & Wins)\n"
-            "  - 结合 Insights 洞察系统的告警做深入解读\n"
-            "  - 风险要给出具体影响评估和缓解建议\n"
-            "  - 亮点要说明如何扩大战果\n\n"
-            "## 4. 竞品与市场信号变化 (Competitive & Market Signals)\n"
-            "  - 社区讨论中有无竞品相关的新动向\n"
-            "  - SERP排名中竞品的排名变化\n"
-            "  - 审批队列中的内容产出情况\n\n"
-            "## 5. 下周战略焦点与执行计划 (Next Week Strategy)\n"
-            "  - 给出 3-5 个具体的下周行动项\n"
-            "  - 每个行动项标明负责的Agent和预期结果\n"
-            "  - 标注需要人工决策的事项\n\n"
-            "样本稀疏时，必须在报告开头显式标注置信度。"
+            language,
+            "Your task is to generate an in-depth weekly report. Output in Markdown. "
+            "Total report length should be between 1500-3000 words.\n\n"
+            "Strictly follow the structure below. Perform deep business derivation for each module; "
+            "do not stop at the data listing level:\n\n"
+            "## 1. Most Important Changes This Week (Top Changes)\n"
+            "  - List 3-5 most important changes. For each, explain not just 'what happened', "
+            "but 'why it matters' and 'what it means for growth'.\n"
+            "  - Coverage should include changes in AI Citability and Brand Footprint.\n\n"
+            "## 2. Deep Multi-Dimensional Trend Analysis (SEO/GEO/SERP/Community/Citability/Footprint)\n"
+            "  - Perform trend diagnosis (Up/Down/Flat) for each dimension with data and analyze the underlying reasons.\n"
+            "  - Conduct cross-dimensional correlation analysis: e.g., did a drop in SEO score affect SERP rankings? "
+            "Did an increase in community discussion drive GEO visibility?\n"
+            "  - Any changes in AI Crawler status? What is the trend for AI Citability?\n\n"
+            "## 3. New Risks & Wins This Week\n"
+            "  - Deeply interpret alerts from the Insights system.\n"
+            "  - For risks, provide specific impact assessments and mitigation suggestions.\n"
+            "  - For wins, explain how to expand on the results.\n\n"
+            "## 4. Competitive & Market Signal Changes\n"
+            "  - Any new competitor-related movements in community discussions.\n"
+            "  - Competitor rank changes in SERP.\n"
+            "  - Status of content output in the approval queue.\n\n"
+            "## 5. Next Week's Strategic Focus & Execution Plan (Next Week Strategy)\n"
+            "  - Provide 3-5 specific action items for next week.\n"
+            "  - Mark the responsible Agent and expected result for each item.\n"
+            "  - Note items requiring human decision-making.\n\n"
+            "Explicitly mark confidence at the beginning of the report when samples are sparse."
         )
         user = (
-            f"项目：{project['brand_name']} ({project['category']})\n"
-            f"统计窗口：{meta.get('window_start', '未知')} 到 {meta.get('window_end', '未知')}\n"
-            f"数据来源覆盖度：{meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} 个数据源有数据\n"
-            f"元数据：{_json_dump(meta)}\n\n"
-            f"=== 完整事实包（来自所有智能体的采集结果）===\n{_json_dump(facts)}"
+            f"Project: {project['brand_name']} ({project['category']})\n"
+            f"Statistical window: {meta.get('window_start', 'Unknown')} to {meta.get('window_end', 'Unknown')}\n"
+            f"Data coverage: {meta.get('sample_count', 0)}/{meta.get('total_data_sources', 0)} data sources active\n"
+            f"Metadata: {_json_dump(meta)}\n\n"
+            f"=== Full Fact Bundle (Collected from all agents) ===\n{_json_dump(facts)}"
         )
         return system, user
 
     # periodic / agent
     system = _compose_report_system_prompt(
-        "输出 Markdown，保持像给执行 Agent 的周度行动简报。结构固定为：\n"
-        "1. 项目与置信度\n"
-        "2. 本周关键指标快照\n"
-        "3. 下周重点目标\n"
-        "4. 优先方向与 Agent 分工\n"
-        "5. 护栏与禁止事项"
+        language,
+        "Output in Markdown, maintaining a weekly action brief style for execution Agents. "
+        "Structure is fixed as:\n"
+        "1. Project & Confidence\n"
+        "2. Key Metrics Snapshot This Week\n"
+        "3. Top Objectives for Next Week\n"
+        "4. Priority Directions & Agent Task Allocation\n"
+        "5. Guardrails & Prohibited Items"
     )
-    user = f"周期报告事实包：\n{_json_dump({'meta': meta, 'facts': facts})}"
+    user = f"Periodic report fact bundle:\n{_json_dump({'meta': meta, 'facts': facts})}"
     return system, user
 
 
@@ -757,6 +785,7 @@ async def _generate_report_record(
     facts: dict,
     meta: dict,
     previous_exists: bool,
+    locale: str = "en",
     on_progress=None,
 ) -> dict:
     used_pipeline = False
@@ -775,6 +804,7 @@ async def _generate_report_record(
 
             content = await run_deep_report_pipeline(
                 facts, meta, previous_exists, kind=kind,
+                locale=locale,
                 on_progress=on_progress,
             )
             used_pipeline = True
@@ -788,7 +818,7 @@ async def _generate_report_record(
             )
             # Fallback to single-call LLM
             try:
-                system_prompt, user_prompt = _prompts(kind, audience, facts, meta, previous_exists)
+                system_prompt, user_prompt = _prompts(kind, audience, facts, meta, previous_exists, locale=locale)
                 content, fallback_model = await _generate_llm_markdown_with_empty_retry(
                     system_prompt,
                     user_prompt,
@@ -809,7 +839,7 @@ async def _generate_report_record(
                 )
     else:
         # Agent brief — single-call path
-        system_prompt, user_prompt = _prompts(kind, audience, facts, meta, previous_exists)
+        system_prompt, user_prompt = _prompts(kind, audience, facts, meta, previous_exists, locale=locale)
         try:
             content, fallback_model = await _generate_llm_markdown_with_empty_retry(
                 system_prompt,
@@ -857,6 +887,7 @@ async def _persist_bundle(
     window_end: str | None,
     facts: dict,
     meta: dict,
+    locale: str = "en",
     on_progress=None,
 ) -> dict:
     previous_human = await storage.get_latest_report(project_id, kind, "human")
@@ -867,6 +898,7 @@ async def _persist_bundle(
             facts=facts,
             meta=meta,
             previous_exists=bool(previous_human),
+            locale=locale,
             on_progress=on_progress,
         ),
         "agent": await _generate_report_record(
@@ -875,6 +907,7 @@ async def _persist_bundle(
             facts=facts,
             meta=meta,
             previous_exists=bool(previous_human),
+            locale=locale,
         ),
     }
     created = await storage.create_report_bundle(
@@ -890,7 +923,7 @@ async def _persist_bundle(
     return payload
 
 
-async def generate_strategic_report_bundle(project_id: int, source_run_id: int | None = None, on_progress=None) -> dict:
+async def generate_strategic_report_bundle(project_id: int, source_run_id: int | None = None, on_progress=None, **kwargs) -> dict:
     """Generate and persist the latest strategic report bundle."""
     facts, meta = await _build_strategic_facts(project_id)
     return await _persist_bundle(
@@ -901,6 +934,7 @@ async def generate_strategic_report_bundle(project_id: int, source_run_id: int |
         window_end=None,
         facts=facts,
         meta=meta,
+        locale=kwargs.get("locale", "en"),
         on_progress=on_progress,
     )
 
@@ -912,6 +946,7 @@ async def generate_periodic_report_bundle(
     now: datetime | None = None,
     window_days: int = _PERIODIC_WINDOW_DAYS,
     on_progress=None,
+    **kwargs,
 ) -> dict:
     """Generate and persist the latest periodic report bundle."""
     facts, meta = await _build_periodic_facts(project_id, now=now, window_days=window_days)
@@ -923,5 +958,6 @@ async def generate_periodic_report_bundle(
         window_end=meta["window_end"],
         facts=facts,
         meta=meta,
+        locale=kwargs.get("locale", "en"),
         on_progress=on_progress,
     )

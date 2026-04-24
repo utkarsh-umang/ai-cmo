@@ -1110,7 +1110,7 @@ async def run_monitoring_workflow(
                     await _bg_service.enqueue_task(
                         kind="report",
                         project_id=project_id,
-                        payload={"project_id": project_id, "kind": "strategic", "source_run_id": run_id},
+                        payload={"project_id": project_id, "kind": "strategic", "source_run_id": run_id, "locale": locale},
                         dedupe_key=dedupe_key,
                     )
                     await _emit(run_id, on_progress, _event(

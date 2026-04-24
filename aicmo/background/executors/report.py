@@ -52,6 +52,7 @@ async def run_report_executor(ctx) -> None:
             payload["project_id"],
             payload["kind"],
             source_run_id=payload.get("source_run_id"),
+            locale=payload.get("locale", "en"),
             on_progress=on_progress,
         )
         human_report = result.get("human")

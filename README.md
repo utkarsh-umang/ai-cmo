@@ -5,19 +5,8 @@
 <h1 align="center">AI-CMO</h1>
 
 <p align="center">
-  <strong>AI-CMO is an open-source growth system that unifies SEO, GEO, SERP, and community monitoring.</strong><br/>
-  <sub>Built for open-source projects and developer products. See where your project is discovered, discussed, and compared — then turn those signals into reports, briefs, approvals, and actions.</sub>
-</p>
-
-<div align="center">
-  <a href="README.md">English</a> | <a href="README_zh.md">中文</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a> | <a href="README_es.md">Español</a>
-</div>
-
-<p align="center">
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg?style=for-the-badge" alt="License"></a>
-  <a href="https://github.com/study8677/AI-CMO/stargazers"><img src="https://img.shields.io/github/stars/study8677/AI-CMO?style=for-the-badge&color=yellow&logo=github" alt="Stars"></a>
-  <img src="https://img.shields.io/badge/react-SPA-61DAFB.svg?style=for-the-badge&logo=react" alt="React SPA">
+  <strong>AI-CMO is a growth system that unifies SEO, GEO, SERP, and community monitoring.</strong><br/>
+  <sub>See where your project is discovered, discussed, and compared — then turn those signals into reports, briefs, approvals, and actions.</sub>
 </p>
 
 
@@ -26,6 +15,49 @@
 ## 📖 Documentation
 
 - **[Agent Orchestration Guide](AGENT_ORCHESTRATION.md)** — Learn how the 6-stage pipeline works and meet our specialist agents.
+
+---
+
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
+
+The easiest way to run AI-CMO is using Docker, which automatically builds and runs both the React frontend and the Python backend in a single unified container.
+
+1. Configure your environment:
+   ```bash
+   cp .env.example .env
+   ```
+2. Add your API keys to the `.env` file (e.g., `OPENAI_API_KEY`).
+3. Start the application:
+   ```bash
+   docker-compose up --build -d
+   ```
+4. Access the web dashboard at `http://localhost:8080/app`.
+
+### Local Development
+
+**1. Backend Setup**
+```bash
+# Install dependencies
+pip install -e ".[all]"
+crawl4ai-setup
+
+# Configure environment
+cp .env.example .env
+
+# Start the backend server
+aicmo-web
+```
+*Note: You can also use the interactive CLI chatbot by running `aicmo`.*
+
+**2. Frontend Setup**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The frontend dev server will start at `http://localhost:5173`.
 
 ---
 
@@ -135,52 +167,3 @@ graph TD
 8. **Enhanced Security**: Transition from `.env` files to a secure secrets manager (e.g., **AWS Secrets Manager** or **HashiCorp Vault**) and implement **OAuth2/OpenID Connect** for enterprise-grade user authentication.
 
 ---
-
-## 🛠️ Getting Started (Local Development)
-
-AI-CMO works with OpenAI-compatible APIs, including OpenAI, DeepSeek, NVIDIA NIM, and Ollama.
-
-```bash
-git clone https://github.com/study8677/AI-CMO.git
-cd AI-CMO
-pip install -e ".[all]"
-crawl4ai-setup
-
-cp .env.example .env
-aicmo-web
-```
-
-Then open `http://localhost:8080`.
-
-<details>
-<summary>Frontend development (optional)</summary>
-
-```bash
-cd frontend
-npm install
-npm run dev
-npm run build
-```
-
-The dev app runs at `http://localhost:5173` and proxies API traffic to `:8080`.
-
-</details>
-
----
-
-## 🤝 Roadmap & Community
-
-- [x] AI CMO strategic scan
-- [x] Multi-agent deep report pipeline (6-phase)
-- [x] 3D knowledge graph & Approval queue
-- [x] Full i18n support (EN/ZH/JA/KO/ES)
-- [ ] Distributed worker support (Celery/Temporal)
-- [ ] Enterprise SEO deeper crawls
-- [ ] Brand voice controls
-
-For the full list of contributors and more details, see [CONTRIBUTORS.md](CONTRIBUTORS.md).
-
----
-
-## 📜 License
-Apache 2.0 License. See [LICENSE](LICENSE) for details.

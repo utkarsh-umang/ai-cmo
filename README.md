@@ -1,16 +1,4 @@
-<div align="center">
-  <img src="assets/logo.png" alt="AI-CMO Logo" width="120" />
-</div>
-
 <h1 align="center">AI-CMO</h1>
-
-<p align="center">
-  <strong>AI-CMO is a growth system that unifies SEO, GEO, SERP, and community monitoring.</strong><br/>
-  <sub>See where your project is discovered, discussed, and compared — then turn those signals into reports, briefs, approvals, and actions.</sub>
-</p>
-
-
----
 
 ## 📖 Documentation
 

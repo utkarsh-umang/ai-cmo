@@ -1,13 +1,11 @@
 import { useAllTasks } from "../../hooks/useTasks";
-import { Loader2, Activity, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useI18n } from "../../i18n";
 import { useState } from "react";
 import { AnalysisDialog } from "../monitors/AnalysisDialog";
 
 export function GlobalTaskMonitor() {
   const { data: tasks } = useAllTasks();
-  const { t } = useI18n();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 

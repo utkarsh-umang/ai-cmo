@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Check, Clock3, ExternalLink, MessageSquare, Send, X, Calendar } from "lucide-react";
+import { Bot, Check, ExternalLink, MessageSquare, Send, X, Calendar } from "lucide-react";
 import { utcDate } from "../../utils/time";
 import type { ApprovalRecord } from "../../types";
 import { useI18n } from "../../i18n";

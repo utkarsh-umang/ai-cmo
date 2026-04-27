@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Info, Bot, MessageSquare } from "lucide-react";
+import { X, Info, MessageSquare } from "lucide-react";
 import { useI18n } from "../../i18n";
 
 interface ActionDetailModalProps {
@@ -82,7 +82,7 @@ export function ActionDetailModal({
                   onClick={onClose}
                   className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 transition-colors"
                 >
-                  {t("common.close")}
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={onDiscuss}

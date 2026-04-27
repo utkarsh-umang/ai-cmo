@@ -1,4 +1,4 @@
-import { Bot, MessageSquare, ExternalLink } from "lucide-react";
+import { Bot, MessageSquare } from "lucide-react";
 import type { ApprovalRecord } from "../../types";
 import { useI18n } from "../../i18n";
 
